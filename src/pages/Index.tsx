@@ -19,24 +19,19 @@ const REELS = [
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 p-6 relative overflow-hidden">
-      {/* Background Effects */}
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-800 to-blue-900 bg-[length:200%_200%] animate-gradient p-6 relative overflow-hidden">
+      {/* Enhanced Background Effects */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-20 right-20 w-96 h-96 bg-purple-400/20 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-20 left-20 w-96 h-96 bg-blue-400/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-indigo-400/15 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute top-10 right-10 w-96 h-96 bg-gradient-to-r from-purple-400/30 to-pink-400/30 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-10 left-10 w-96 h-96 bg-gradient-to-r from-blue-400/30 to-indigo-400/30 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+        <div className="absolute top-1/3 left-1/3 w-72 h-72 bg-gradient-to-r from-pink-400/20 to-purple-400/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute bottom-1/3 right-1/3 w-80 h-80 bg-gradient-to-r from-indigo-400/25 to-blue-400/25 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '3s' }} />
       </div>
 
       {/* Content Container */}
-      <div className="relative z-10 h-screen flex flex-col">
-        {/* Header */}
-        <div className="text-center py-8">
-          <h1 className="text-4xl font-bold text-white mb-2">Neotrix Reels</h1>
-          <p className="text-white/70">Experience the visual journey</p>
-        </div>
-
+      <div className="relative z-10 h-screen flex flex-col justify-center">
         {/* Glassmorphism Video Container */}
-        <div className="flex-1 flex gap-6 max-w-7xl mx-auto w-full">
+        <div className="flex gap-6 max-w-7xl mx-auto w-full h-[80vh]">
           {/* Left Reel */}
           <div className="flex-1 bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20 overflow-hidden shadow-2xl hover:bg-white/15 transition-all duration-500">
             <VideoPlayer

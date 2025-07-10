@@ -127,7 +127,7 @@ export const VideoPlayer = ({ src, title, author, isActive }: VideoPlayerProps) 
 
 
   return (
-    <div className="relative w-full h-full bg-black overflow-hidden rounded-3xl">{/* Changed from h-screen to h-full and added rounded corners */}
+    <div className="relative w-full h-full bg-white/5 backdrop-blur-md overflow-hidden rounded-3xl border border-white/10">{/* Changed from black to glassmorphism */}
       {/* Video Element or YouTube Iframe */}
       {isYouTube ? (
         <iframe
@@ -190,32 +190,7 @@ export const VideoPlayer = ({ src, title, author, isActive }: VideoPlayerProps) 
 
         {/* Right Side - Action Buttons */}
         <div className="flex flex-col items-center space-y-4">
-          {/* More Button */}
-          <div className="flex flex-col items-center">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300"
-            >
-              <MoreVertical className="w-6 h-6 text-white" />
-            </Button>
-          </div>
-
-          {/* Mute/Unmute Button */}
-          <div className="flex flex-col items-center">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300"
-              onClick={toggleMute}
-            >
-              {isMuted ? (
-                <VolumeX className="w-6 h-6 text-white" />
-              ) : (
-                <Volume2 className="w-6 h-6 text-white" />
-              )}
-            </Button>
-          </div>
+          {/* More Button - Removed */}
         </div>
       </div>
     </div>

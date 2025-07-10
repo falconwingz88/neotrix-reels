@@ -14,6 +14,12 @@ const REELS = [
     src: 'https://www.youtube.com/watch?v=at7JQLqKE90',
     title: 'Liquid Compilation',
     author: 'neotrix.asia'
+  },
+  {
+    id: '3',
+    src: 'https://youtu.be/dDYHSj54Wn0',
+    title: 'Animation Reels',
+    author: 'neotrix.asia'
   }
 ];
 
@@ -30,10 +36,10 @@ const Index = () => {
 
       {/* Content Container */}
       <div className="relative z-10 h-screen flex flex-col justify-center">
-        {/* Glassmorphism Video Container */}
-        <div className="flex gap-6 max-w-7xl mx-auto w-full h-[80vh]">
-          {/* Left Reel */}
-          <div className="flex-1 bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20 overflow-hidden shadow-2xl hover:bg-white/15 transition-all duration-500">
+        {/* Video Layout */}
+        <div className="flex flex-col gap-6 max-w-7xl mx-auto w-full h-[80vh]">
+          {/* Top Video - Neotrix Reels 2024 */}
+          <div className="h-1/2 bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20 overflow-hidden shadow-2xl hover:bg-white/15 transition-all duration-500">
             <VideoPlayer
               src={REELS[0].src}
               title={REELS[0].title}
@@ -42,14 +48,27 @@ const Index = () => {
             />
           </div>
 
-          {/* Right Reel */}
-          <div className="flex-1 bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20 overflow-hidden shadow-2xl hover:bg-white/15 transition-all duration-500">
-            <VideoPlayer
-              src={REELS[1].src}
-              title={REELS[1].title}
-              author={REELS[1].author}
-              isActive={true}
-            />
+          {/* Bottom Row - Two videos side by side */}
+          <div className="flex gap-6 h-1/2">
+            {/* Liquid Compilation */}
+            <div className="flex-1 bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20 overflow-hidden shadow-2xl hover:bg-white/15 transition-all duration-500">
+              <VideoPlayer
+                src={REELS[1].src}
+                title={REELS[1].title}
+                author={REELS[1].author}
+                isActive={true}
+              />
+            </div>
+
+            {/* Animation Reels */}
+            <div className="flex-1 bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20 overflow-hidden shadow-2xl hover:bg-white/15 transition-all duration-500">
+              <VideoPlayer
+                src={REELS[2].src}
+                title={REELS[2].title}
+                author={REELS[2].author}
+                isActive={true}
+              />
+            </div>
           </div>
         </div>
 

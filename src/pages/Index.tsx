@@ -26,20 +26,26 @@ const REELS = [
 const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-800 to-blue-900 bg-[length:200%_200%] animate-gradient p-6 relative overflow-hidden">
-      {/* Enhanced Background Effects */}
+      {/* Enhanced Background Effects with Bouncing Circles */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-10 right-10 w-96 h-96 bg-gradient-to-r from-purple-400/30 to-pink-400/30 rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-10 left-10 w-96 h-96 bg-gradient-to-r from-blue-400/30 to-indigo-400/30 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
         <div className="absolute top-1/3 left-1/3 w-72 h-72 bg-gradient-to-r from-pink-400/20 to-purple-400/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
         <div className="absolute bottom-1/3 right-1/3 w-80 h-80 bg-gradient-to-r from-indigo-400/25 to-blue-400/25 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '3s' }} />
+        
+        {/* Bouncing Circle Shapes */}
+        <div className="absolute top-20 left-1/4 w-32 h-32 bg-gradient-to-r from-cyan-400/20 to-blue-400/20 rounded-full blur-2xl animate-bounce" style={{ animationDuration: '4s', animationDelay: '0.5s' }} />
+        <div className="absolute bottom-32 right-1/4 w-24 h-24 bg-gradient-to-r from-pink-400/25 to-purple-400/25 rounded-full blur-2xl animate-bounce" style={{ animationDuration: '5s', animationDelay: '1.5s' }} />
+        <div className="absolute top-1/2 right-20 w-40 h-40 bg-gradient-to-r from-indigo-400/15 to-violet-400/15 rounded-full blur-2xl animate-bounce" style={{ animationDuration: '6s', animationDelay: '2.5s' }} />
+        <div className="absolute bottom-1/4 left-16 w-28 h-28 bg-gradient-to-r from-emerald-400/20 to-teal-400/20 rounded-full blur-2xl animate-bounce" style={{ animationDuration: '4.5s', animationDelay: '3s' }} />
       </div>
 
       {/* Content Container */}
-      <div className="relative z-10 h-screen flex flex-col justify-center">
+      <div className="relative z-10 min-h-screen flex flex-col py-8">
         {/* Video Layout */}
-        <div className="flex flex-col gap-6 max-w-7xl mx-auto w-full h-[80vh]">
-          {/* Top Video - Neotrix Reels 2024 */}
-          <div className="h-1/2 bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20 overflow-hidden shadow-2xl hover:bg-white/15 transition-all duration-500">
+        <div className="flex flex-col gap-6 max-w-7xl mx-auto w-full">
+          {/* Top Video - Neotrix Reels 2024 (Bigger) */}
+          <div className="h-[70vh] bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20 overflow-hidden shadow-2xl hover:bg-white/15 transition-all duration-500">
             <VideoPlayer
               src={REELS[0].src}
               title={REELS[0].title}
@@ -49,7 +55,7 @@ const Index = () => {
           </div>
 
           {/* Bottom Row - Two videos side by side */}
-          <div className="flex gap-6 h-1/2">
+          <div className="flex gap-6 h-[50vh]">
             {/* Liquid Compilation */}
             <div className="flex-1 bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20 overflow-hidden shadow-2xl hover:bg-white/15 transition-all duration-500">
               <VideoPlayer

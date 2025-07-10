@@ -23,7 +23,7 @@ const isYouTubeUrl = (url: string): boolean => {
 const getYouTubeEmbedUrl = (url: string): string => {
   const videoId = getYouTubeVideoId(url);
   if (!videoId) return url;
-  return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&showinfo=0&rel=0&modestbranding=1`;
+  return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&showinfo=0&rel=0&modestbranding=1&hd=1&vq=hd1080`;
 };
 
 interface VideoPlayerProps {
@@ -127,7 +127,7 @@ export const VideoPlayer = ({ src, title, author, isActive }: VideoPlayerProps) 
 
 
   return (
-    <div className="relative w-full h-screen bg-black overflow-hidden">
+    <div className="relative w-full h-full bg-black overflow-hidden rounded-3xl">{/* Changed from h-screen to h-full and added rounded corners */}
       {/* Video Element or YouTube Iframe */}
       {isYouTube ? (
         <iframe

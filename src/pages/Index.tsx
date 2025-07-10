@@ -1,72 +1,133 @@
 import { Button } from '@/components/ui/button';
-import { Play, Sparkles } from 'lucide-react';
+import { Play, Heart, MessageCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+
+const videos = [
+  {
+    id: 1,
+    title: 'Liquid Compilation v003',
+    duration: '2:45',
+    likes: 12400,
+    comments: 348,
+    thumbnail: '/api/placeholder/400/600'
+  },
+  {
+    id: 2,
+    title: 'Neotrix Compilation with Liquid',
+    duration: '4:12',
+    likes: 8750,
+    comments: 192,
+    thumbnail: '/api/placeholder/400/600'
+  },
+  {
+    id: 3,
+    title: 'Neotrix Showreel',
+    duration: '3:28',
+    likes: 15200,
+    comments: 427,
+    thumbnail: '/api/placeholder/400/600'
+  }
+];
 
 const Index = () => {
   const navigate = useNavigate();
 
+  const formatNumber = (num: number): string => {
+    if (num >= 1000000) {
+      return (num / 1000000).toFixed(1) + 'M';
+    } else if (num >= 1000) {
+      return (num / 1000).toFixed(1) + 'K';
+    }
+    return num.toString();
+  };
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/10 relative overflow-hidden">
       {/* Background Effects */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/20 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-accent/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute top-20 right-20 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-20 left-20 w-96 h-96 bg-accent/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-primary/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
       </div>
 
-      <div className="relative z-10 text-center max-w-2xl mx-auto px-6">
-        {/* Main Logo/Icon */}
-        <div className="mb-8 relative">
-          <div className="w-24 h-24 mx-auto bg-gradient-primary rounded-2xl shadow-glow flex items-center justify-center mb-6 transform hover:scale-105 transition-transform duration-300">
-            <Sparkles className="w-12 h-12 text-white" />
-          </div>
-          <h1 className="text-5xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-4">
-            Neotrix Studio
-          </h1>
-          <p className="text-xl text-muted-foreground leading-relaxed">
-            Experience stunning visual effects and creative showcases
-          </p>
+      {/* Glass Morphism Container */}
+      <div className="relative z-10 container mx-auto px-6 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          {videos.map((video, index) => (
+            <div
+              key={video.id}
+              className="group cursor-pointer"
+              onClick={() => navigate('/reels')}
+            >
+              {/* Glass Card */}
+              <div className="relative bg-white/10 backdrop-blur-xl rounded-3xl p-6 border border-white/20 shadow-2xl hover:bg-white/15 hover:border-white/30 transition-all duration-500 hover:scale-105 hover:shadow-glow">
+                {/* Video Thumbnail */}
+                <div className="relative aspect-[9/16] rounded-2xl overflow-hidden mb-4 bg-gradient-to-br from-primary/20 via-accent/10 to-primary/30">
+                  {/* Play Button Overlay */}
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300">
+                    <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/30 group-hover:scale-110 transition-transform duration-300">
+                      <Play className="w-8 h-8 text-white ml-1" />
+                    </div>
+                  </div>
+                  
+                  {/* Duration Badge */}
+                  <div className="absolute bottom-3 right-3 bg-black/60 backdrop-blur-sm rounded-lg px-2 py-1">
+                    <span className="text-white text-sm font-medium">{video.duration}</span>
+                  </div>
+
+                  {/* Gradient Placeholder */}
+                  <div className="w-full h-full bg-gradient-to-br from-primary/30 via-accent/20 to-primary/40 flex items-center justify-center">
+                    <div className="text-center text-white/80">
+                      <Play className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm font-medium opacity-75">Video {index + 1}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Video Info */}
+                <div className="space-y-3">
+                  <h3 className="text-white font-semibold text-lg leading-tight line-clamp-2 group-hover:text-primary-glow transition-colors duration-300">
+                    {video.title}
+                  </h3>
+
+                  {/* Stats */}
+                  <div className="flex items-center justify-between text-white/70">
+                    <div className="flex items-center space-x-4">
+                      <div className="flex items-center space-x-1">
+                        <Heart className="w-4 h-4" />
+                        <span className="text-sm font-medium">{formatNumber(video.likes)}</span>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <MessageCircle className="w-4 h-4" />
+                        <span className="text-sm font-medium">{formatNumber(video.comments)}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Watch Button */}
+                  <Button 
+                    className="w-full bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/30 backdrop-blur-sm rounded-xl transition-all duration-300 group-hover:bg-gradient-primary group-hover:border-primary/50"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate('/reels');
+                    }}
+                  >
+                    <Play className="w-4 h-4 mr-2" />
+                    Watch Now
+                  </Button>
+                </div>
+
+                {/* Glass Reflection Effect */}
+                <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+              </div>
+            </div>
+          ))}
         </div>
 
-        {/* Call to Action */}
-        <div className="space-y-4">
-          <Button
-            onClick={() => navigate('/reels')}
-            size="lg"
-            className="bg-gradient-primary hover:opacity-90 text-white font-semibold py-4 px-8 rounded-full shadow-glow transform hover:scale-105 transition-all duration-300 group"
-          >
-            <Play className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-300" />
-            Watch Reels
-          </Button>
-          
-          <p className="text-sm text-muted-foreground">
-            Swipe or use arrow keys to navigate between videos
-          </p>
-        </div>
-
-        {/* Features */}
-        <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-          <div className="p-6 rounded-xl bg-card/50 backdrop-blur-sm border border-border/50 hover:bg-card/80 transition-colors duration-300">
-            <div className="w-12 h-12 bg-primary/20 rounded-lg mx-auto mb-3 flex items-center justify-center">
-              <Sparkles className="w-6 h-6 text-primary" />
-            </div>
-            <h3 className="font-semibold mb-2">Visual Effects</h3>
-            <p className="text-sm text-muted-foreground">Stunning liquid and motion graphics</p>
-          </div>
-
-          <div className="p-6 rounded-xl bg-card/50 backdrop-blur-sm border border-border/50 hover:bg-card/80 transition-colors duration-300">
-            <div className="w-12 h-12 bg-primary/20 rounded-lg mx-auto mb-3 flex items-center justify-center">
-              <Play className="w-6 h-6 text-primary" />
-            </div>
-            <h3 className="font-semibold mb-2">Compilations</h3>
-            <p className="text-sm text-muted-foreground">Curated collections of best work</p>
-          </div>
-
-          <div className="p-6 rounded-xl bg-card/50 backdrop-blur-sm border border-border/50 hover:bg-card/80 transition-colors duration-300">
-            <div className="w-12 h-12 bg-primary/20 rounded-lg mx-auto mb-3 flex items-center justify-center">
-              <Sparkles className="w-6 h-6 text-primary" />
-            </div>
-            <h3 className="font-semibold mb-2">Showreels</h3>
-            <p className="text-sm text-muted-foreground">Professional portfolio showcases</p>
+        {/* Bottom Glass Navigation */}
+        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
+          <div className="bg-white/10 backdrop-blur-xl rounded-2xl px-6 py-3 border border-white/20 shadow-xl">
+            <p className="text-white/80 text-sm font-medium">Tap any video to start watching</p>
           </div>
         </div>
       </div>

@@ -14,12 +14,6 @@ const videos = [
     title: 'Neotrix Compilation with Liquid',
     duration: '4:12',
     thumbnail: '/api/placeholder/400/600'
-  },
-  {
-    id: 3,
-    title: 'Neotrix Showreel',
-    duration: '3:28',
-    thumbnail: '/api/placeholder/400/600'
   }
 ];
 

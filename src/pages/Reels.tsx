@@ -15,7 +15,7 @@ interface Reel {
 const DEMO_REELS: Reel[] = [
   {
     id: '1',
-    src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', // Replace with actual video URL
+    src: 'https://youtu.be/tlpjTqTaj_Y',
     title: 'Liquid Compilation v003',
     author: 'neotrix_studio'
   },
@@ -23,12 +23,6 @@ const DEMO_REELS: Reel[] = [
     id: '2',
     src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4', // Replace with actual video URL
     title: 'Neotrix Compilation with Liquid',
-    author: 'neotrix_studio'
-  },
-  {
-    id: '3',
-    src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4', // Replace with actual video URL
-    title: 'Neotrix Showreel',
     author: 'neotrix_studio'
   }
 ];

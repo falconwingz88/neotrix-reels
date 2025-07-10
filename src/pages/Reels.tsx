@@ -16,13 +16,13 @@ const DEMO_REELS: Reel[] = [
   {
     id: '1',
     src: 'https://youtu.be/tlpjTqTaj_Y',
-    title: 'Liquid Compilation v003',
+    title: 'Neotrix Reels 2024',
     author: 'neotrix_studio'
   },
   {
     id: '2',
-    src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4', // Replace with actual video URL
-    title: 'Neotrix Compilation with Liquid',
+    src: 'https://youtu.be/at7JQLqKE90',
+    title: 'Liquid Compilation',
     author: 'neotrix_studio'
   }
 ];

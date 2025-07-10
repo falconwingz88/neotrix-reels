@@ -5,13 +5,13 @@ import { useNavigate } from 'react-router-dom';
 const videos = [
   {
     id: 1,
-    title: 'Liquid Compilation v003',
+    title: 'Neotrix Reels 2024',
     duration: '2:45',
     thumbnail: '/api/placeholder/400/600'
   },
   {
     id: 2,
-    title: 'Neotrix Compilation with Liquid',
+    title: 'Liquid Compilation',
     duration: '4:12',
     thumbnail: '/api/placeholder/400/600'
   }

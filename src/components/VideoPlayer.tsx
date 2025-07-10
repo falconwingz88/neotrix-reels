@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Play, Pause, Volume2, VolumeX, MoreVertical } from 'lucide-react';
+import { Play, Pause, Volume2, VolumeX, MoreVertical, Maximize } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 // Utility function to detect and convert YouTube URLs
@@ -125,6 +125,19 @@ export const VideoPlayer = ({ src, title, author, isActive }: VideoPlayerProps) 
     setIsMuted(video.muted);
   };
 
+  const toggleFullscreen = () => {
+    const element = isYouTube ? iframeRef.current?.parentElement : videoRef.current?.parentElement;
+    if (!element) return;
+
+    if (!document.fullscreenElement) {
+      element.requestFullscreen().catch(err => {
+        console.log(`Error attempting to enable fullscreen: ${err.message}`);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  };
+
 
   return (
     <div className="relative w-full h-full bg-white/5 backdrop-blur-md overflow-hidden rounded-3xl border border-white/10">{/* Changed from black to glassmorphism */}
@@ -190,7 +203,15 @@ export const VideoPlayer = ({ src, title, author, isActive }: VideoPlayerProps) 
 
         {/* Right Side - Action Buttons */}
         <div className="flex flex-col items-center space-y-4">
-          {/* More Button - Removed */}
+          {/* Fullscreen Button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="w-12 h-12 rounded-full bg-black/30 backdrop-blur-sm border border-white/20 hover:bg-black/50 transition-all duration-300"
+            onClick={toggleFullscreen}
+          >
+            <Maximize className="w-5 h-5 text-white" />
+          </Button>
         </div>
       </div>
     </div>

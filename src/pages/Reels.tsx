@@ -11,19 +11,19 @@ interface Reel {
   author: string;
 }
 
-// Using direct video URLs - replace these with your actual video URLs
+// Using direct video URLs - YouTube URLs need to be converted to direct video files
 const DEMO_REELS: Reel[] = [
   {
     id: '1',
-    src: 'https://youtu.be/tlpjTqTaj_Y',
+    src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', // Placeholder - replace with direct video URL
     title: 'Neotrix Reels 2024',
-    author: 'neotrix_studio'
+    author: 'neotrix.asia'
   },
   {
     id: '2',
-    src: 'https://youtu.be/at7JQLqKE90',
+    src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4', // Placeholder - replace with direct video URL
     title: 'Liquid Compilation',
-    author: 'neotrix_studio'
+    author: 'neotrix.asia'
   }
 ];
 

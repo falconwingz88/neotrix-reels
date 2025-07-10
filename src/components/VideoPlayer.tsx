@@ -1,21 +1,18 @@
 import { useState, useRef, useEffect } from 'react';
-import { Play, Pause, Volume2, VolumeX, Heart, MessageCircle, Share, MoreVertical } from 'lucide-react';
+import { Play, Pause, Volume2, VolumeX, MoreVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface VideoPlayerProps {
   src: string;
   title: string;
   author: string;
-  likes: number;
-  comments: number;
   isActive: boolean;
 }
 
-export const VideoPlayer = ({ src, title, author, likes, comments, isActive }: VideoPlayerProps) => {
+export const VideoPlayer = ({ src, title, author, isActive }: VideoPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [progress, setProgress] = useState(0);
-  const [isLiked, setIsLiked] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [duration, setDuration] = useState(0);
 
@@ -82,18 +79,6 @@ export const VideoPlayer = ({ src, title, author, likes, comments, isActive }: V
     setIsMuted(video.muted);
   };
 
-  const handleLike = () => {
-    setIsLiked(!isLiked);
-  };
-
-  const formatNumber = (num: number): string => {
-    if (num >= 1000000) {
-      return (num / 1000000).toFixed(1) + 'M';
-    } else if (num >= 1000) {
-      return (num / 1000).toFixed(1) + 'K';
-    }
-    return num.toString();
-  };
 
   return (
     <div className="relative w-full h-screen bg-black overflow-hidden">
@@ -147,50 +132,6 @@ export const VideoPlayer = ({ src, title, author, likes, comments, isActive }: V
 
         {/* Right Side - Action Buttons */}
         <div className="flex flex-col items-center space-y-4">
-          {/* Like Button */}
-          <div className="flex flex-col items-center">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300"
-              onClick={handleLike}
-            >
-              <Heart 
-                className={`w-6 h-6 transition-colors duration-300 ${
-                  isLiked ? 'text-red-500 fill-red-500' : 'text-white'
-                }`} 
-              />
-            </Button>
-            <span className="text-white text-xs mt-1 font-medium">
-              {formatNumber(likes + (isLiked ? 1 : 0))}
-            </span>
-          </div>
-
-          {/* Comment Button */}
-          <div className="flex flex-col items-center">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300"
-            >
-              <MessageCircle className="w-6 h-6 text-white" />
-            </Button>
-            <span className="text-white text-xs mt-1 font-medium">
-              {formatNumber(comments)}
-            </span>
-          </div>
-
-          {/* Share Button */}
-          <div className="flex flex-col items-center">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300"
-            >
-              <Share className="w-6 h-6 text-white" />
-            </Button>
-          </div>
-
           {/* More Button */}
           <div className="flex flex-col items-center">
             <Button

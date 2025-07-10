@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Play, Heart, MessageCircle } from 'lucide-react';
+import { Play } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const videos = [
@@ -7,39 +7,24 @@ const videos = [
     id: 1,
     title: 'Liquid Compilation v003',
     duration: '2:45',
-    likes: 12400,
-    comments: 348,
     thumbnail: '/api/placeholder/400/600'
   },
   {
     id: 2,
     title: 'Neotrix Compilation with Liquid',
     duration: '4:12',
-    likes: 8750,
-    comments: 192,
     thumbnail: '/api/placeholder/400/600'
   },
   {
     id: 3,
     title: 'Neotrix Showreel',
     duration: '3:28',
-    likes: 15200,
-    comments: 427,
     thumbnail: '/api/placeholder/400/600'
   }
 ];
 
 const Index = () => {
   const navigate = useNavigate();
-
-  const formatNumber = (num: number): string => {
-    if (num >= 1000000) {
-      return (num / 1000000).toFixed(1) + 'M';
-    } else if (num >= 1000) {
-      return (num / 1000).toFixed(1) + 'K';
-    }
-    return num.toString();
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-400 to-blue-500 relative overflow-hidden">
@@ -89,20 +74,6 @@ const Index = () => {
                   <h3 className="text-black font-bold text-lg leading-tight line-clamp-2 group-hover:text-purple-800 transition-colors duration-300">
                     {video.title}
                   </h3>
-
-                  {/* Stats */}
-                  <div className="flex items-center justify-between text-black/80">
-                    <div className="flex items-center space-x-4">
-                      <div className="flex items-center space-x-1">
-                        <Heart className="w-4 h-4 text-red-500" />
-                        <span className="text-sm font-medium">{formatNumber(video.likes)}</span>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <MessageCircle className="w-4 h-4 text-blue-600" />
-                        <span className="text-sm font-medium">{formatNumber(video.comments)}</span>
-                      </div>
-                    </div>
-                  </div>
 
                   {/* Watch Button */}
                   <Button 

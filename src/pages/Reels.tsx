@@ -9,34 +9,27 @@ interface Reel {
   src: string;
   title: string;
   author: string;
-  likes: number;
-  comments: number;
 }
 
+// Using direct video URLs - replace these with your actual video URLs
 const DEMO_REELS: Reel[] = [
   {
     id: '1',
-    src: 'https://drive.google.com/uc?export=download&id=1rc8h_M3_IluqZhp_sqAHlTxfJiC_r5gg', // Placeholder - would need actual video URLs
-    title: 'Liquid Compilation - Amazing Visual Effects',
-    author: 'neotrix_studio',
-    likes: 12400,
-    comments: 348
+    src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', // Replace with actual video URL
+    title: 'Liquid Compilation v003',
+    author: 'neotrix_studio'
   },
   {
     id: '2',
-    src: 'https://drive.google.com/uc?export=download&id=1rc8h_M3_IluqZhp_sqAHlTxfJiC_r5gg', // Placeholder - would need actual video URLs
-    title: 'Neotrix Compilation with Liquid Effects',
-    author: 'neotrix_studio',
-    likes: 8750,
-    comments: 192
+    src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4', // Replace with actual video URL
+    title: 'Neotrix Compilation with Liquid',
+    author: 'neotrix_studio'
   },
   {
     id: '3',
-    src: 'https://drive.google.com/uc?export=download&id=1rc8h_M3_IluqZhp_sqAHlTxfJiC_r5gg', // Placeholder - would need actual video URLs
-    title: 'Neotrix Showreel - Creative Showcase',
-    author: 'neotrix_studio',
-    likes: 15200,
-    comments: 427
+    src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4', // Replace with actual video URL
+    title: 'Neotrix Showreel',
+    author: 'neotrix_studio'
   }
 ];
 
@@ -157,8 +150,6 @@ const Reels = () => {
                 src={reel.src}
                 title={reel.title}
                 author={reel.author}
-                likes={reel.likes}
-                comments={reel.comments}
                 isActive={index === currentIndex}
               />
             </div>

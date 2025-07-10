@@ -21,7 +21,7 @@ const DEMO_REELS: Reel[] = [
   },
   {
     id: '2',
-    src: 'https://youtu.be/at7JQLqKE90',
+    src: 'https://www.youtube.com/watch?v=at7JQLqKE90',
     title: 'Liquid Compilation',
     author: 'neotrix.asia'
   }
@@ -29,18 +29,16 @@ const DEMO_REELS: Reel[] = [
 
 const Reels = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [touchStart, setTouchStart] = useState<number | null>(null);
-  const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
   // Handle keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowUp') {
+      if (e.key === 'ArrowLeft') {
         e.preventDefault();
         handlePrevious();
-      } else if (e.key === 'ArrowDown') {
+      } else if (e.key === 'ArrowRight') {
         e.preventDefault();
         handleNext();
       }
@@ -62,48 +60,6 @@ const Reels = () => {
     }
   };
 
-  // Touch handlers for swipe navigation
-  const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchEnd(null);
-    setTouchStart(e.targetTouches[0].clientY);
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientY);
-  };
-
-  const handleTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
-    
-    const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > 50;
-    const isRightSwipe = distance < -50;
-
-    if (isLeftSwipe) {
-      handleNext();
-    }
-    if (isRightSwipe) {
-      handlePrevious();
-    }
-  };
-
-  // Mouse wheel navigation
-  useEffect(() => {
-    const handleWheel = (e: WheelEvent) => {
-      e.preventDefault();
-      if (e.deltaY > 0) {
-        handleNext();
-      } else {
-        handlePrevious();
-      }
-    };
-
-    const container = containerRef.current;
-    if (container) {
-      container.addEventListener('wheel', handleWheel, { passive: false });
-      return () => container.removeEventListener('wheel', handleWheel);
-    }
-  }, [currentIndex]);
 
   return (
     <div className="relative w-full h-screen bg-black overflow-hidden">
@@ -125,17 +81,11 @@ const Reels = () => {
       </div>
 
       {/* Video Container */}
-      <div
-        ref={containerRef}
-        className="relative w-full h-full"
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-      >
+      <div ref={containerRef} className="relative w-full h-full">
         <div
-          className="flex flex-col transition-transform duration-500 ease-out"
+          className="flex transition-transform duration-500 ease-out"
           style={{
-            transform: `translateY(-${currentIndex * 100}vh)`,
+            transform: `translateX(-${currentIndex * 100}vw)`,
           }}
         >
           {DEMO_REELS.map((reel, index) => (
@@ -152,13 +102,13 @@ const Reels = () => {
       </div>
 
       {/* Navigation Indicators */}
-      <div className="absolute right-4 top-1/2 transform -translate-y-1/2 z-50">
-        <div className="flex flex-col space-y-2">
+      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-50">
+        <div className="flex space-x-2">
           {DEMO_REELS.map((_, index) => (
             <button
               key={index}
               onClick={() => setCurrentIndex(index)}
-              className={`w-1 h-8 rounded-full transition-all duration-300 ${
+              className={`w-8 h-1 rounded-full transition-all duration-300 ${
                 index === currentIndex
                   ? 'bg-gradient-primary shadow-glow'
                   : 'bg-white/30'
@@ -167,15 +117,6 @@ const Reels = () => {
           ))}
         </div>
       </div>
-
-      {/* Swipe Instruction (shown briefly) */}
-      {currentIndex === 0 && (
-        <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 z-50 animate-fade-in">
-          <div className="bg-black/50 backdrop-blur-sm rounded-full px-4 py-2">
-            <p className="text-white/80 text-sm">Swipe up for next video</p>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

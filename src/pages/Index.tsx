@@ -1,8 +1,7 @@
 import { VideoPlayer } from '@/components/VideoPlayer';
 import { ProjectsBrowser } from '@/components/ProjectsBrowser';
 import { ClientLogos } from '@/components/ClientLogos';
-import { Instagram } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Footer } from '@/components/Footer';
 
 const REELS = [
   {
@@ -14,7 +13,7 @@ const REELS = [
   {
     id: '2',
     src: 'https://www.youtube.com/watch?v=at7JQLqKE90',
-    title: 'Liquid Compilation',
+    title: 'Liquid Reels',
     author: 'neotrix.asia'
   },
   {
@@ -36,26 +35,26 @@ const Index = () => {
         <div className="absolute top-1/3 left-1/3 w-72 h-72 bg-gradient-to-r from-pink-400/15 to-purple-400/15 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '1s' }} />
         <div className="absolute bottom-1/3 right-1/3 w-80 h-80 bg-gradient-to-r from-indigo-400/20 to-blue-400/20 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '3s' }} />
         
-        {/* Enhanced Bouncing Circle Shapes - Faster and More */}
-        <div className="absolute top-20 left-1/4 w-32 h-32 bg-gradient-to-r from-cyan-400/15 to-blue-400/15 rounded-full blur-xl animate-bounce" style={{ animationDuration: '2s', animationDelay: '0.5s' }} />
-        <div className="absolute bottom-32 right-1/4 w-24 h-24 bg-gradient-to-r from-pink-400/20 to-purple-400/20 rounded-full blur-xl animate-bounce" style={{ animationDuration: '2.5s', animationDelay: '1.5s' }} />
-        <div className="absolute top-1/2 right-20 w-40 h-40 bg-gradient-to-r from-indigo-400/12 to-violet-400/12 rounded-full blur-xl animate-bounce" style={{ animationDuration: '3s', animationDelay: '2.5s' }} />
-        <div className="absolute bottom-1/4 left-16 w-28 h-28 bg-gradient-to-r from-emerald-400/15 to-teal-400/15 rounded-full blur-xl animate-bounce" style={{ animationDuration: '2.2s', animationDelay: '3s' }} />
+        {/* Enhanced Bouncing Circle Shapes - Clear (No Blur) */}
+        <div className="absolute top-20 left-1/4 w-32 h-32 bg-gradient-to-r from-cyan-400/15 to-blue-400/15 rounded-full animate-bounce" style={{ animationDuration: '2s', animationDelay: '0.5s' }} />
+        <div className="absolute bottom-32 right-1/4 w-24 h-24 bg-gradient-to-r from-pink-400/20 to-purple-400/20 rounded-full animate-bounce" style={{ animationDuration: '2.5s', animationDelay: '1.5s' }} />
+        <div className="absolute top-1/2 right-20 w-40 h-40 bg-gradient-to-r from-indigo-400/12 to-violet-400/12 rounded-full animate-bounce" style={{ animationDuration: '3s', animationDelay: '2.5s' }} />
+        <div className="absolute bottom-1/4 left-16 w-28 h-28 bg-gradient-to-r from-emerald-400/15 to-teal-400/15 rounded-full animate-bounce" style={{ animationDuration: '2.2s', animationDelay: '3s' }} />
         
-        {/* More Bouncing Circles - Faster */}
-        <div className="absolute top-3/4 left-1/2 w-36 h-36 bg-gradient-to-r from-orange-400/12 to-red-400/12 rounded-full blur-xl animate-bounce" style={{ animationDuration: '2.8s', animationDelay: '4s' }} />
-        <div className="absolute top-1/4 right-1/3 w-20 h-20 bg-gradient-to-r from-yellow-400/15 to-orange-400/15 rounded-full blur-lg animate-bounce" style={{ animationDuration: '1.8s', animationDelay: '1s' }} />
-        <div className="absolute bottom-1/2 right-10 w-44 h-44 bg-gradient-to-r from-violet-400/10 to-purple-400/10 rounded-full blur-xl animate-bounce" style={{ animationDuration: '3.5s', animationDelay: '0.8s' }} />
-        <div className="absolute top-10 left-1/2 w-32 h-32 bg-gradient-to-r from-lime-400/12 to-green-400/12 rounded-full blur-xl animate-bounce" style={{ animationDuration: '2.4s', animationDelay: '2.2s' }} />
-        <div className="absolute bottom-20 left-1/3 w-26 h-26 bg-gradient-to-r from-rose-400/18 to-pink-400/18 rounded-full blur-lg animate-bounce" style={{ animationDuration: '3.1s', animationDelay: '3.5s' }} />
+        {/* More Bouncing Circles - Clear */}
+        <div className="absolute top-3/4 left-1/2 w-36 h-36 bg-gradient-to-r from-orange-400/12 to-red-400/12 rounded-full animate-bounce" style={{ animationDuration: '2.8s', animationDelay: '4s' }} />
+        <div className="absolute top-1/4 right-1/3 w-20 h-20 bg-gradient-to-r from-yellow-400/15 to-orange-400/15 rounded-full animate-bounce" style={{ animationDuration: '1.8s', animationDelay: '1s' }} />
+        <div className="absolute bottom-1/2 right-10 w-44 h-44 bg-gradient-to-r from-violet-400/10 to-purple-400/10 rounded-full animate-bounce" style={{ animationDuration: '3.5s', animationDelay: '0.8s' }} />
+        <div className="absolute top-10 left-1/2 w-32 h-32 bg-gradient-to-r from-lime-400/12 to-green-400/12 rounded-full animate-bounce" style={{ animationDuration: '2.4s', animationDelay: '2.2s' }} />
+        <div className="absolute bottom-20 left-1/3 w-26 h-26 bg-gradient-to-r from-rose-400/18 to-pink-400/18 rounded-full animate-bounce" style={{ animationDuration: '3.1s', animationDelay: '3.5s' }} />
         
-        {/* Extra Bouncing Balls */}
-        <div className="absolute top-40 right-1/4 w-30 h-30 bg-gradient-to-r from-teal-400/16 to-cyan-400/16 rounded-full blur-lg animate-bounce" style={{ animationDuration: '1.9s', animationDelay: '0.3s' }} />
-        <div className="absolute bottom-40 left-1/4 w-22 h-22 bg-gradient-to-r from-amber-400/14 to-yellow-400/14 rounded-full blur-md animate-bounce" style={{ animationDuration: '2.1s', animationDelay: '1.2s' }} />
-        <div className="absolute top-1/3 left-10 w-35 h-35 bg-gradient-to-r from-fuchsia-400/13 to-pink-400/13 rounded-full blur-xl animate-bounce" style={{ animationDuration: '2.7s', animationDelay: '0.7s' }} />
-        <div className="absolute bottom-1/3 right-1/2 w-28 h-28 bg-gradient-to-r from-sky-400/15 to-blue-400/15 rounded-full blur-lg animate-bounce" style={{ animationDuration: '1.7s', animationDelay: '2.8s' }} />
-        <div className="absolute top-2/3 right-16 w-33 h-33 bg-gradient-to-r from-green-400/14 to-emerald-400/14 rounded-full blur-xl animate-bounce" style={{ animationDuration: '2.6s', animationDelay: '1.8s' }} />
-        <div className="absolute bottom-16 left-1/2 w-25 h-25 bg-gradient-to-r from-red-400/17 to-orange-400/17 rounded-full blur-md animate-bounce" style={{ animationDuration: '2.3s', animationDelay: '0.9s' }} />
+        {/* Extra Clear Bouncing Balls */}
+        <div className="absolute top-40 right-1/4 w-30 h-30 bg-gradient-to-r from-teal-400/16 to-cyan-400/16 rounded-full animate-bounce" style={{ animationDuration: '1.9s', animationDelay: '0.3s' }} />
+        <div className="absolute bottom-40 left-1/4 w-22 h-22 bg-gradient-to-r from-amber-400/14 to-yellow-400/14 rounded-full animate-bounce" style={{ animationDuration: '2.1s', animationDelay: '1.2s' }} />
+        <div className="absolute top-1/3 left-10 w-35 h-35 bg-gradient-to-r from-fuchsia-400/13 to-pink-400/13 rounded-full animate-bounce" style={{ animationDuration: '2.7s', animationDelay: '0.7s' }} />
+        <div className="absolute bottom-1/3 right-1/2 w-28 h-28 bg-gradient-to-r from-sky-400/15 to-blue-400/15 rounded-full animate-bounce" style={{ animationDuration: '1.7s', animationDelay: '2.8s' }} />
+        <div className="absolute top-2/3 right-16 w-33 h-33 bg-gradient-to-r from-green-400/14 to-emerald-400/14 rounded-full animate-bounce" style={{ animationDuration: '2.6s', animationDelay: '1.8s' }} />
+        <div className="absolute bottom-16 left-1/2 w-25 h-25 bg-gradient-to-r from-red-400/17 to-orange-400/17 rounded-full animate-bounce" style={{ animationDuration: '2.3s', animationDelay: '0.9s' }} />
       </div>
 
       {/* Content Container */}
@@ -86,7 +85,7 @@ const Index = () => {
 
           {/* Bottom Row - Two videos side by side (Constrained to 16:9) */}
           <div className="flex gap-6 max-w-6xl mx-auto w-full">
-            {/* Liquid Compilation */}
+            {/* Liquid Reels */}
             <div className="flex-1 aspect-video bg-white/10 backdrop-blur-sm rounded-3xl border border-white/20 overflow-hidden shadow-2xl hover:bg-white/15 transition-all duration-500">
               <VideoPlayer
                 src={REELS[1].src}
@@ -108,19 +107,6 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Instagram Button */}
-        <div className="flex justify-center py-8">
-          <Button
-            variant="outline"
-            size="lg"
-            className="bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 hover:border-white/30 transition-all duration-300 rounded-full px-8 py-6"
-            onClick={() => window.open('https://instagram.com/neotrix.asia', '_blank')}
-          >
-            <Instagram className="w-6 h-6 mr-3" />
-            Follow @neotrix.asia
-          </Button>
-        </div>
-
         {/* Client Logos */}
         <div className="max-w-7xl mx-auto w-full py-8">
           <ClientLogos />
@@ -130,6 +116,9 @@ const Index = () => {
         <div className="max-w-7xl mx-auto w-full py-8">
           <ProjectsBrowser />
         </div>
+
+        {/* Footer */}
+        <Footer />
       </div>
     </div>
   );

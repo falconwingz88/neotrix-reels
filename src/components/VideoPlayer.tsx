@@ -164,8 +164,10 @@ export const VideoPlayer = ({ src, title, author, isActive }: VideoPlayerProps) 
         />
       )}
 
-      {/* Overlay Gradient */}
-      <div className="absolute inset-0 bg-gradient-reels pointer-events-none" />
+      {/* Subtle overlay for better text readability, only when needed */}
+      <div className={`absolute inset-0 bg-gradient-reels pointer-events-none transition-opacity duration-300 ${
+        isPlaying ? 'opacity-50' : 'opacity-80'
+      }`} />
 
       {/* Play/Pause Overlay */}
       {!isPlaying && (

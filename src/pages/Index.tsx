@@ -95,7 +95,7 @@ const Index = () => {
               Innovate. Animate. Elevate.
             </p>
           </div>
-          <div className="aspect-video bg-white/15 backdrop-blur-sm rounded-3xl border border-white/30 overflow-hidden shadow-2xl hover:bg-white/20 transition-all duration-500 max-w-6xl mx-auto ring-2 ring-white/10">
+          <div className="aspect-video bg-white/15 backdrop-blur-sm rounded-3xl border border-white/30 overflow-hidden shadow-2xl hover:bg-white/20 transition-all duration-500 max-w-7xl mx-auto ring-2 ring-white/10">
             <VideoPlayer
               src={REELS[0].src}
               title={REELS[0].title}
@@ -110,7 +110,7 @@ const Index = () => {
           <h2 className="text-3xl font-bold text-white text-center mb-6">More From Our Portfolio</h2>
 
           {/* Bottom Row - Two videos side by side (Constrained to 16:9) */}
-          <div className="flex gap-6 max-w-6xl mx-auto w-full">
+          <div className="flex gap-6 max-w-7xl mx-auto w-full">
             {/* Liquid Reels */}
             <div className="flex-1 aspect-video bg-white/10 backdrop-blur-sm rounded-3xl border border-white/20 overflow-hidden shadow-2xl hover:bg-white/15 transition-all duration-500">
               <VideoPlayer

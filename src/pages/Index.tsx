@@ -59,7 +59,7 @@ const Index = () => {
                 height: `${baseSize}px`,
                 left: `${left}%`,
                 top: `${top}%`,
-                filter: 'blur(25%)',
+                filter: 'blur(25px)',
                 animation: `float-${i % 8} ${12 + (i * 1.5)}s ease-in-out infinite`
               }}
             />

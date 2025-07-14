@@ -14,7 +14,7 @@ export const ProjectDetailModal = ({ project, onClose }: ProjectDetailModalProps
     <div className="fixed inset-0 z-50 bg-black/20 backdrop-blur-xl animate-fade-in" onClick={onClose}>
       {/* Modal Content - Enhanced Glassmorphism */}
       <div 
-        className="absolute inset-4 bg-gradient-to-br from-purple-900 via-pink-800 to-blue-900 rounded-3xl border border-white/20 shadow-2xl overflow-hidden animate-scale-in"
+        className="absolute inset-8 max-w-5xl mx-auto bg-gradient-to-br from-purple-900 via-pink-800 to-blue-900 rounded-3xl border border-white/20 shadow-2xl overflow-hidden animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -51,8 +51,8 @@ export const ProjectDetailModal = ({ project, onClose }: ProjectDetailModalProps
         </div>
 
         {/* Content */}
-        <div className="p-8 overflow-y-auto" style={{ height: 'calc(100% - 320px)' }}>
-          <div className="space-y-8">
+        <div className="p-6 pb-4 overflow-y-auto" style={{ height: 'calc(100% - 320px)' }}>
+          <div className="space-y-6">
             {/* Project Video */}
             <div>
                 <div className="aspect-video bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 overflow-hidden shadow-xl">

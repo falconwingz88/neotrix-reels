@@ -138,7 +138,7 @@ export const ProjectsBrowser = () => {
 
   return (
     <>
-      <div className="bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20 p-8 shadow-2xl">
+      <div className="bg-white/10 backdrop-blur-md rounded-3xl border border-white/20 p-8 shadow-2xl">
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-white mb-2">Our Projects</h2>
           <p className="text-white/70">Explore our creative portfolio and behind-the-scenes stories</p>
@@ -192,7 +192,7 @@ export const ProjectsBrowser = () => {
           </div>
         </div>
 
-        {/* Projects Grid - Simplified to show only large thumbnails with titles */}
+        {/* Projects Grid - Expanded to show thumbnails with titles and description */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredProjects.map((project, index) => (
             <div
@@ -210,13 +210,16 @@ export const ProjectsBrowser = () => {
                   alt={project.title}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
                 
-                {/* Only show title over the image */}
-                <div className="absolute bottom-4 left-4 right-4">
-                  <h3 className="text-xl font-bold text-white group-hover:text-purple-200 transition-colors">
+                {/* Title and description */}
+                <div className="absolute bottom-0 left-0 right-0 p-4">
+                  <h3 className="text-xl font-bold text-white group-hover:text-purple-200 transition-colors mb-2">
                     {project.title}
                   </h3>
+                  <p className="text-white/80 text-sm line-clamp-2 leading-relaxed">
+                    {project.description}
+                  </p>
                 </div>
               </div>
             </div>

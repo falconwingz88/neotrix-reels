@@ -47,7 +47,7 @@ const Index = () => {
         {/* Video Layout */}
         <div className="flex flex-col gap-6 max-w-7xl mx-auto w-full">
           {/* Top Video - Neotrix Reels 2024 (Bigger) */}
-          <div className="h-[70vh] bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20 overflow-hidden shadow-2xl hover:bg-white/15 transition-all duration-500">
+          <div className="h-[70vh] bg-white/10 backdrop-blur-md rounded-3xl border border-white/20 overflow-hidden shadow-2xl hover:bg-white/15 transition-all duration-500">
             <VideoPlayer
               src={REELS[0].src}
               title={REELS[0].title}
@@ -59,7 +59,7 @@ const Index = () => {
           {/* Bottom Row - Two videos side by side */}
           <div className="flex gap-6 h-[50vh]">
             {/* Liquid Compilation */}
-            <div className="flex-1 bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20 overflow-hidden shadow-2xl hover:bg-white/15 transition-all duration-500">
+            <div className="flex-1 bg-white/10 backdrop-blur-md rounded-3xl border border-white/20 overflow-hidden shadow-2xl hover:bg-white/15 transition-all duration-500">
               <VideoPlayer
                 src={REELS[1].src}
                 title={REELS[1].title}
@@ -69,7 +69,7 @@ const Index = () => {
             </div>
 
             {/* Animation Reels */}
-            <div className="flex-1 bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20 overflow-hidden shadow-2xl hover:bg-white/15 transition-all duration-500">
+            <div className="flex-1 bg-white/10 backdrop-blur-md rounded-3xl border border-white/20 overflow-hidden shadow-2xl hover:bg-white/15 transition-all duration-500">
               <VideoPlayer
                 src={REELS[2].src}
                 title={REELS[2].title}

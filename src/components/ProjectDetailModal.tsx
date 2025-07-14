@@ -11,15 +11,15 @@ interface ProjectDetailModalProps {
 
 export const ProjectDetailModal = ({ project, onClose }: ProjectDetailModalProps) => {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 animate-fade-in">
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/70 backdrop-blur-sm animate-fade-in"
         onClick={onClose}
       />
       
-      {/* Modal Content - Much bigger now */}
-      <div className="relative bg-gradient-to-br from-purple-900/95 via-pink-800/95 to-blue-900/95 backdrop-blur-xl rounded-3xl border border-white/20 shadow-2xl w-full h-full max-w-[95vw] max-h-[95vh] overflow-hidden">
+      {/* Modal Content - Much bigger now with smooth animation */}
+      <div className="relative bg-gradient-to-br from-purple-900/95 via-pink-800/95 to-blue-900/95 backdrop-blur-md rounded-3xl border border-white/20 shadow-2xl w-full h-full max-w-[95vw] max-h-[95vh] overflow-hidden animate-scale-in">
         {/* Header */}
         <div className="relative">
           <img

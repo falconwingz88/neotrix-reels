@@ -141,16 +141,17 @@ export const VideoPlayer = ({ src, title, author, isActive }: VideoPlayerProps) 
   return (
     <div className="relative w-full h-full overflow-hidden">
       {/* Video Element or YouTube Iframe - centered and aspect-ratio constrained */}
-      <div className="absolute inset-0 flex items-center justify-center">
+      <div className="absolute inset-0 flex items-center justify-center bg-transparent">
         {isYouTube ? (
-          <div className="w-full h-full max-w-full max-h-full aspect-video">
+          <div className="w-full h-full max-w-full max-h-full aspect-video bg-transparent">
             <iframe
               ref={iframeRef}
               src={embedUrl}
-              className="w-full h-full rounded-2xl"
+              className="w-full h-full rounded-2xl bg-transparent"
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
+              style={{ backgroundColor: 'transparent' }}
               onClick={togglePlay}
             />
           </div>
@@ -168,9 +169,11 @@ export const VideoPlayer = ({ src, title, author, isActive }: VideoPlayerProps) 
       </div>
 
       {/* Subtle overlay for better text readability, only when needed */}
-      <div className={`absolute inset-0 bg-gradient-reels pointer-events-none transition-opacity duration-300 rounded-2xl ${
-        isPlaying ? 'opacity-30' : 'opacity-60'
-      }`} />
+      {(isPlaying || !isYouTube) && (
+        <div className={`absolute inset-0 bg-gradient-reels pointer-events-none transition-opacity duration-300 rounded-2xl ${
+          isPlaying ? 'opacity-20' : 'opacity-40'
+        }`} />
+      )}
 
       {/* Play/Pause Overlay */}
       {!isPlaying && (

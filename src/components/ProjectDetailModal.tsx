@@ -11,7 +11,7 @@ interface ProjectDetailModalProps {
 
 export const ProjectDetailModal = ({ project, onClose }: ProjectDetailModalProps) => {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in overflow-hidden">
       {/* Backdrop with Strong Blur */}
       <div 
         className="absolute inset-0 bg-black/20 backdrop-blur-xl animate-fade-in"
@@ -19,7 +19,7 @@ export const ProjectDetailModal = ({ project, onClose }: ProjectDetailModalProps
       />
       
       {/* Modal Content - Enhanced Glassmorphism */}
-      <div className="relative bg-gradient-to-br from-purple-900 via-pink-800 to-blue-900 rounded-3xl border border-white/20 shadow-2xl max-w-4xl max-h-[90vh] w-full overflow-hidden animate-scale-in">
+      <div className="relative bg-gradient-to-br from-purple-900 via-pink-800 to-blue-900 rounded-3xl border border-white/20 shadow-2xl max-w-4xl max-h-[90vh] w-full overflow-y-auto animate-scale-in">
         {/* Header */}
         <div className="relative">
           <img

@@ -11,15 +11,12 @@ interface ProjectDetailModalProps {
 
 export const ProjectDetailModal = ({ project, onClose }: ProjectDetailModalProps) => {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in overflow-hidden">
-      {/* Backdrop with Strong Blur */}
-      <div 
-        className="absolute inset-0 bg-black/20 backdrop-blur-xl animate-fade-in"
-        onClick={onClose}
-      />
-      
+    <div className="fixed inset-0 z-50 bg-black/20 backdrop-blur-xl animate-fade-in" onClick={onClose}>
       {/* Modal Content - Enhanced Glassmorphism */}
-      <div className="relative bg-gradient-to-br from-purple-900 via-pink-800 to-blue-900 rounded-3xl border border-white/20 shadow-2xl max-w-4xl max-h-[90vh] w-full overflow-y-auto animate-scale-in">
+      <div 
+        className="absolute inset-4 bg-gradient-to-br from-purple-900 via-pink-800 to-blue-900 rounded-3xl border border-white/20 shadow-2xl overflow-hidden animate-scale-in"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
         <div className="relative">
           <img
@@ -54,7 +51,7 @@ export const ProjectDetailModal = ({ project, onClose }: ProjectDetailModalProps
         </div>
 
         {/* Content */}
-        <div className="p-8 overflow-y-auto max-h-[60vh]">
+        <div className="p-8 overflow-y-auto" style={{ height: 'calc(100% - 320px)' }}>
           <div className="space-y-8">
             {/* Project Video */}
             <div>

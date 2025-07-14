@@ -19,7 +19,7 @@ export const ProjectDetailModal = ({ project, onClose }: ProjectDetailModalProps
       />
       
       {/* Modal Content - Much bigger now with smooth animation */}
-      <div className="relative bg-gradient-to-br from-purple-900/95 via-pink-800/95 to-blue-900/95 backdrop-blur-md rounded-3xl border border-white/20 shadow-2xl w-full h-full max-w-[95vw] max-h-[95vh] overflow-hidden animate-scale-in">
+      <div className="relative bg-gradient-to-br from-purple-900/85 via-pink-800/85 to-blue-900/85 backdrop-blur-lg rounded-3xl border border-white/30 shadow-2xl w-full h-full max-w-[95vw] max-h-[95vh] overflow-hidden animate-scale-in">
         {/* Header */}
         <div className="relative">
           <img
@@ -58,12 +58,78 @@ export const ProjectDetailModal = ({ project, onClose }: ProjectDetailModalProps
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-8">
+              {/* Project Video */}
+              <div>
+                <h2 className="text-2xl font-semibold text-white mb-4">Project Video</h2>
+                <div className="aspect-video bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 overflow-hidden shadow-xl">
+                  <iframe
+                    src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                    title="Project Video"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="w-full h-full"
+                  />
+                </div>
+              </div>
+
               {/* Description */}
               <div>
                 <h2 className="text-2xl font-semibold text-white mb-4">Project Overview</h2>
-                <p className="text-white/80 text-lg leading-relaxed">
+                <p className="text-white/80 text-lg leading-relaxed mb-4">
                   {project.description}
                 </p>
+                <p className="text-white/70 leading-relaxed">
+                  This project represents a breakthrough in creative storytelling, combining cutting-edge visual effects with compelling narrative structure. Our team worked tirelessly to ensure every frame tells a part of the larger story, creating an immersive experience that resonates with audiences long after viewing.
+                </p>
+              </div>
+
+              {/* Storyboard */}
+              <div>
+                <h2 className="text-2xl font-semibold text-white mb-4">Storyboard & Process</h2>
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div className="bg-white/5 rounded-lg p-4 border border-white/10">
+                    <img 
+                      src="https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=400&h=300&fit=crop" 
+                      alt="Storyboard 1"
+                      className="w-full h-32 object-cover rounded-lg mb-2"
+                    />
+                    <p className="text-white/70 text-sm">Initial concept sketches and mood board development</p>
+                  </div>
+                  <div className="bg-white/5 rounded-lg p-4 border border-white/10">
+                    <img 
+                      src="https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=400&h=300&fit=crop" 
+                      alt="Storyboard 2"
+                      className="w-full h-32 object-cover rounded-lg mb-2"
+                    />
+                    <p className="text-white/70 text-sm">Pre-production planning and technical setup</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="bg-white/5 rounded-lg p-4 border border-white/10">
+                    <img 
+                      src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&h=300&fit=crop" 
+                      alt="Storyboard 3"
+                      className="w-full h-24 object-cover rounded-lg mb-2"
+                    />
+                    <p className="text-white/70 text-sm">Production phase</p>
+                  </div>
+                  <div className="bg-white/5 rounded-lg p-4 border border-white/10">
+                    <img 
+                      src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400&h=300&fit=crop" 
+                      alt="Storyboard 4"
+                      className="w-full h-24 object-cover rounded-lg mb-2"
+                    />
+                    <p className="text-white/70 text-sm">Post-production</p>
+                  </div>
+                  <div className="bg-white/5 rounded-lg p-4 border border-white/10">
+                    <img 
+                      src="https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=400&h=300&fit=crop" 
+                      alt="Storyboard 5"
+                      className="w-full h-24 object-cover rounded-lg mb-2"
+                    />
+                    <p className="text-white/70 text-sm">Final delivery</p>
+                  </div>
+                </div>
               </div>
 
               {/* Backstory */}

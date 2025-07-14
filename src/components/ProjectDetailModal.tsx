@@ -14,7 +14,7 @@ export const ProjectDetailModal = ({ project, onClose }: ProjectDetailModalProps
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 animate-fade-in">
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-black/30 backdrop-blur-md animate-fade-in"
+        className="absolute inset-0 bg-black/30 backdrop-blur-xl animate-fade-in"
         onClick={onClose}
       />
       
@@ -69,6 +69,21 @@ export const ProjectDetailModal = ({ project, onClose }: ProjectDetailModalProps
                     allowFullScreen
                     className="w-full h-full"
                   />
+                </div>
+                
+                {/* Date */}
+                <div className="mt-4 flex items-center gap-3 text-white/70">
+                  <Calendar className="w-5 h-5 text-emerald-400" />
+                  <div>
+                    <p className="text-sm text-white/50">Created</p>
+                    <p className="text-white">
+                      {new Date(project.dateCreated).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
+                    </p>
+                  </div>
                 </div>
               </div>
 
@@ -155,58 +170,31 @@ export const ProjectDetailModal = ({ project, onClose }: ProjectDetailModalProps
                       key={index}
                       className="flex items-start gap-3 text-white/80"
                     >
-                      <div className="w-2 h-2 bg-purple-400 rounded-full mt-2 flex-shrink-0" />
+                      <div className="w-2 h-2 bg-emerald-400 rounded-full mt-2 flex-shrink-0" />
                       <span>{item}</span>
                     </li>
                   ))}
                 </ul>
               </div>
+
+              {/* Credits */}
+              <div>
+                <h2 className="text-2xl font-semibold text-white mb-4 flex items-center gap-2">
+                  <Users className="w-6 h-6" />
+                  Credits
+                </h2>
+                <div className="space-y-2">
+                  <div className="text-white/80">Emma Wilson - Director</div>
+                  <div className="text-white/80">Marcus Chen - Cinematographer</div>
+                  <div className="text-white/80">Sarah Thompson - Editor</div>
+                  <div className="text-white/80">Jake Rodriguez - Sound Design</div>
+                  <div className="text-white/80">Lily Park - Color Grading</div>
+                </div>
+              </div>
             </div>
 
-            {/* Sidebar */}
+            {/* Sidebar - Now Empty but keeping structure */}
             <div className="space-y-6">
-              {/* Project Details */}
-              <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
-                <h3 className="text-lg font-semibold text-white mb-4">Project Details</h3>
-                
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3 text-white/70">
-                    <Calendar className="w-5 h-5 text-purple-400" />
-                    <div>
-                      <p className="text-sm text-white/50">Created</p>
-                      <p className="text-white">
-                        {new Date(project.dateCreated).toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric'
-                        })}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Team Members */}
-              <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
-                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                  <Users className="w-5 h-5 text-purple-400" />
-                  Team Members
-                </h3>
-                
-                <div className="space-y-3">
-                  {project.teamMembers.map((member, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center gap-3"
-                    >
-                      <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                        {member.split(' ').map(n => n[0]).join('')}
-                      </div>
-                      <span className="text-white/80">{member}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
             </div>
           </div>
         </div>

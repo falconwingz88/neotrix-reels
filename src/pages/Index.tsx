@@ -35,27 +35,33 @@ const Index = () => {
         <div className="absolute top-1/3 left-1/3 w-72 h-72 bg-gradient-to-r from-pink-400/15 to-purple-400/15 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '1s' }} />
         <div className="absolute bottom-1/3 right-1/3 w-80 h-80 bg-gradient-to-r from-indigo-400/20 to-blue-400/20 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '3s' }} />
         
-        {/* Enhanced Bouncing Circle Shapes - Clear (No Blur) */}
-        <div className="absolute top-20 left-1/4 w-32 h-32 bg-gradient-to-r from-cyan-400/15 to-blue-400/15 rounded-full animate-bounce" style={{ animationDuration: '2s', animationDelay: '0.5s' }} />
-        <div className="absolute bottom-32 right-1/4 w-24 h-24 bg-gradient-to-r from-pink-400/20 to-purple-400/20 rounded-full animate-bounce" style={{ animationDuration: '2.5s', animationDelay: '1.5s' }} />
-        <div className="absolute top-1/2 right-20 w-40 h-40 bg-gradient-to-r from-indigo-400/12 to-violet-400/12 rounded-full animate-bounce" style={{ animationDuration: '3s', animationDelay: '2.5s' }} />
-        <div className="absolute bottom-1/4 left-16 w-28 h-28 bg-gradient-to-r from-emerald-400/15 to-teal-400/15 rounded-full animate-bounce" style={{ animationDuration: '2.2s', animationDelay: '3s' }} />
-        
-        {/* More Bouncing Circles - Clear */}
-        <div className="absolute top-3/4 left-1/2 w-36 h-36 bg-gradient-to-r from-orange-400/12 to-red-400/12 rounded-full animate-bounce" style={{ animationDuration: '2.8s', animationDelay: '4s' }} />
-        <div className="absolute top-1/4 right-1/3 w-20 h-20 bg-gradient-to-r from-yellow-400/15 to-orange-400/15 rounded-full animate-bounce" style={{ animationDuration: '1.8s', animationDelay: '1s' }} />
-        <div className="absolute bottom-1/2 right-10 w-44 h-44 bg-gradient-to-r from-violet-400/10 to-purple-400/10 rounded-full animate-bounce" style={{ animationDuration: '3.5s', animationDelay: '0.8s' }} />
-        <div className="absolute top-10 left-1/2 w-32 h-32 bg-gradient-to-r from-lime-400/12 to-green-400/12 rounded-full animate-bounce" style={{ animationDuration: '2.4s', animationDelay: '2.2s' }} />
-        <div className="absolute bottom-20 left-1/3 w-26 h-26 bg-gradient-to-r from-rose-400/18 to-pink-400/18 rounded-full animate-bounce" style={{ animationDuration: '3.1s', animationDelay: '3.5s' }} />
-        
-        {/* Extra Clear Bouncing Balls */}
-        <div className="absolute top-40 right-1/4 w-30 h-30 bg-gradient-to-r from-teal-400/16 to-cyan-400/16 rounded-full animate-bounce" style={{ animationDuration: '1.9s', animationDelay: '0.3s' }} />
-        <div className="absolute bottom-40 left-1/4 w-22 h-22 bg-gradient-to-r from-amber-400/14 to-yellow-400/14 rounded-full animate-bounce" style={{ animationDuration: '2.1s', animationDelay: '1.2s' }} />
-        <div className="absolute top-1/3 left-10 w-35 h-35 bg-gradient-to-r from-fuchsia-400/13 to-pink-400/13 rounded-full animate-bounce" style={{ animationDuration: '2.7s', animationDelay: '0.7s' }} />
-        <div className="absolute bottom-1/3 right-1/2 w-28 h-28 bg-gradient-to-r from-sky-400/15 to-blue-400/15 rounded-full animate-bounce" style={{ animationDuration: '1.7s', animationDelay: '2.8s' }} />
-        <div className="absolute top-2/3 right-16 w-33 h-33 bg-gradient-to-r from-green-400/14 to-emerald-400/14 rounded-full animate-bounce" style={{ animationDuration: '2.6s', animationDelay: '1.8s' }} />
-        <div className="absolute bottom-16 left-1/2 w-25 h-25 bg-gradient-to-r from-red-400/17 to-orange-400/17 rounded-full animate-bounce" style={{ animationDuration: '2.3s', animationDelay: '0.9s' }} />
+        {/* Floating Circle Shapes - Greenish Blue with Slight Blur */}
+        {[...Array(15)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute rounded-full bg-gradient-to-br from-teal-400/30 to-cyan-400/30 backdrop-blur-[1px]"
+            style={{
+              width: `${60 + (i * 15)}px`,
+              height: `${60 + (i * 15)}px`,
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animation: `float-${i % 8} ${12 + (i * 1.5)}s ease-in-out infinite`
+            }}
+          />
+        ))}
       </div>
+
+      {/* Floating Animation Keyframes */}
+      <style>{`
+        @keyframes float-0 { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(200px, -100px); } 50% { transform: translate(-150px, 150px); } 75% { transform: translate(100px, 200px); } }
+        @keyframes float-1 { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(-180px, 120px); } 50% { transform: translate(220px, -80px); } 75% { transform: translate(-100px, -150px); } }
+        @keyframes float-2 { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(150px, 180px); } 50% { transform: translate(-200px, -100px); } 75% { transform: translate(180px, -120px); } }
+        @keyframes float-3 { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(-120px, -180px); } 50% { transform: translate(180px, 120px); } 75% { transform: translate(-150px, 100px); } }
+        @keyframes float-4 { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(100px, -150px); } 50% { transform: translate(-180px, 200px); } 75% { transform: translate(150px, -80px); } }
+        @keyframes float-5 { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(-200px, 80px); } 50% { transform: translate(120px, -200px); } 75% { transform: translate(-80px, 150px); } }
+        @keyframes float-6 { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(180px, 100px); } 50% { transform: translate(-100px, -150px); } 75% { transform: translate(200px, 120px); } }
+        @keyframes float-7 { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(-150px, -100px); } 50% { transform: translate(100px, 180px); } 75% { transform: translate(-200px, -120px); } }
+      `}</style>
 
       {/* Content Container */}
       <div className="relative z-10 min-h-screen flex flex-col py-8">

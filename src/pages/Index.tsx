@@ -27,7 +27,7 @@ const REELS = [
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-800 to-blue-900 bg-[length:200%_200%] animate-gradient p-6 relative overflow-hidden backdrop-blur-md">
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-800 to-blue-900 bg-[length:200%_200%] animate-gradient p-6 relative overflow-auto scrollbar-glassmorphism backdrop-blur-md">
       {/* Enhanced Background Effects with More Bouncing Circles and Reduced Blur */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Large Background Circles - Less Blurred */}

@@ -88,7 +88,7 @@ const Index = () => {
               <img 
                 src={neotrixLogo} 
                 alt="Neotrix Logo" 
-                className="h-32 w-auto"
+                className="h-32 w-auto object-contain"
               />
             </div>
             <p className="text-2xl text-white/90 font-medium animate-fade-in" style={{ animationDelay: '0.2s' }}>

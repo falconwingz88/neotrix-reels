@@ -45,7 +45,7 @@ export const ProjectDetailModal = ({ project, onClose }: ProjectDetailModalProps
           </div>
 
         {/* Content */}
-        <div className="p-6 pb-4 overflow-y-auto flex-1">
+        <div className="p-6 pb-4 overflow-y-auto scrollbar-glassmorphism" style={{ maxHeight: 'calc(80vh - 120px)' }}>
           <div className="space-y-6">
             {/* Project Video */}
             <div>

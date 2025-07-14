@@ -160,8 +160,34 @@ All colors MUST be HSL.
     opacity: 0;
   }
   
+  
   .animate-gradient {
     animation: gradient 15s ease infinite;
+  }
+
+  /* Glassmorphism Scrollbar */
+  .scrollbar-glassmorphism {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+  }
+
+  .scrollbar-glassmorphism::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .scrollbar-glassmorphism::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-glassmorphism::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .scrollbar-glassmorphism::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
   }
 }
 

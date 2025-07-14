@@ -2,6 +2,7 @@ import { VideoPlayer } from '@/components/VideoPlayer';
 import { ProjectsBrowser } from '@/components/ProjectsBrowser';
 import { ClientLogos } from '@/components/ClientLogos';
 import { Footer } from '@/components/Footer';
+import neotrixLogo from '../assets/neotrix-logo.png';
 
 const REELS = [
   {
@@ -84,9 +85,11 @@ const Index = () => {
         <div className="max-w-7xl mx-auto w-full mb-12">
           <div className="text-center mb-8">
             <div className="flex justify-center mb-6 animate-fade-in">
-              <div className="text-6xl font-bold text-white tracking-wider">
-                NEOTRIX
-              </div>
+              <img 
+                src={neotrixLogo} 
+                alt="Neotrix Logo" 
+                className="h-16 w-auto"
+              />
             </div>
             <p className="text-2xl text-white/90 font-medium animate-fade-in" style={{ animationDelay: '0.2s' }}>
               Innovate. Animate. Elevate.

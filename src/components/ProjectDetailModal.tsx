@@ -14,13 +14,12 @@ export const ProjectDetailModal = ({ project, onClose }: ProjectDetailModalProps
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 animate-fade-in">
       {/* Backdrop with Strong Blur */}
       <div 
-        className="absolute inset-0 bg-black/30 backdrop-blur-xl animate-fade-in"
+        className="absolute inset-0 bg-black/20 backdrop-blur-xl animate-fade-in"
         onClick={onClose}
-        style={{ backdropFilter: 'blur(20px)' }}
       />
       
       {/* Modal Content - Enhanced Glassmorphism */}
-      <div className="relative bg-white/15 backdrop-blur-xl rounded-3xl border border-white/30 shadow-2xl w-full h-full max-w-[95vw] max-h-[95vh] overflow-hidden animate-scale-in">
+      <div className="relative bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20 shadow-2xl w-full h-full max-w-[95vw] max-h-[95vh] overflow-hidden animate-scale-in">
         {/* Header */}
         <div className="relative">
           <img

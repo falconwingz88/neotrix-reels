@@ -2,7 +2,6 @@ import { VideoPlayer } from '@/components/VideoPlayer';
 import { ProjectsBrowser } from '@/components/ProjectsBrowser';
 import { ClientLogos } from '@/components/ClientLogos';
 import { Footer } from '@/components/Footer';
-import neotrixLogo from '../assets/neotrix-logo.png';
 
 const REELS = [
   {
@@ -33,8 +32,6 @@ const Index = () => {
       <div className="absolute inset-0 bg-gradient-to-tr from-blue-800/50 via-purple-700/50 to-pink-800/50 bg-[length:600%_600%] animate-aurora-slow" />
       <div className="absolute inset-0 bg-gradient-to-bl from-indigo-900/30 via-pink-900/30 to-purple-900/30 bg-[length:800%_800%] animate-gradient" />
       
-      {/* Content Wrapper */}
-      <div className="relative z-10 min-h-screen p-6">
       {/* Enhanced Background Effects with Aurora Animation */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Large Background Circles */}
@@ -84,7 +81,7 @@ const Index = () => {
       `}</style>
 
       {/* Content Container */}
-      <div className="relative z-10 min-h-screen flex flex-col py-8">
+      <div className="relative z-10 min-h-screen flex flex-col py-8 p-6">
         {/* Main Hero Video - Neotrix Reels 2024 */}
         <div className="max-w-7xl mx-auto w-full mb-12">
           <div className="text-center mb-8">
@@ -149,7 +146,6 @@ const Index = () => {
 
         {/* Footer */}
         <Footer />
-      </div>
       </div>
     </div>
   );

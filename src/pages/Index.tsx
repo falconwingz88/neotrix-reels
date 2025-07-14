@@ -27,7 +27,7 @@ const REELS = [
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-800 to-blue-900 bg-[length:200%_200%] animate-gradient p-6 relative overflow-auto scrollbar-glassmorphism backdrop-blur-md">
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-800 to-blue-900 bg-[length:200%_200%] animate-gradient p-3 md:p-6 relative overflow-auto scrollbar-glassmorphism backdrop-blur-md">
       {/* Enhanced Background Effects with More Bouncing Circles and Reduced Blur */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Large Background Circles - Less Blurred */}
@@ -80,18 +80,18 @@ const Index = () => {
       `}</style>
 
       {/* Content Container */}
-      <div className="relative z-10 min-h-screen flex flex-col py-8">
+      <div className="relative z-10 min-h-screen flex flex-col py-4 md:py-8">
         {/* Main Hero Video - Neotrix Reels 2024 */}
-        <div className="max-w-7xl mx-auto w-full mb-12">
-          <div className="text-center mb-8">
-            <div className="flex justify-center mb-6 animate-fade-in">
+        <div className="max-w-7xl mx-auto w-full mb-8 md:mb-12">
+          <div className="text-center mb-6 md:mb-8">
+            <div className="flex justify-center mb-4 md:mb-6 animate-fade-in">
               <img 
                 src={neotrixLogo} 
                 alt="Neotrix Logo" 
-                className="h-32 w-auto object-contain"
+                className="h-16 md:h-32 w-auto object-contain"
               />
             </div>
-            <p className="text-2xl text-white/90 font-medium animate-fade-in" style={{ animationDelay: '0.2s' }}>
+            <p className="text-lg md:text-2xl text-white/90 font-medium animate-fade-in px-4" style={{ animationDelay: '0.2s' }}>
               Innovate. Animate. Elevate.
             </p>
           </div>
@@ -106,11 +106,11 @@ const Index = () => {
         </div>
 
         {/* Secondary Videos */}
-        <div className="flex flex-col gap-6 max-w-7xl mx-auto w-full mb-12">
-          <h2 className="text-3xl font-bold text-white text-center mb-6">More From Our Portfolio</h2>
+        <div className="flex flex-col gap-4 md:gap-6 max-w-7xl mx-auto w-full mb-8 md:mb-12">
+          <h2 className="text-xl md:text-3xl font-bold text-white text-center mb-4 md:mb-6 px-4">More From Our Portfolio</h2>
 
-          {/* Bottom Row - Two videos side by side (Constrained to 16:9) */}
-          <div className="flex gap-6 max-w-7xl mx-auto w-full">
+          {/* Bottom Row - Two videos side by side on desktop, stacked on mobile */}
+          <div className="flex flex-col md:flex-row gap-4 md:gap-6 max-w-7xl mx-auto w-full">
             {/* Liquid Reels */}
             <div className="flex-1 aspect-video bg-white/10 backdrop-blur-sm rounded-3xl border border-white/20 overflow-hidden shadow-2xl hover:bg-white/15 transition-all duration-500">
               <VideoPlayer

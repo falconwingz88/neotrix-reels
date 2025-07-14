@@ -139,19 +139,22 @@ export const VideoPlayer = ({ src, title, author, isActive }: VideoPlayerProps) 
   };
 
   return (
-    <div className="relative w-full h-full overflow-hidden">
-      {/* Video Element or YouTube Iframe - centered and aspect-ratio constrained */}
-      <div className="absolute inset-0 flex items-center justify-center bg-transparent">
+    <div className="relative w-full h-full overflow-hidden rounded-2xl">
+      {/* Video Element or YouTube Iframe - constrained to 16:9 aspect ratio */}
+      <div className="absolute inset-0 flex items-center justify-center">
         {isYouTube ? (
-          <div className="w-full h-full max-w-full max-h-full aspect-video bg-transparent">
+          <div className="w-full aspect-video max-h-full flex items-center justify-center">
             <iframe
               ref={iframeRef}
               src={embedUrl}
-              className="w-full h-full rounded-2xl bg-transparent"
+              className="w-full h-full rounded-2xl border-0"
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
-              style={{ backgroundColor: 'transparent' }}
+              style={{ 
+                backgroundColor: 'transparent',
+                mixBlendMode: 'normal'
+              }}
               onClick={togglePlay}
             />
           </div>

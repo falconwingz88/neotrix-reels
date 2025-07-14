@@ -140,7 +140,7 @@ export const VideoPlayer = ({ src, title, author, isActive }: VideoPlayerProps) 
 
 
   return (
-    <div className="relative w-full h-full bg-white/5 backdrop-blur-md overflow-hidden rounded-3xl border border-white/10">{/* Changed from black to glassmorphism */}
+    <div className="relative w-full h-full overflow-hidden">{/* Removed background and border to inherit from parent */}
       {/* Video Element or YouTube Iframe */}
       {isYouTube ? (
         <iframe

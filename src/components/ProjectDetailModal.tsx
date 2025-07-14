@@ -13,10 +13,11 @@ export const ProjectDetailModal = ({ project, onClose }: ProjectDetailModalProps
   return (
     <div className="fixed inset-0 z-50 bg-black/20 backdrop-blur-xl animate-fade-in" onClick={onClose}>
       {/* Modal Content - Enhanced Glassmorphism */}
-      <div 
-        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-6xl max-h-[80vh] bg-gradient-to-br from-purple-900 via-pink-800 to-blue-900 rounded-3xl border border-white/20 shadow-2xl overflow-hidden animate-scale-in"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="absolute inset-0 flex items-center justify-center p-6">
+        <div 
+          className="w-full max-w-6xl max-h-[80vh] bg-gradient-to-br from-purple-900 via-pink-800 to-blue-900 rounded-3xl border border-white/20 shadow-2xl overflow-hidden animate-scale-in"
+          onClick={(e) => e.stopPropagation()}
+        >
         {/* Header */}
         <div className="relative">
           <img
@@ -186,6 +187,7 @@ export const ProjectDetailModal = ({ project, onClose }: ProjectDetailModalProps
               </div>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>

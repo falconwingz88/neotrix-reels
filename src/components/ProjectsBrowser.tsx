@@ -138,7 +138,7 @@ export const ProjectsBrowser = () => {
 
   return (
     <>
-      <div className="bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20 p-8 shadow-2xl">
+      <div className="bg-white/10 backdrop-blur-2xl rounded-3xl border border-white/20 p-8 shadow-2xl">
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-white mb-2">Our Projects</h2>
           <p className="text-white/70">Explore our creative portfolio and behind-the-scenes stories</p>
@@ -154,7 +154,7 @@ export const ProjectsBrowser = () => {
               placeholder="Search projects..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-12 bg-white/5 border-white/20 text-white placeholder:text-white/50 focus:border-white/40"
+              className="pl-12 bg-white/5 border-white/20 text-white placeholder:text-white/50 focus:border-white/40 rounded-full"
             />
           </div>
 

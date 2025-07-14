@@ -41,7 +41,7 @@ export const ClientLogos = () => {
   const logoRows = createLogoRows();
 
   return (
-    <div className="bg-white/5 backdrop-blur-xl rounded-3xl border border-white/20 p-4 md:p-8 shadow-2xl overflow-hidden">
+    <div className="bg-white/5 backdrop-blur-2xl rounded-3xl border border-white/20 p-4 md:p-8 shadow-2xl overflow-hidden">
       <div className="mb-4 md:mb-8 text-center">
         <h2 className="text-xl md:text-3xl font-bold text-white mb-2">Trusted by Industry Leaders</h2>
         <p className="text-sm md:text-base text-white/70 px-4">Proud to collaborate with amazing brands worldwide</p>

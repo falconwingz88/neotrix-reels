@@ -138,35 +138,38 @@ export const VideoPlayer = ({ src, title, author, isActive }: VideoPlayerProps) 
     }
   };
 
-
   return (
-    <div className="relative w-full h-full overflow-hidden">{/* Removed background and border to inherit from parent */}
-      {/* Video Element or YouTube Iframe */}
-      {isYouTube ? (
-        <iframe
-          ref={iframeRef}
-          src={embedUrl}
-          className="w-full h-full object-cover"
-          frameBorder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-          onClick={togglePlay}
-        />
-      ) : (
-        <video
-          ref={videoRef}
-          src={src}
-          loop
-          muted={isMuted}
-          playsInline
-          className="w-full h-full object-cover"
-          onClick={togglePlay}
-        />
-      )}
+    <div className="relative w-full h-full overflow-hidden">
+      {/* Video Element or YouTube Iframe - centered and aspect-ratio constrained */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        {isYouTube ? (
+          <div className="w-full h-full max-w-full max-h-full aspect-video">
+            <iframe
+              ref={iframeRef}
+              src={embedUrl}
+              className="w-full h-full rounded-2xl"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              onClick={togglePlay}
+            />
+          </div>
+        ) : (
+          <video
+            ref={videoRef}
+            src={src}
+            loop
+            muted={isMuted}
+            playsInline
+            className="w-full h-full object-cover rounded-2xl"
+            onClick={togglePlay}
+          />
+        )}
+      </div>
 
       {/* Subtle overlay for better text readability, only when needed */}
-      <div className={`absolute inset-0 bg-gradient-reels pointer-events-none transition-opacity duration-300 ${
-        isPlaying ? 'opacity-50' : 'opacity-80'
+      <div className={`absolute inset-0 bg-gradient-reels pointer-events-none transition-opacity duration-300 rounded-2xl ${
+        isPlaying ? 'opacity-30' : 'opacity-60'
       }`} />
 
       {/* Play/Pause Overlay */}
@@ -184,9 +187,9 @@ export const VideoPlayer = ({ src, title, author, isActive }: VideoPlayerProps) 
       )}
 
       {/* Progress Bar */}
-      <div className="absolute bottom-0 left-0 w-full h-1 bg-white/20">
+      <div className="absolute bottom-0 left-0 w-full h-1 bg-white/20 rounded-b-2xl">
         <div 
-          className="h-full bg-gradient-primary transition-all duration-100"
+          className="h-full bg-gradient-primary transition-all duration-100 rounded-b-2xl"
           style={{ width: `${progress}%` }}
         />
       </div>

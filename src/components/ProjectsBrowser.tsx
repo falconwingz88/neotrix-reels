@@ -192,7 +192,7 @@ export const ProjectsBrowser = () => {
           </div>
         </div>
 
-        {/* Projects Grid */}
+        {/* Projects Grid - Simplified to show only large thumbnails with titles */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredProjects.map((project, index) => (
             <div
@@ -210,38 +210,13 @@ export const ProjectsBrowser = () => {
                   alt={project.title}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              </div>
-              
-              <div className="p-6">
-                <h3 className="text-xl font-semibold text-white mb-2 group-hover:text-purple-200 transition-colors">
-                  {project.title}
-                </h3>
-                <p className="text-white/70 text-sm mb-4 line-clamp-2">
-                  {project.description}
-                </p>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
                 
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {project.tags.map(tag => (
-                    <Badge
-                      key={tag}
-                      variant="outline"
-                      className="border-white/20 text-white/80 text-xs"
-                    >
-                      {tag}
-                    </Badge>
-                  ))}
-                </div>
-
-                <div className="flex items-center justify-between text-white/60 text-sm">
-                  <div className="flex items-center gap-1">
-                    <Calendar className="w-4 h-4" />
-                    {new Date(project.dateCreated).toLocaleDateString()}
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Users className="w-4 h-4" />
-                    {project.teamMembers.length}
-                  </div>
+                {/* Only show title over the image */}
+                <div className="absolute bottom-4 left-4 right-4">
+                  <h3 className="text-xl font-bold text-white group-hover:text-purple-200 transition-colors">
+                    {project.title}
+                  </h3>
                 </div>
               </div>
             </div>

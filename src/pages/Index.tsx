@@ -2,7 +2,7 @@ import { VideoPlayer } from '@/components/VideoPlayer';
 import { ProjectsBrowser } from '@/components/ProjectsBrowser';
 import { ClientLogos } from '@/components/ClientLogos';
 import { Footer } from '@/components/Footer';
-import neotrixLogo from '../assets/neotrix-logo.png';
+const neotrixLogo = '/lovable-uploads/e25231ff-24d7-47d0-b8da-ebd1979c96de.png';
 
 const REELS = [
   {

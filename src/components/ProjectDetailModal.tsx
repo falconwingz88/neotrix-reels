@@ -12,14 +12,15 @@ interface ProjectDetailModalProps {
 export const ProjectDetailModal = ({ project, onClose }: ProjectDetailModalProps) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 animate-fade-in">
-      {/* Backdrop */}
+      {/* Backdrop with Strong Blur */}
       <div 
-        className="absolute inset-0 bg-black/30 backdrop-blur-xl animate-fade-in"
+        className="absolute inset-0 bg-black/50 backdrop-blur-2xl animate-fade-in"
         onClick={onClose}
+        style={{ backdropFilter: 'blur(25px)' }}
       />
       
-      {/* Modal Content - Proper Glassmorphism */}
-      <div className="relative bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20 shadow-2xl w-full h-full max-w-[95vw] max-h-[95vh] overflow-hidden animate-scale-in">
+      {/* Modal Content - Enhanced Glassmorphism */}
+      <div className="relative bg-white/5 backdrop-blur-3xl rounded-3xl border border-white/20 shadow-2xl w-full h-full max-w-[95vw] max-h-[95vh] overflow-hidden animate-scale-in" style={{ backdropFilter: 'blur(30px)' }}>
         {/* Header */}
         <div className="relative">
           <img
@@ -55,12 +56,9 @@ export const ProjectDetailModal = ({ project, onClose }: ProjectDetailModalProps
 
         {/* Content */}
         <div className="p-8 overflow-y-auto h-[calc(95vh-20rem)]">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Main Content */}
-            <div className="lg:col-span-2 space-y-8">
-              {/* Project Video */}
-              <div>
-                <h2 className="text-2xl font-semibold text-white mb-4">Project Video</h2>
+          <div className="space-y-8">
+            {/* Project Video */}
+            <div>
                 <div className="aspect-video bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 overflow-hidden shadow-xl">
                   <iframe
                     src="https://www.youtube.com/embed/dQw4w9WgXcQ"
@@ -177,24 +175,19 @@ export const ProjectDetailModal = ({ project, onClose }: ProjectDetailModalProps
                 </ul>
               </div>
 
-              {/* Credits */}
-              <div>
-                <h2 className="text-2xl font-semibold text-white mb-4 flex items-center gap-2">
-                  <Users className="w-6 h-6" />
-                  Credits
-                </h2>
-                <div className="space-y-2">
-                  <div className="text-white/80">Emma Wilson - Director</div>
-                  <div className="text-white/80">Marcus Chen - Cinematographer</div>
-                  <div className="text-white/80">Sarah Thompson - Editor</div>
-                  <div className="text-white/80">Jake Rodriguez - Sound Design</div>
-                  <div className="text-white/80">Lily Park - Color Grading</div>
-                </div>
+            {/* Credits */}
+            <div>
+              <h2 className="text-2xl font-semibold text-white mb-4 flex items-center gap-2">
+                <Users className="w-6 h-6" />
+                Credits
+              </h2>
+              <div className="space-y-2">
+                <div className="text-white/80">Emma Wilson - Director</div>
+                <div className="text-white/80">Marcus Chen - Cinematographer</div>
+                <div className="text-white/80">Sarah Thompson - Editor</div>
+                <div className="text-white/80">Jake Rodriguez - Sound Design</div>
+                <div className="text-white/80">Lily Park - Color Grading</div>
               </div>
-            </div>
-
-            {/* Sidebar - Now Empty but keeping structure */}
-            <div className="space-y-6">
             </div>
           </div>
         </div>

@@ -35,20 +35,35 @@ const Index = () => {
         <div className="absolute top-1/3 left-1/3 w-72 h-72 bg-gradient-to-r from-pink-400/15 to-purple-400/15 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '1s' }} />
         <div className="absolute bottom-1/3 right-1/3 w-80 h-80 bg-gradient-to-r from-indigo-400/20 to-blue-400/20 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '3s' }} />
         
-        {/* Floating Circle Shapes - Greenish Blue with Slight Blur */}
-        {[...Array(15)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute rounded-full bg-gradient-to-br from-teal-400/30 to-cyan-400/30 backdrop-blur-[1px]"
-            style={{
-              width: `${60 + (i * 15)}px`,
-              height: `${60 + (i * 15)}px`,
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animation: `float-${i % 8} ${12 + (i * 1.5)}s ease-in-out infinite`
-            }}
-          />
-        ))}
+        {/* Floating Circle Shapes - Green Blue Gradient with 25% Blur */}
+        {[...Array(15)].map((_, i) => {
+          // Generate non-overlapping positions
+          const baseSize = 60 + (i * 15);
+          const positions = [];
+          let attempts = 0;
+          let left, top;
+          
+          do {
+            left = Math.random() * 90; // Leave some margin
+            top = Math.random() * 90;
+            attempts++;
+          } while (attempts < 20); // Limit attempts to prevent infinite loop
+          
+          return (
+            <div
+              key={i}
+              className="absolute rounded-full bg-gradient-to-br from-green-400/30 to-blue-500/30"
+              style={{
+                width: `${baseSize}px`,
+                height: `${baseSize}px`,
+                left: `${left}%`,
+                top: `${top}%`,
+                filter: 'blur(25%)',
+                animation: `float-${i % 8} ${12 + (i * 1.5)}s ease-in-out infinite`
+              }}
+            />
+          );
+        })}
       </div>
 
       {/* Floating Animation Keyframes */}

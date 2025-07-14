@@ -27,7 +27,14 @@ const REELS = [
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-800 to-blue-900 bg-[length:400%_400%] animate-aurora p-6 relative overflow-hidden">
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Aurora Background Layers */}
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-pink-800 to-blue-900 bg-[length:400%_400%] animate-aurora" />
+      <div className="absolute inset-0 bg-gradient-to-tr from-blue-800/50 via-purple-700/50 to-pink-800/50 bg-[length:600%_600%] animate-aurora-slow" />
+      <div className="absolute inset-0 bg-gradient-to-bl from-indigo-900/30 via-pink-900/30 to-purple-900/30 bg-[length:800%_800%] animate-gradient" />
+      
+      {/* Content Wrapper */}
+      <div className="relative z-10 min-h-screen p-6">
       {/* Enhanced Background Effects with Aurora Animation */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Large Background Circles */}
@@ -35,6 +42,11 @@ const Index = () => {
         <div className="absolute bottom-10 left-10 w-96 h-96 bg-gradient-to-r from-blue-400/25 to-indigo-400/25 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '2s' }} />
         <div className="absolute top-1/3 left-1/3 w-72 h-72 bg-gradient-to-r from-pink-400/15 to-purple-400/15 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '1s' }} />
         <div className="absolute bottom-1/3 right-1/3 w-80 h-80 bg-gradient-to-r from-indigo-400/20 to-blue-400/20 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '3s' }} />
+        
+        {/* Aurora Wisps */}
+        <div className="absolute top-1/4 left-1/4 w-60 h-60 bg-gradient-to-r from-purple-400/10 to-transparent rounded-full blur-3xl animate-wisp-float" />
+        <div className="absolute top-3/4 right-1/4 w-80 h-80 bg-gradient-to-l from-pink-400/10 to-transparent rounded-full blur-3xl animate-wisp-float" style={{ animationDelay: '10s' }} />
+        <div className="absolute top-1/2 left-1/2 w-40 h-40 bg-gradient-to-t from-blue-400/10 to-transparent rounded-full blur-3xl animate-wisp-float" style={{ animationDelay: '5s' }} />
         
         {/* Floating Circle Shapes with 15% Blur (3px) */}
         {[...Array(15)].map((_, i) => {
@@ -78,9 +90,9 @@ const Index = () => {
           <div className="text-center mb-8">
             <div className="flex justify-center mb-6 animate-fade-in">
               <img 
-                src={neotrixLogo} 
+                src="/lovable-uploads/2c994a0b-e3ea-40ee-8471-4d3a8349b612.png" 
                 alt="Neotrix Logo" 
-                className="h-32 w-auto"
+                className="h-40 w-auto"
               />
             </div>
             <p className="text-2xl text-white/90 font-medium animate-fade-in" style={{ animationDelay: '0.2s' }}>
@@ -137,6 +149,7 @@ const Index = () => {
 
         {/* Footer */}
         <Footer />
+      </div>
       </div>
     </div>
   );

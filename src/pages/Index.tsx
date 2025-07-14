@@ -27,39 +27,31 @@ const REELS = [
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-800 to-blue-900 bg-[length:200%_200%] animate-gradient p-6 relative overflow-hidden backdrop-blur-md">
-      {/* Enhanced Background Effects with More Bouncing Circles and Reduced Blur */}
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-800 to-blue-900 bg-[length:400%_400%] animate-aurora p-6 relative overflow-hidden">
+      {/* Enhanced Background Effects with Aurora Animation */}
       <div className="absolute inset-0 overflow-hidden">
-        {/* Large Background Circles - Less Blurred */}
+        {/* Large Background Circles */}
         <div className="absolute top-10 right-10 w-96 h-96 bg-gradient-to-r from-purple-400/25 to-pink-400/25 rounded-full blur-2xl animate-pulse" />
         <div className="absolute bottom-10 left-10 w-96 h-96 bg-gradient-to-r from-blue-400/25 to-indigo-400/25 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '2s' }} />
         <div className="absolute top-1/3 left-1/3 w-72 h-72 bg-gradient-to-r from-pink-400/15 to-purple-400/15 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '1s' }} />
         <div className="absolute bottom-1/3 right-1/3 w-80 h-80 bg-gradient-to-r from-indigo-400/20 to-blue-400/20 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '3s' }} />
         
-        {/* Floating Circle Shapes - Green Blue Gradient with 25% Blur */}
+        {/* Floating Circle Shapes with 15% Blur (3px) */}
         {[...Array(15)].map((_, i) => {
-          // Generate non-overlapping positions
           const baseSize = 60 + (i * 15);
-          const positions = [];
-          let attempts = 0;
-          let left, top;
-          
-          do {
-            left = Math.random() * 90; // Leave some margin
-            top = Math.random() * 90;
-            attempts++;
-          } while (attempts < 20); // Limit attempts to prevent infinite loop
+          const left = Math.random() * 90;
+          const top = Math.random() * 90;
           
           return (
             <div
               key={i}
-              className="absolute rounded-full bg-gradient-to-br from-green-500/50 to-blue-600/50"
+              className="absolute rounded-full bg-gradient-to-br from-purple-500/40 to-pink-500/40"
               style={{
                 width: `${baseSize}px`,
                 height: `${baseSize}px`,
                 left: `${left}%`,
                 top: `${top}%`,
-                filter: 'blur(25%)',
+                filter: 'blur(3px)',
                 animation: `float-${i % 8} ${12 + (i * 1.5)}s ease-in-out infinite`
               }}
             />
@@ -88,7 +80,7 @@ const Index = () => {
               <img 
                 src={neotrixLogo} 
                 alt="Neotrix Logo" 
-                className="h-16 w-auto"
+                className="h-32 w-auto"
               />
             </div>
             <p className="text-2xl text-white/90 font-medium animate-fade-in" style={{ animationDelay: '0.2s' }}>

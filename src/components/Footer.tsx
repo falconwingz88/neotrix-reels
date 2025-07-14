@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 
 export const Footer = () => {
   return (
-    <footer className="bg-white/5 backdrop-blur-xl border-t border-white/10 mt-16">
+    <footer className="bg-white/5 backdrop-blur-xl border-t border-white/10 mt-16 w-full">
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Company Info */}

@@ -194,10 +194,14 @@ export const ProjectsBrowser = () => {
 
         {/* Projects Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredProjects.map(project => (
+          {filteredProjects.map((project, index) => (
             <div
               key={project.id}
-              className="group cursor-pointer bg-white/5 rounded-2xl overflow-hidden border border-white/10 hover:border-white/30 transition-all duration-300 hover:transform hover:scale-105"
+              className="group cursor-pointer bg-white/5 rounded-2xl overflow-hidden border border-white/10 hover:border-white/30 transition-all duration-500 hover:transform hover:scale-105 animate-fade-in"
+              style={{
+                animationDelay: `${index * 0.1}s`,
+                animationFillMode: 'both'
+              }}
               onClick={() => setSelectedProject(project)}
             >
               <div className="aspect-video relative overflow-hidden">

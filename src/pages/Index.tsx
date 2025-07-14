@@ -1,5 +1,6 @@
 import { VideoPlayer } from '@/components/VideoPlayer';
 import { ProjectsBrowser } from '@/components/ProjectsBrowser';
+import { ClientLogos } from '@/components/ClientLogos';
 import { Instagram } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -90,6 +91,11 @@ const Index = () => {
             <Instagram className="w-6 h-6 mr-3" />
             Follow @neotrix.asia
           </Button>
+        </div>
+
+        {/* Client Logos */}
+        <div className="max-w-7xl mx-auto w-full py-8">
+          <ClientLogos />
         </div>
 
         {/* Projects Browser */}

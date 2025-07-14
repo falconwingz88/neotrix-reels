@@ -11,16 +11,15 @@ interface ProjectDetailModalProps {
 
 export const ProjectDetailModal = ({ project, onClose }: ProjectDetailModalProps) => {
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 animate-fade-in">
       {/* Backdrop with Strong Blur */}
       <div 
-        className="absolute inset-0 bg-black/40 backdrop-blur-3xl animate-fade-in"
+        className="absolute inset-0 bg-black/20 backdrop-blur-xl animate-fade-in"
         onClick={onClose}
-        style={{ backdropFilter: 'blur(50px)', WebkitBackdropFilter: 'blur(50px)' }}
       />
       
       {/* Modal Content - Enhanced Glassmorphism */}
-      <div className="relative bg-white/10 backdrop-blur-3xl rounded-3xl border border-white/30 shadow-2xl w-full h-full max-w-[90vw] max-h-[90vh] overflow-hidden animate-scale-in" style={{ backdropFilter: 'blur(60px)', WebkitBackdropFilter: 'blur(60px)' }}>
+      <div className="relative bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20 shadow-2xl w-full h-full max-w-[95vw] max-h-[95vh] overflow-hidden animate-scale-in">
         {/* Header */}
         <div className="relative">
           <img

@@ -2,6 +2,7 @@ import { VideoPlayer } from '@/components/VideoPlayer';
 import { ProjectsBrowser } from '@/components/ProjectsBrowser';
 import { ClientLogos } from '@/components/ClientLogos';
 import { Footer } from '@/components/Footer';
+import neotrixLogo from '../assets/neotrix-logo.png';
 
 const REELS = [
   {
@@ -26,41 +27,39 @@ const REELS = [
 
 const Index = () => {
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Aurora Background Layers */}
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-pink-800 to-blue-900 bg-[length:400%_400%] animate-aurora" />
-      <div className="absolute inset-0 bg-gradient-to-tr from-blue-800/50 via-purple-700/50 to-pink-800/50 bg-[length:600%_600%] animate-aurora-slow" />
-      <div className="absolute inset-0 bg-gradient-to-bl from-indigo-900/30 via-pink-900/30 to-purple-900/30 bg-[length:800%_800%] animate-gradient" />
-      
-      {/* Enhanced Background Effects with Aurora Animation */}
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-800 to-blue-900 bg-[length:200%_200%] animate-gradient p-6 relative overflow-hidden backdrop-blur-md">
+      {/* Enhanced Background Effects with More Bouncing Circles and Reduced Blur */}
       <div className="absolute inset-0 overflow-hidden">
-        {/* Large Background Circles */}
+        {/* Large Background Circles - Less Blurred */}
         <div className="absolute top-10 right-10 w-96 h-96 bg-gradient-to-r from-purple-400/25 to-pink-400/25 rounded-full blur-2xl animate-pulse" />
         <div className="absolute bottom-10 left-10 w-96 h-96 bg-gradient-to-r from-blue-400/25 to-indigo-400/25 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '2s' }} />
         <div className="absolute top-1/3 left-1/3 w-72 h-72 bg-gradient-to-r from-pink-400/15 to-purple-400/15 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '1s' }} />
         <div className="absolute bottom-1/3 right-1/3 w-80 h-80 bg-gradient-to-r from-indigo-400/20 to-blue-400/20 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '3s' }} />
         
-        {/* Aurora Wisps */}
-        <div className="absolute top-1/4 left-1/4 w-60 h-60 bg-gradient-to-r from-purple-400/10 to-transparent rounded-full blur-3xl animate-wisp-float" />
-        <div className="absolute top-3/4 right-1/4 w-80 h-80 bg-gradient-to-l from-pink-400/10 to-transparent rounded-full blur-3xl animate-wisp-float" style={{ animationDelay: '10s' }} />
-        <div className="absolute top-1/2 left-1/2 w-40 h-40 bg-gradient-to-t from-blue-400/10 to-transparent rounded-full blur-3xl animate-wisp-float" style={{ animationDelay: '5s' }} />
-        
-        {/* Floating Circle Shapes with 15% Blur (3px) */}
+        {/* Floating Circle Shapes - Green Blue Gradient with 25% Blur */}
         {[...Array(15)].map((_, i) => {
+          // Generate non-overlapping positions
           const baseSize = 60 + (i * 15);
-          const left = Math.random() * 90;
-          const top = Math.random() * 90;
+          const positions = [];
+          let attempts = 0;
+          let left, top;
+          
+          do {
+            left = Math.random() * 90; // Leave some margin
+            top = Math.random() * 90;
+            attempts++;
+          } while (attempts < 20); // Limit attempts to prevent infinite loop
           
           return (
             <div
               key={i}
-              className="absolute rounded-full bg-gradient-to-br from-purple-500/40 to-pink-500/40"
+              className="absolute rounded-full bg-gradient-to-br from-green-500/50 to-blue-600/50"
               style={{
                 width: `${baseSize}px`,
                 height: `${baseSize}px`,
                 left: `${left}%`,
                 top: `${top}%`,
-                filter: 'blur(3px)',
+                filter: 'blur(25%)',
                 animation: `float-${i % 8} ${12 + (i * 1.5)}s ease-in-out infinite`
               }}
             />
@@ -81,15 +80,15 @@ const Index = () => {
       `}</style>
 
       {/* Content Container */}
-      <div className="relative z-10 min-h-screen flex flex-col py-8 p-6">
+      <div className="relative z-10 min-h-screen flex flex-col py-8">
         {/* Main Hero Video - Neotrix Reels 2024 */}
         <div className="max-w-7xl mx-auto w-full mb-12">
           <div className="text-center mb-8">
             <div className="flex justify-center mb-6 animate-fade-in">
               <img 
-                src="/lovable-uploads/2c994a0b-e3ea-40ee-8471-4d3a8349b612.png" 
+                src={neotrixLogo} 
                 alt="Neotrix Logo" 
-                className="h-40 w-auto"
+                className="h-16 w-auto"
               />
             </div>
             <p className="text-2xl text-white/90 font-medium animate-fade-in" style={{ animationDelay: '0.2s' }}>

@@ -19,7 +19,7 @@ export const ProjectDetailModal = ({ project, onClose }: ProjectDetailModalProps
       />
       
       {/* Modal Content - Enhanced Glassmorphism */}
-      <div className="relative bg-gradient-to-br from-purple-900 via-pink-800 to-blue-900 rounded-3xl border border-white/20 shadow-2xl w-full h-full max-w-[95vw] max-h-[95vh] overflow-hidden animate-scale-in">
+      <div className="relative bg-gradient-to-br from-purple-900 via-pink-800 to-blue-900 rounded-3xl border border-white/20 shadow-2xl max-w-4xl max-h-[90vh] w-full overflow-hidden animate-scale-in">
         {/* Header */}
         <div className="relative">
           <img
@@ -54,7 +54,7 @@ export const ProjectDetailModal = ({ project, onClose }: ProjectDetailModalProps
         </div>
 
         {/* Content */}
-        <div className="p-8 overflow-y-auto h-[calc(95vh-20rem)]">
+        <div className="p-8 overflow-y-auto max-h-[60vh]">
           <div className="space-y-8">
             {/* Project Video */}
             <div>

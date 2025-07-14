@@ -26,7 +26,7 @@ const REELS = [
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-800 to-blue-900 bg-[length:200%_200%] animate-gradient p-6 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-800 to-blue-900 bg-[length:200%_200%] animate-gradient p-6 relative overflow-hidden backdrop-blur-md">
       {/* Enhanced Background Effects with More Bouncing Circles and Reduced Blur */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Large Background Circles - Less Blurred */}
@@ -52,7 +52,7 @@ const Index = () => {
           return (
             <div
               key={i}
-              className="absolute rounded-full bg-gradient-to-br from-green-400/30 to-blue-500/30"
+              className="absolute rounded-full bg-gradient-to-br from-green-500/50 to-blue-600/50"
               style={{
                 width: `${baseSize}px`,
                 height: `${baseSize}px`,
@@ -83,11 +83,13 @@ const Index = () => {
         {/* Main Hero Video - Neotrix Reels 2024 */}
         <div className="max-w-7xl mx-auto w-full mb-12">
           <div className="text-center mb-8">
-            <h1 className="text-6xl font-bold text-white mb-4 animate-fade-in">
-              Neotrix Reels 2024
-            </h1>
-            <p className="text-xl text-white/80 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-              Our latest creative showcase
+            <div className="flex justify-center mb-6 animate-fade-in">
+              <div className="text-6xl font-bold text-white tracking-wider">
+                NEOTRIX
+              </div>
+            </div>
+            <p className="text-2xl text-white/90 font-medium animate-fade-in" style={{ animationDelay: '0.2s' }}>
+              Innovate. Animate. Elevate.
             </p>
           </div>
           <div className="aspect-video bg-white/15 backdrop-blur-sm rounded-3xl border border-white/30 overflow-hidden shadow-2xl hover:bg-white/20 transition-all duration-500 max-w-6xl mx-auto ring-2 ring-white/10">

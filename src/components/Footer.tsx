@@ -10,7 +10,10 @@ export const Footer = () => {
           <div className="space-y-4">
             <h3 className="text-2xl font-bold text-white">Neotrix</h3>
             <p className="text-white/70 leading-relaxed">
-              Creative digital agency specializing in motion graphics, visual effects, and immersive storytelling.
+              3D animation Studio, uniquely blending artistry with cutting-edge Technology and AI.
+            </p>
+            <p className="text-white/60 italic text-sm mt-2">
+              "Technology inspires creativity, Creativity challenges technology"
             </p>
           </div>
 
@@ -20,15 +23,15 @@ export const Footer = () => {
             <div className="space-y-3">
               <div className="flex items-center gap-3 text-white/70">
                 <Mail className="w-4 h-4 text-purple-400" />
-                <span>hello@neotrix.asia</span>
+                <span>contact@neotrix.asia</span>
               </div>
               <div className="flex items-center gap-3 text-white/70">
                 <Phone className="w-4 h-4 text-purple-400" />
-                <span>+1 (555) 123-4567</span>
+                <span>+62 87797681961</span>
               </div>
               <div className="flex items-center gap-3 text-white/70">
                 <MapPin className="w-4 h-4 text-purple-400" />
-                <span>123 Creative Street, Design City, DC 12345</span>
+                <span>Jl. Surya Utama No.15 Blok P, Kedoya Utara, Kec. Kb. Jeruk, Jakarta, Daerah Khusus Ibukota Jakarta 11520</span>
               </div>
             </div>
           </div>
@@ -37,11 +40,10 @@ export const Footer = () => {
           <div className="space-y-4">
             <h4 className="text-lg font-semibold text-white">Services</h4>
             <div className="space-y-2">
-              <p className="text-white/70">Motion Graphics</p>
-              <p className="text-white/70">Visual Effects</p>
               <p className="text-white/70">3D Animation</p>
-              <p className="text-white/70">Brand Identity</p>
-              <p className="text-white/70">Digital Marketing</p>
+              <p className="text-white/70">3D Motion Capture</p>
+              <p className="text-white/70">Product Commercial</p>
+              <p className="text-white/70">3D Lighting & Render</p>
             </div>
           </div>
 
@@ -58,7 +60,7 @@ export const Footer = () => {
               @neotrix.asia
             </Button>
             <p className="text-white/50 text-sm">
-              Follow us for behind-the-scenes content and latest projects
+              Follow us for the latest and greatest from us
             </p>
           </div>
         </div>

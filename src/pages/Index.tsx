@@ -156,7 +156,6 @@ const Index = () => {
               <div className="w-full h-full flex items-center justify-center">
                 <div className="text-center">
                   <h3 className="text-white text-2xl md:text-4xl font-bold mb-2">See More</h3>
-                  <p className="text-white/80 text-lg">Follow us on Instagram</p>
                   <p className="text-white/60 text-sm mt-2">@neotrix.asia</p>
                 </div>
               </div>

@@ -22,6 +22,12 @@ const REELS = [
     src: 'https://youtu.be/dDYHSj54Wn0',
     title: 'Animation Reels',
     author: 'neotrix.asia'
+  },
+  {
+    id: '4',
+    src: 'https://youtu.be/WcAUX5glZWc',
+    title: 'Beauty Reels',
+    author: 'neotrix.asia'
   }
 ];
 
@@ -110,7 +116,7 @@ const Index = () => {
           <h2 className="text-xl md:text-3xl font-bold text-white text-center mb-4 md:mb-6 px-4">More From Our Portfolio</h2>
 
           {/* Bottom Row - Two videos side by side on desktop, stacked on mobile */}
-          <div className="flex flex-col md:flex-row gap-4 md:gap-6 max-w-7xl mx-auto w-full">
+          <div className="flex flex-col md:flex-row gap-4 md:gap-6 max-w-7xl mx-auto w-full mb-4 md:mb-6">
             {/* Liquid Reels */}
             <div className="flex-1 aspect-video bg-white/10 backdrop-blur-sm rounded-3xl border border-white/20 overflow-hidden shadow-2xl hover:bg-white/15 transition-all duration-500">
               <VideoPlayer
@@ -129,6 +135,31 @@ const Index = () => {
                 author={REELS[2].author}
                 isActive={true}
               />
+            </div>
+          </div>
+
+          {/* Beauty Reels Row */}
+          <div className="flex flex-col md:flex-row gap-4 md:gap-6 max-w-7xl mx-auto w-full">
+            {/* Beauty Reels */}
+            <div className="flex-1 aspect-video bg-white/10 backdrop-blur-sm rounded-3xl border border-white/20 overflow-hidden shadow-2xl hover:bg-white/15 transition-all duration-500">
+              <VideoPlayer
+                src={REELS[3].src}
+                title={REELS[3].title}
+                author={REELS[3].author}
+                isActive={true}
+              />
+            </div>
+
+            {/* See More Panel */}
+            <div className="flex-1 aspect-video bg-white/10 backdrop-blur-sm rounded-3xl border border-white/20 overflow-hidden shadow-2xl hover:bg-white/15 transition-all duration-500 cursor-pointer"
+                 onClick={() => window.open('https://www.instagram.com/neotrix.asia', '_blank')}>
+              <div className="w-full h-full flex items-center justify-center">
+                <div className="text-center">
+                  <h3 className="text-white text-2xl md:text-4xl font-bold mb-2">See More</h3>
+                  <p className="text-white/80 text-lg">Follow us on Instagram</p>
+                  <p className="text-white/60 text-sm mt-2">@neotrix.asia</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>

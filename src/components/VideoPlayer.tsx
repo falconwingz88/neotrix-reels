@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Play, Pause, Volume2, VolumeX, MoreVertical, Maximize } from 'lucide-react';
+import { Play, Pause, Volume2, VolumeX, MoreVertical, Maximize, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 // Utility function to detect and convert YouTube URLs
@@ -40,6 +40,7 @@ export const VideoPlayer = ({ src, title, author, isActive }: VideoPlayerProps) 
   const videoRef = useRef<HTMLVideoElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [duration, setDuration] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   
   const isYouTube = isYouTubeUrl(src);
   const embedUrl = isYouTube ? getYouTubeEmbedUrl(src) : src;
@@ -70,6 +71,17 @@ export const VideoPlayer = ({ src, title, author, isActive }: VideoPlayerProps) 
       video.removeEventListener('timeupdate', handleTimeUpdate);
       video.removeEventListener('loadedmetadata', handleLoadedMetadata);
       video.removeEventListener('ended', handleEnded);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
     };
   }, []);
 
@@ -138,6 +150,12 @@ export const VideoPlayer = ({ src, title, author, isActive }: VideoPlayerProps) 
     }
   };
 
+  const exitFullscreen = () => {
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    }
+  };
+
   return (
     <div className="relative w-full h-full overflow-hidden rounded-2xl">
       {/* Video Element or YouTube Iframe - constrained to 16:9 aspect ratio */}
@@ -199,6 +217,20 @@ export const VideoPlayer = ({ src, title, author, isActive }: VideoPlayerProps) 
           style={{ width: `${progress}%` }}
         />
       </div>
+
+      {/* Fullscreen Back Button */}
+      {isFullscreen && (
+        <div className="absolute top-4 left-4 z-50">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="w-12 h-12 rounded-full bg-black/50 backdrop-blur-sm border border-white/20 hover:bg-black/70 transition-all duration-300"
+            onClick={exitFullscreen}
+          >
+            <X className="w-5 h-5 text-white" />
+          </Button>
+        </div>
+      )}
 
       {/* Controls and Info */}
       <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">

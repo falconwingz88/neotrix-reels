@@ -5,6 +5,17 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { ProjectDetailModal } from './ProjectDetailModal';
 
+// Import thumbnails
+import lazadaRamadanThumbnail from '@/assets/thumbnails/lazada-ramadan.jpg';
+import rejoice3in1Thumbnail from '@/assets/thumbnails/rejoice-3in1.jpg';
+import oppoEncobudsThumbnail from '@/assets/thumbnails/oppo-encobuds.jpg';
+import bniMobileBankingThumbnail from '@/assets/thumbnails/bni-mobile-banking.jpg';
+import pertaminaHutRiThumbnail from '@/assets/thumbnails/pertamina-hut-ri.jpg';
+import jntGapaiMimpumuThumbnail from '@/assets/thumbnails/jnt-gapai-mimpimu.jpg';
+import oppoReno4SelectiveThumbnail from '@/assets/thumbnails/oppo-reno4-selective.jpg';
+import oppoReno4BlueThumbnail from '@/assets/thumbnails/oppo-reno4-blue.jpg';
+import bibitDeddyCorbuzierThumbnail from '@/assets/thumbnails/bibit-deddy-corbuzier.jpg';
+
 export interface Project {
   id: string;
   title: string;
@@ -89,63 +100,15 @@ const PROJECTS: Project[] = [
     deliveryFiles: []
   },
   {
-    id: '5',
-    title: 'Wuling',
-    description: 'Automotive brand showcase featuring innovative design and modern mobility solutions.',
-    thumbnail: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400',
-    tags: ['VFX'],
-    year: 2025,
-    client: 'Above Space',
-    primaryVideoUrl: '',
-    allVideos: [],
-    deliveryFiles: ['https://drive.google.com/file/d/1Ytd-GYd56XpusWyvyNwz0m67dcD4ya-t/view?usp=drive_link']
-  },
-  {
     id: '7',
     title: 'Paddle Pop',
     description: 'Ice cream brand campaign with playful animations and joyful family moments.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/1WAHm5SAbug'),
     tags: ['Liquid'],
     year: 2025,
-    client: 'Reyhan Hilman',
+    client: 'Leomotions',
     primaryVideoUrl: 'https://youtu.be/1WAHm5SAbug',
     allVideos: ['https://youtu.be/1WAHm5SAbug'],
-    deliveryFiles: []
-  },
-  {
-    id: '8',
-    title: 'Ultima II x Mikha Tambayong',
-    description: 'Beauty brand collaboration featuring celebrity endorsement and premium cosmetics showcase.',
-    thumbnail: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400',
-    tags: ['Beauty', 'Character Animation'],
-    year: 2025,
-    client: 'Lieve',
-    primaryVideoUrl: 'https://drive.google.com/file/d/1T6iYkJ0Dz2BqmRttbT70PfSzJvVD8Svi/view?usp=sharing',
-    allVideos: ['https://drive.google.com/file/d/1T6iYkJ0Dz2BqmRttbT70PfSzJvVD8Svi/view?usp=sharing', 'https://drive.google.com/file/d/1NC2q-dPpiYqq0mzgLj8N77WoggXIIiEJ/view?usp=drive_link', 'https://drive.google.com/file/d/1-Z0eNWi9yRd_AVGgaE7coqpDHId46b5F/view?usp=drive_link'],
-    deliveryFiles: ['https://drive.google.com/file/d/1T6iYkJ0Dz2BqmRttbT70PfSzJvVD8Svi/view?usp=sharing', 'https://drive.google.com/file/d/1NC2q-dPpiYqq0mzgLj8N77WoggXIIiEJ/view?usp=drive_link', 'https://drive.google.com/file/d/1-Z0eNWi9yRd_AVGgaE7coqpDHId46b5F/view?usp=drive_link']
-  },
-  {
-    id: '9',
-    title: 'Bibit x Deddy Corbuzier',
-    description: 'Investment platform campaign featuring influencer collaboration and financial education.',
-    thumbnail: getYouTubeThumbnail('https://youtube.com/shorts/mFd3rPt-R-U'),
-    tags: ['Character Animation'],
-    year: 2024,
-    client: 'Adi Victory',
-    primaryVideoUrl: 'https://youtube.com/shorts/mFd3rPt-R-U',
-    allVideos: ['https://youtube.com/shorts/mFd3rPt-R-U'],
-    deliveryFiles: []
-  },
-  {
-    id: '10',
-    title: 'Miranda',
-    description: 'Beverage brand campaign showcasing refreshing moments and lifestyle integration.',
-    thumbnail: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400',
-    tags: ['Liquid'],
-    year: 2024,
-    client: 'Lieve',
-    primaryVideoUrl: '',
-    allVideos: [],
     deliveryFiles: []
   },
   {
@@ -281,18 +244,6 @@ const PROJECTS: Project[] = [
     deliveryFiles: []
   },
   {
-    id: '24',
-    title: 'Skinmology',
-    description: 'Advanced skincare brand focusing on dermatological science and beauty innovation.',
-    thumbnail: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400',
-    tags: ['Beauty'],
-    year: 2024,
-    client: 'Felivia Devanie',
-    primaryVideoUrl: '',
-    allVideos: [],
-    deliveryFiles: ['https://drive.google.com/file/d/1tkwHrZv4tpUZXCRrNF1u_q4sMnirTizn/view?usp=drive_link']
-  },
-  {
     id: '25',
     title: 'Garuda Miles',
     description: 'Airline loyalty program campaign showcasing travel benefits and premium experiences.',
@@ -351,18 +302,6 @@ const PROJECTS: Project[] = [
     primaryVideoUrl: 'https://youtu.be/x7gmGrbucIU',
     allVideos: ['https://youtu.be/x7gmGrbucIU', 'https://youtu.be/jiAVzjXO4Uw', 'https://youtu.be/Fq8lmuzh5e0', 'https://youtu.be/GkTJquLGTzc'],
     deliveryFiles: ['https://youtu.be/x7gmGrbucIU', 'https://youtu.be/jiAVzjXO4Uw', 'https://youtu.be/Fq8lmuzh5e0', 'https://youtu.be/GkTJquLGTzc']
-  },
-  {
-    id: '30',
-    title: 'Procold',
-    description: 'Cold medicine brand campaign focusing on relief, recovery, and wellness.',
-    thumbnail: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400',
-    tags: ['VFX'],
-    year: 2024,
-    client: 'Maika',
-    primaryVideoUrl: '',
-    allVideos: [],
-    deliveryFiles: []
   },
   {
     id: '31',
@@ -512,7 +451,7 @@ const PROJECTS: Project[] = [
     id: '43',
     title: 'Lazada Ramadan',
     description: 'E-commerce platform campaign celebrating Ramadan with special promotions.',
-    thumbnail: getYouTubeThumbnail('https://youtu.be/kLqeoHgZU0o'),
+    thumbnail: lazadaRamadanThumbnail,
     tags: ['VFX'],
     year: 2023,
     client: 'Milkyway Studio',
@@ -596,7 +535,7 @@ const PROJECTS: Project[] = [
     id: '50',
     title: 'Rejoice 3in1',
     description: 'Hair care brand campaign featuring multi-benefit shampoo with comprehensive care.',
-    thumbnail: getYouTubeThumbnail('https://youtu.be/Xr8Ov-AnYcI'),
+    thumbnail: rejoice3in1Thumbnail,
     tags: ['Beauty'],
     year: 2022,
     client: 'Milkyway Studio',
@@ -728,7 +667,7 @@ const PROJECTS: Project[] = [
     id: '61',
     title: 'OPPO Encobuds',
     description: 'Audio accessories campaign highlighting wireless earbuds technology and sound quality.',
-    thumbnail: getYouTubeThumbnail('https://youtu.be/T6Tn_nkdGoA'),
+    thumbnail: oppoEncobudsThumbnail,
     tags: ['VFX'],
     year: 2021,
     client: 'Milkyway Studio',
@@ -812,7 +751,7 @@ const PROJECTS: Project[] = [
     id: '68',
     title: 'BNI Mobile Banking',
     description: 'Banking application campaign highlighting digital banking convenience and security features.',
-    thumbnail: getYouTubeThumbnail('https://youtu.be/kceDIvOJahw'),
+    thumbnail: bniMobileBankingThumbnail,
     tags: ['VFX'],
     year: 2021,
     client: 'Milkyway Studio',
@@ -932,7 +871,7 @@ const PROJECTS: Project[] = [
     id: '78',
     title: 'Pertamina HUT RI',
     description: 'National oil company Indonesian Independence Day celebration campaign.',
-    thumbnail: getYouTubeThumbnail('https://youtu.be/eyDJdfAkPWc'),
+    thumbnail: pertaminaHutRiThumbnail,
     tags: ['VFX'],
     year: 2020,
     client: 'Milkyway Studio',
@@ -956,7 +895,7 @@ const PROJECTS: Project[] = [
     id: '80',
     title: 'J&T Gapai Mimpimu',
     description: 'Logistics company inspirational campaign about achieving dreams and aspirations.',
-    thumbnail: getYouTubeThumbnail('https://youtu.be/N5vH8q4bEho'),
+    thumbnail: jntGapaiMimpumuThumbnail,
     tags: ['VFX'],
     year: 2020,
     client: 'Milkyway Studio',
@@ -968,7 +907,7 @@ const PROJECTS: Project[] = [
     id: '81',
     title: 'OPPO Reno 4 Selective',
     description: 'Smartphone campaign highlighting selective focus photography features.',
-    thumbnail: getYouTubeThumbnail('https://youtu.be/jcqoo26CtDM'),
+    thumbnail: oppoReno4SelectiveThumbnail,
     tags: ['VFX'],
     year: 2020,
     client: 'Milkyway Studio',
@@ -980,12 +919,85 @@ const PROJECTS: Project[] = [
     id: '82',
     title: 'OPPO Reno 4 Blue',
     description: 'Smartphone campaign showcasing device design in elegant blue colorway.',
-    thumbnail: getYouTubeThumbnail('https://youtu.be/v4JXEizyTok'),
+    thumbnail: oppoReno4BlueThumbnail,
     tags: ['VFX'],
     year: 2020,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/v4JXEizyTok',
     allVideos: ['https://youtu.be/v4JXEizyTok'],
+    deliveryFiles: []
+  },
+  // Moved to bottom as requested
+  {
+    id: '5',
+    title: 'Wuling',
+    description: 'Automotive brand showcase featuring innovative design and modern mobility solutions.',
+    thumbnail: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400',
+    tags: ['VFX'],
+    year: 2025,
+    client: 'Above Space',
+    primaryVideoUrl: '',
+    allVideos: [],
+    deliveryFiles: ['https://drive.google.com/file/d/1Ytd-GYd56XpusWyvyNwz0m67dcD4ya-t/view?usp=drive_link']
+  },
+  {
+    id: '8',
+    title: 'Ultima II x Mikha Tambayong',
+    description: 'Beauty brand collaboration featuring celebrity endorsement and premium cosmetics showcase.',
+    thumbnail: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400',
+    tags: ['Beauty', 'Character Animation'],
+    year: 2025,
+    client: 'Lieve',
+    primaryVideoUrl: 'https://drive.google.com/file/d/1T6iYkJ0Dz2BqmRttbT70PfSzJvVD8Svi/view?usp=sharing',
+    allVideos: ['https://drive.google.com/file/d/1T6iYkJ0Dz2BqmRttbT70PfSzJvVD8Svi/view?usp=sharing', 'https://drive.google.com/file/d/1NC2q-dPpiYqq0mzgLj8N77WoggXIIiEJ/view?usp=drive_link', 'https://drive.google.com/file/d/1-Z0eNWi9yRd_AVGgaE7coqpDHId46b5F/view?usp=drive_link'],
+    deliveryFiles: ['https://drive.google.com/file/d/1T6iYkJ0Dz2BqmRttbT70PfSzJvVD8Svi/view?usp=sharing', 'https://drive.google.com/file/d/1NC2q-dPpiYqq0mzgLj8N77WoggXIIiEJ/view?usp=drive_link', 'https://drive.google.com/file/d/1-Z0eNWi9yRd_AVGgaE7coqpDHId46b5F/view?usp=drive_link']
+  },
+  {
+    id: '9',
+    title: 'Bibit x Deddy Corbuzier',
+    description: 'Investment platform campaign featuring influencer collaboration and financial education.',
+    thumbnail: bibitDeddyCorbuzierThumbnail,
+    tags: ['Character Animation'],
+    year: 2024,
+    client: 'Adi Victory',
+    primaryVideoUrl: 'https://youtube.com/shorts/mFd3rPt-R-U',
+    allVideos: ['https://youtube.com/shorts/mFd3rPt-R-U'],
+    deliveryFiles: []
+  },
+  {
+    id: '10',
+    title: 'Miranda',
+    description: 'Beverage brand campaign showcasing refreshing moments and lifestyle integration.',
+    thumbnail: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400',
+    tags: ['Liquid'],
+    year: 2024,
+    client: 'Lieve',
+    primaryVideoUrl: '',
+    allVideos: [],
+    deliveryFiles: []
+  },
+  {
+    id: '24',
+    title: 'Skinmology',
+    description: 'Advanced skincare brand focusing on dermatological science and beauty innovation.',
+    thumbnail: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400',
+    tags: ['Beauty'],
+    year: 2024,
+    client: 'Felivia Devanie',
+    primaryVideoUrl: '',
+    allVideos: [],
+    deliveryFiles: ['https://drive.google.com/file/d/1tkwHrZv4tpUZXCRrNF1u_q4sMnirTizn/view?usp=drive_link']
+  },
+  {
+    id: '30',
+    title: 'Procold',
+    description: 'Cold medicine brand campaign focusing on relief, recovery, and wellness.',
+    thumbnail: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400',
+    tags: ['VFX'],
+    year: 2024,
+    client: 'Maika',
+    primaryVideoUrl: '',
+    allVideos: [],
     deliveryFiles: []
   }
 ];
@@ -1052,7 +1064,7 @@ export const ProjectsBrowser = () => {
           <Button
             onClick={() => setShowFilters(!showFilters)}
             variant="outline"
-            className="border-white/20 text-white hover:bg-white/10"
+            className="bg-white/5 border-white/40 text-white hover:bg-white/10"
           >
             <Filter className="w-4 h-4 mr-2" />
             Filters

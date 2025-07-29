@@ -31,13 +31,57 @@ const getYouTubeThumbnail = (url: string): string => {
   return videoId ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : '';
 };
 
+// Helper function to categorize projects into new tag system
+const categorizeProject = (title: string, description: string): string[] => {
+  const titleLower = title.toLowerCase();
+  const descLower = description.toLowerCase();
+  const tags: string[] = [];
+  
+  // Beauty category
+  if (titleLower.includes('wardah') || titleLower.includes('ultima') || titleLower.includes('scarlett') || 
+      titleLower.includes('skincare') || titleLower.includes('beauty') || titleLower.includes('cosmetic') ||
+      titleLower.includes('skintific') || titleLower.includes('skinmology') || titleLower.includes('lip') ||
+      descLower.includes('beauty') || descLower.includes('skincare') || descLower.includes('cosmetic')) {
+    tags.push('Beauty');
+  }
+  
+  // Liquid category (fluid dynamics, liquids, drinks, flowing elements)
+  if (titleLower.includes('coffee') || titleLower.includes('kopi') || titleLower.includes('tomoro') ||
+      titleLower.includes('abc') || titleLower.includes('water') || titleLower.includes('milk') ||
+      titleLower.includes('indomilk') || titleLower.includes('miranda') || titleLower.includes('active water') ||
+      descLower.includes('coffee') || descLower.includes('beverage') || descLower.includes('liquid') ||
+      descLower.includes('fluid') || descLower.includes('drink')) {
+    tags.push('Liquid');
+  }
+  
+  // VFX category (visual effects, gaming, technology, digital)
+  if (titleLower.includes('mobile legends') || titleLower.includes('valorant') || titleLower.includes('oppo') ||
+      titleLower.includes('vivo') || titleLower.includes('gaming') || titleLower.includes('esports') ||
+      titleLower.includes('5g') || titleLower.includes('technology') || titleLower.includes('digital') ||
+      titleLower.includes('reno') || titleLower.includes('smartphone') || titleLower.includes('pubg') ||
+      descLower.includes('gaming') || descLower.includes('esports') || descLower.includes('technology') ||
+      descLower.includes('digital') || descLower.includes('smartphone') || descLower.includes('5g')) {
+    tags.push('VFX');
+  }
+  
+  // Character Animation category (people, celebrities, stories, narratives)
+  if (titleLower.includes('deddy') || titleLower.includes('chelsea') || titleLower.includes('mikha') ||
+      titleLower.includes('celebrity') || titleLower.includes('timnas') || titleLower.includes('un1ty') ||
+      descLower.includes('celebrity') || descLower.includes('endorsement') || descLower.includes('character') ||
+      descLower.includes('storytelling') || descLower.includes('narrative') || descLower.includes('collaboration')) {
+    tags.push('Character Animation');
+  }
+  
+  return tags.length > 0 ? tags : ['VFX']; // Default to VFX if no specific category
+};
+
 const PROJECTS: Project[] = [
   {
     id: '1',
     title: 'Wardah UV Shield',
     description: 'Sunscreen campaign showcasing protection and skincare benefits with premium beauty aesthetics.',
-    thumbnail: getYouTubeThumbnail(''),
-    tags: ['Wardah', 'Beauty', 'Skincare'],
+    thumbnail: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400',
+    tags: ['Beauty'],
     year: 2025,
     client: 'Liquid Production',
     primaryVideoUrl: '',
@@ -49,19 +93,19 @@ const PROJECTS: Project[] = [
     title: 'Caplang',
     description: 'Creative advertising campaign with dynamic visual storytelling and engaging brand narrative.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/os941LA67aE'),
-    tags: ['Caplang', 'Commercial'],
+    tags: ['VFX'],
     year: 2025,
     client: 'Lieve, Masterpiece',
     primaryVideoUrl: 'https://youtu.be/os941LA67aE',
     allVideos: ['https://youtu.be/os941LA67aE', 'https://youtu.be/GTk5W7jzSc0'],
-    deliveryFiles: ['https://youtu.be/os941LA67aE', 'https://youtu.be/GTk5W7jzSc0']
+    deliveryFiles: []
   },
   {
     id: '3',
     title: 'Yamalube',
     description: 'Motorcycle lubricant brand campaign featuring high-performance visuals and technical excellence.',
-    thumbnail: getYouTubeThumbnail(''),
-    tags: ['Yamalube', 'Automotive'],
+    thumbnail: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400',
+    tags: ['VFX'],
     year: 2025,
     client: 'Faris Aprillio',
     primaryVideoUrl: '',
@@ -72,8 +116,8 @@ const PROJECTS: Project[] = [
     id: '4',
     title: 'Hansaplast',
     description: 'Healthcare brand campaign emphasizing care, protection, and healing with medical precision.',
-    thumbnail: getYouTubeThumbnail(''),
-    tags: ['Hansaplast', 'Healthcare'],
+    thumbnail: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400',
+    tags: ['VFX'],
     year: 2025,
     client: 'Lieve',
     primaryVideoUrl: '',
@@ -84,8 +128,8 @@ const PROJECTS: Project[] = [
     id: '5',
     title: 'Wuling',
     description: 'Automotive brand showcase featuring innovative design and modern mobility solutions.',
-    thumbnail: getYouTubeThumbnail(''),
-    tags: ['Wuling', 'Automotive'],
+    thumbnail: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400',
+    tags: ['VFX'],
     year: 2025,
     client: 'Above Space',
     primaryVideoUrl: '',
@@ -96,8 +140,8 @@ const PROJECTS: Project[] = [
     id: '6',
     title: 'Clevo Reedit',
     description: 'Technology brand campaign featuring cutting-edge innovation and performance excellence.',
-    thumbnail: getYouTubeThumbnail(''),
-    tags: ['Clevo', 'Technology'],
+    thumbnail: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400',
+    tags: ['VFX'],
     year: 2025,
     client: 'Lilac Post',
     primaryVideoUrl: '',
@@ -108,8 +152,8 @@ const PROJECTS: Project[] = [
     id: '7',
     title: 'Paddle Pop',
     description: 'Ice cream brand campaign with playful animations and joyful family moments.',
-    thumbnail: getYouTubeThumbnail(''),
-    tags: ['Paddle Pop', 'Food & Beverage'],
+    thumbnail: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400',
+    tags: ['Liquid'],
     year: 2025,
     client: 'Reyhan Hilman',
     primaryVideoUrl: '',
@@ -120,8 +164,8 @@ const PROJECTS: Project[] = [
     id: '8',
     title: 'Ultima II x Mikha Tambayong',
     description: 'Beauty brand collaboration featuring celebrity endorsement and premium cosmetics showcase.',
-    thumbnail: getYouTubeThumbnail(''),
-    tags: ['Ultima II', 'Beauty', 'Celebrity'],
+    thumbnail: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400',
+    tags: ['Beauty', 'Character Animation'],
     year: 2025,
     client: 'Lieve',
     primaryVideoUrl: '',
@@ -133,7 +177,7 @@ const PROJECTS: Project[] = [
     title: 'Bibit x Deddy Corbuzier',
     description: 'Investment platform campaign featuring influencer collaboration and financial education.',
     thumbnail: getYouTubeThumbnail('https://youtube.com/shorts/mFd3rPt-R-U'),
-    tags: ['Bibit', 'Finance', 'Celebrity'],
+    tags: ['Character Animation'],
     year: 2024,
     client: 'Adi Victory',
     primaryVideoUrl: 'https://youtube.com/shorts/mFd3rPt-R-U',
@@ -144,8 +188,8 @@ const PROJECTS: Project[] = [
     id: '10',
     title: 'Miranda',
     description: 'Beverage brand campaign showcasing refreshing moments and lifestyle integration.',
-    thumbnail: getYouTubeThumbnail(''),
-    tags: ['Miranda', 'Beverage'],
+    thumbnail: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400',
+    tags: ['Liquid'],
     year: 2024,
     client: 'Lieve',
     primaryVideoUrl: '',
@@ -156,8 +200,8 @@ const PROJECTS: Project[] = [
     id: '11',
     title: 'Enfagrow',
     description: 'Nutrition brand focusing on child development and family wellness.',
-    thumbnail: getYouTubeThumbnail(''),
-    tags: ['Enfagrow', 'Nutrition', 'Family'],
+    thumbnail: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400',
+    tags: ['VFX'],
     year: 2024,
     client: 'Lieve',
     primaryVideoUrl: '',
@@ -168,8 +212,8 @@ const PROJECTS: Project[] = [
     id: '12',
     title: 'Scarlett Whitening',
     description: 'Beauty brand campaign emphasizing skincare innovation and radiant results.',
-    thumbnail: getYouTubeThumbnail(''),
-    tags: ['Scarlett', 'Beauty', 'Skincare'],
+    thumbnail: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400',
+    tags: ['Beauty'],
     year: 2024,
     client: 'Lieve',
     primaryVideoUrl: '',
@@ -181,7 +225,7 @@ const PROJECTS: Project[] = [
     title: 'Patigon Spirit',
     description: 'Gaming-inspired content with dynamic action sequences and competitive spirit.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/P-gxYwF0r0w'),
-    tags: ['Gaming', 'Esports'],
+    tags: ['VFX'],
     year: 2024,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/P-gxYwF0r0w',
@@ -193,7 +237,7 @@ const PROJECTS: Project[] = [
     title: 'J&T Express',
     description: 'Logistics company campaign showcasing delivery excellence and customer satisfaction.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/rzXekAUlEvI'),
-    tags: ['J&T Express', 'Logistics'],
+    tags: ['VFX'],
     year: 2024,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/rzXekAUlEvI',
@@ -205,7 +249,7 @@ const PROJECTS: Project[] = [
     title: 'Vuse',
     description: 'Premium tobacco brand campaign with sophisticated visual aesthetics.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/5YbuwyzvdEo'),
-    tags: ['Vuse', 'Tobacco'],
+    tags: ['VFX'],
     year: 2024,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/5YbuwyzvdEo',
@@ -217,7 +261,7 @@ const PROJECTS: Project[] = [
     title: 'Lucky Strike',
     description: 'Iconic tobacco brand campaign with bold visual identity and premium positioning.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/VOoKutKEQWE'),
-    tags: ['Lucky Strike', 'Tobacco'],
+    tags: ['VFX'],
     year: 2024,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/VOoKutKEQWE',
@@ -229,7 +273,7 @@ const PROJECTS: Project[] = [
     title: 'Tomoro Coffee Cloud Series',
     description: 'Premium coffee brand campaign featuring artisanal brewing and lifestyle moments.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/EvFb7pJa8e0'),
-    tags: ['Tomoro Coffee', 'Food & Beverage'],
+    tags: ['Liquid'],
     year: 2024,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/EvFb7pJa8e0',
@@ -241,7 +285,7 @@ const PROJECTS: Project[] = [
     title: 'Valorant VCT Ascension Pacific',
     description: 'Esports tournament campaign with high-energy gaming visuals and competitive atmosphere.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/OT4MzLnsx1o'),
-    tags: ['Valorant', 'Esports', 'Gaming'],
+    tags: ['VFX'],
     year: 2024,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/OT4MzLnsx1o',
@@ -253,7 +297,7 @@ const PROJECTS: Project[] = [
     title: 'J&T Express 9th Anniversary',
     description: 'Anniversary celebration campaign highlighting company milestones and future vision.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/x4H45vuo-4Y'),
-    tags: ['J&T Express', 'Anniversary'],
+    tags: ['VFX'],
     year: 2024,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/x4H45vuo-4Y',
@@ -265,7 +309,7 @@ const PROJECTS: Project[] = [
     title: 'Hemaviton Action Range',
     description: 'Health supplement campaign focusing on energy, vitality, and active lifestyle.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/L8ZT3BxSN8s'),
-    tags: ['Hemaviton', 'Health', 'Supplement'],
+    tags: ['VFX'],
     year: 2024,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/L8ZT3BxSN8s',
@@ -277,7 +321,7 @@ const PROJECTS: Project[] = [
     title: 'Skintific',
     description: 'Skincare brand campaign emphasizing scientific innovation and dermatological excellence.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/QD_VqP3lSdk'),
-    tags: ['Skintific', 'Skincare', 'Beauty'],
+    tags: ['Beauty'],
     year: 2024,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/QD_VqP3lSdk',
@@ -289,7 +333,7 @@ const PROJECTS: Project[] = [
     title: 'Mobile Legends All Star',
     description: 'Gaming tournament showcase with spectacular esports action and competitive highlights.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/239w3mLbR78'),
-    tags: ['Mobile Legends', 'Esports', 'Gaming'],
+    tags: ['VFX'],
     year: 2024,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/239w3mLbR78',
@@ -301,7 +345,7 @@ const PROJECTS: Project[] = [
     title: 'Siloam Hospital',
     description: 'Healthcare institution campaign highlighting medical excellence and patient care.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/Mbo_WDsfYeE'),
-    tags: ['Siloam', 'Healthcare', 'Medical'],
+    tags: ['VFX'],
     year: 2024,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/Mbo_WDsfYeE',
@@ -312,8 +356,8 @@ const PROJECTS: Project[] = [
     id: '24',
     title: 'Skinmology',
     description: 'Advanced skincare brand focusing on dermatological science and beauty innovation.',
-    thumbnail: getYouTubeThumbnail(''),
-    tags: ['Skinmology', 'Skincare', 'Beauty'],
+    thumbnail: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400',
+    tags: ['Beauty'],
     year: 2024,
     client: 'Felivia Devanie',
     primaryVideoUrl: '',
@@ -325,7 +369,7 @@ const PROJECTS: Project[] = [
     title: 'Garuda Miles',
     description: 'Airline loyalty program campaign showcasing travel benefits and premium experiences.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/-7_nktP0pG4'),
-    tags: ['Garuda Miles', 'Travel', 'Airlines'],
+    tags: ['VFX'],
     year: 2024,
     client: 'Lieve',
     primaryVideoUrl: 'https://youtu.be/-7_nktP0pG4',
@@ -337,7 +381,7 @@ const PROJECTS: Project[] = [
     title: 'Ultima II Brand Manifesto',
     description: 'Premium beauty brand manifesto showcasing luxury cosmetics and brand philosophy.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/fe_LzsL1x-I'),
-    tags: ['Ultima II', 'Beauty', 'Manifesto'],
+    tags: ['Beauty'],
     year: 2024,
     client: 'Winaya Studio',
     primaryVideoUrl: 'https://youtu.be/fe_LzsL1x-I',
@@ -349,7 +393,7 @@ const PROJECTS: Project[] = [
     title: 'Natur-E',
     description: 'Natural vitamin E supplement campaign emphasizing health and natural wellness.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/VWRsTt-DQj4'),
-    tags: ['Natur-E', 'Health', 'Supplement'],
+    tags: ['VFX'],
     year: 2024,
     client: 'Winaya Studio',
     primaryVideoUrl: 'https://youtu.be/VWRsTt-DQj4',
@@ -361,7 +405,7 @@ const PROJECTS: Project[] = [
     title: 'RWS Casino',
     description: 'Gaming and entertainment venue campaign with luxurious casino atmosphere.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/oMSz56zS2uk'),
-    tags: ['RWS Casino', 'Entertainment', 'Gaming'],
+    tags: ['VFX'],
     year: 2024,
     client: 'hiremistress',
     primaryVideoUrl: 'https://youtu.be/oMSz56zS2uk',
@@ -373,7 +417,7 @@ const PROJECTS: Project[] = [
     title: 'BBL x Chelsea Islan',
     description: 'Banking service campaign featuring celebrity endorsement and financial solutions.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/x7gmGrbucIU'),
-    tags: ['BBL', 'Banking', 'Celebrity'],
+    tags: ['Character Animation'],
     year: 2024,
     client: 'Lieve',
     primaryVideoUrl: 'https://youtu.be/x7gmGrbucIU',
@@ -384,8 +428,8 @@ const PROJECTS: Project[] = [
     id: '30',
     title: 'Procold',
     description: 'Cold medicine brand campaign focusing on relief, recovery, and wellness.',
-    thumbnail: getYouTubeThumbnail(''),
-    tags: ['Procold', 'Medicine', 'Healthcare'],
+    thumbnail: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400',
+    tags: ['VFX'],
     year: 2024,
     client: 'Maika',
     primaryVideoUrl: '',
@@ -397,7 +441,7 @@ const PROJECTS: Project[] = [
     title: 'Indomilk x Timnas',
     description: 'Dairy brand collaboration with national football team showcasing sports nutrition.',
     thumbnail: getYouTubeThumbnail('https://youtube.com/shorts/GMeCmOyHu1g'),
-    tags: ['Indomilk', 'Sports', 'Dairy'],
+    tags: ['Liquid', 'Character Animation'],
     year: 2023,
     client: 'United Creative',
     primaryVideoUrl: 'https://youtube.com/shorts/GMeCmOyHu1g',
@@ -409,7 +453,7 @@ const PROJECTS: Project[] = [
     title: 'BCA Sekali Jalan',
     description: 'Banking service campaign highlighting convenience and seamless transactions.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/vYOt2WfiZpM'),
-    tags: ['BCA', 'Banking', 'Finance'],
+    tags: ['VFX'],
     year: 2023,
     client: 'Cuatrodia',
     primaryVideoUrl: 'https://youtu.be/vYOt2WfiZpM',
@@ -421,7 +465,7 @@ const PROJECTS: Project[] = [
     title: 'Siladex Flu',
     description: 'Flu medicine campaign emphasizing fast relief and effective treatment.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/McrguiqkgcI'),
-    tags: ['Siladex', 'Medicine', 'Healthcare'],
+    tags: ['VFX'],
     year: 2023,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/McrguiqkgcI',
@@ -433,7 +477,7 @@ const PROJECTS: Project[] = [
     title: 'Himalaya',
     description: 'Natural healthcare brand showcasing herbal wellness and traditional medicine.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/HK6d6EbWPVE'),
-    tags: ['Himalaya', 'Healthcare', 'Natural'],
+    tags: ['VFX'],
     year: 2023,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/HK6d6EbWPVE',
@@ -445,7 +489,7 @@ const PROJECTS: Project[] = [
     title: 'Kopi Kenangan Matcha',
     description: 'Coffee brand expansion featuring matcha variants and premium beverage experience.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/ZyRs2eIR4Mo'),
-    tags: ['Kopi Kenangan', 'Coffee', 'Matcha'],
+    tags: ['Liquid'],
     year: 2023,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/ZyRs2eIR4Mo',
@@ -457,7 +501,7 @@ const PROJECTS: Project[] = [
     title: 'Flimty x Deddy Corbuzier',
     description: 'Health supplement campaign featuring celebrity endorsement and wellness messaging.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/HbaDfSrCBp4'),
-    tags: ['Flimty', 'Health', 'Celebrity'],
+    tags: ['Character Animation'],
     year: 2023,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/HbaDfSrCBp4',
@@ -469,7 +513,7 @@ const PROJECTS: Project[] = [
     title: 'Tri Happy Flex',
     description: 'Telecommunications campaign showcasing flexible mobile plans and connectivity.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/3m5YkPtVX0Y'),
-    tags: ['Tri', 'Telecommunications'],
+    tags: ['VFX'],
     year: 2023,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/3m5YkPtVX0Y',
@@ -481,7 +525,7 @@ const PROJECTS: Project[] = [
     title: 'Kelaya Hair Treatment',
     description: 'Hair care brand campaign emphasizing natural treatment and hair health.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/rJlOEydZCtA'),
-    tags: ['Kelaya', 'Hair Care', 'Beauty'],
+    tags: ['Beauty'],
     year: 2023,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/rJlOEydZCtA',
@@ -493,7 +537,7 @@ const PROJECTS: Project[] = [
     title: 'Kopi Kenangan Harmanas U DA BEST',
     description: 'Coffee brand campaign with upbeat messaging and community celebration.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/0dWh5aY-TvI'),
-    tags: ['Kopi Kenangan', 'Coffee', 'Community'],
+    tags: ['Liquid'],
     year: 2023,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/0dWh5aY-TvI',
@@ -505,7 +549,7 @@ const PROJECTS: Project[] = [
     title: 'Wardah Matte Lip Cream',
     description: 'Beauty brand campaign showcasing matte lip products with vibrant colors.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/U4APmP1Y-g0'),
-    tags: ['Wardah', 'Beauty', 'Cosmetics'],
+    tags: ['Beauty'],
     year: 2023,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/U4APmP1Y-g0',
@@ -517,7 +561,7 @@ const PROJECTS: Project[] = [
     title: 'Tomoro Coffee',
     description: 'Premium coffee brand campaign featuring artisanal brewing and quality beans.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/spYNxPKgum8'),
-    tags: ['Tomoro Coffee', 'Coffee', 'Premium'],
+    tags: ['Liquid'],
     year: 2023,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/spYNxPKgum8',
@@ -529,7 +573,7 @@ const PROJECTS: Project[] = [
     title: 'Anakonidin',
     description: 'Cold medicine campaign targeting families with effective relief solutions.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/FCJNiSnXYRU'),
-    tags: ['Anakonidin', 'Medicine', 'Healthcare'],
+    tags: ['VFX'],
     year: 2023,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/FCJNiSnXYRU',
@@ -541,7 +585,7 @@ const PROJECTS: Project[] = [
     title: 'Lazada Ramadan',
     description: 'E-commerce platform campaign celebrating Ramadan with special promotions.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/kLqeoHgZU0o'),
-    tags: ['Lazada', 'E-commerce', 'Ramadan'],
+    tags: ['VFX'],
     year: 2023,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/kLqeoHgZU0o',
@@ -553,7 +597,7 @@ const PROJECTS: Project[] = [
     title: 'Kopi Kenangan Hanya Untukmu',
     description: 'Coffee brand romantic campaign with emotional storytelling and premium positioning.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/K-iAQj4PPjY'),
-    tags: ['Kopi Kenangan', 'Coffee', 'Romance'],
+    tags: ['Liquid'],
     year: 2023,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/K-iAQj4PPjY',
@@ -565,7 +609,7 @@ const PROJECTS: Project[] = [
     title: 'ABC Kopi Susu Gula Aren',
     description: 'Traditional coffee brand featuring palm sugar variant and authentic flavors.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/acFS4uJh2F4'),
-    tags: ['ABC', 'Coffee', 'Traditional'],
+    tags: ['Liquid'],
     year: 2023,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/acFS4uJh2F4',
@@ -577,7 +621,7 @@ const PROJECTS: Project[] = [
     title: 'Mandiri Livin x Un1ty',
     description: 'Banking service collaboration with esports team showcasing digital innovation.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/WtgzmsI8mjY'),
-    tags: ['Mandiri', 'Banking', 'Esports'],
+    tags: ['Character Animation'],
     year: 2023,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/WtgzmsI8mjY',
@@ -589,7 +633,7 @@ const PROJECTS: Project[] = [
     title: 'Active Water',
     description: 'Mineral water brand campaign emphasizing hydration and active lifestyle.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/3bzKy6rB0Ho'),
-    tags: ['Active Water', 'Beverage', 'Health'],
+    tags: ['Liquid'],
     year: 2022,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/3bzKy6rB0Ho',
@@ -601,7 +645,7 @@ const PROJECTS: Project[] = [
     title: 'Mobile Legends M4',
     description: 'Mobile gaming championship campaign with high-energy esports content.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/7tCSKIO1Qkc'),
-    tags: ['Mobile Legends', 'Gaming', 'Championship'],
+    tags: ['VFX'],
     year: 2022,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/7tCSKIO1Qkc',
@@ -613,7 +657,7 @@ const PROJECTS: Project[] = [
     title: 'Permata Mobile X',
     description: 'Banking application campaign showcasing mobile banking convenience and security.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/cbZtI3EIVDc'),
-    tags: ['Permata', 'Banking', 'Mobile App'],
+    tags: ['VFX'],
     year: 2022,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/cbZtI3EIVDc',
@@ -625,7 +669,7 @@ const PROJECTS: Project[] = [
     title: 'Rejoice 3in1',
     description: 'Hair care brand campaign featuring multi-benefit shampoo with comprehensive care.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/Xr8Ov-AnYcI'),
-    tags: ['Rejoice', 'Hair Care', 'Beauty'],
+    tags: ['Beauty'],
     year: 2022,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/Xr8Ov-AnYcI',
@@ -637,7 +681,7 @@ const PROJECTS: Project[] = [
     title: 'Mobile Legends 515 M-World',
     description: 'Gaming festival campaign celebrating Mobile Legends anniversary with global excitement.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/tGuKYNwy0Q4'),
-    tags: ['Mobile Legends', 'Gaming', 'Festival'],
+    tags: ['VFX'],
     year: 2022,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/tGuKYNwy0Q4',
@@ -649,7 +693,7 @@ const PROJECTS: Project[] = [
     title: 'Vivo 23 Series',
     description: 'Smartphone brand campaign showcasing new device features and photography capabilities.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/lZxkFm66aNE'),
-    tags: ['Vivo', 'Smartphone', 'Technology'],
+    tags: ['VFX'],
     year: 2022,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/lZxkFm66aNE',
@@ -661,7 +705,7 @@ const PROJECTS: Project[] = [
     title: 'Bali United Rewind',
     description: 'Football club campaign highlighting team achievements and fan dedication.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/h-5XO6HVvO8'),
-    tags: ['Bali United', 'Sports', 'Football'],
+    tags: ['VFX'],
     year: 2022,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/h-5XO6HVvO8',
@@ -673,7 +717,7 @@ const PROJECTS: Project[] = [
     title: 'BigBabol Sploosh',
     description: 'Bubble gum brand campaign with playful animations and fun messaging.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/Fu81dpokZ14'),
-    tags: ['BigBabol', 'Candy', 'Fun'],
+    tags: ['VFX'],
     year: 2022,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/Fu81dpokZ14',
@@ -685,7 +729,7 @@ const PROJECTS: Project[] = [
     title: 'Softex Natural Cool',
     description: 'Feminine care brand campaign emphasizing comfort and natural protection.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/_waEQ2X7m34'),
-    tags: ['Softex', 'Feminine Care', 'Health'],
+    tags: ['VFX'],
     year: 2022,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/_waEQ2X7m34',
@@ -697,7 +741,7 @@ const PROJECTS: Project[] = [
     title: 'OPPO A95',
     description: 'Smartphone brand campaign highlighting device performance and design aesthetics.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/9fK9OX6WW1k'),
-    tags: ['OPPO', 'Smartphone', 'Technology'],
+    tags: ['VFX'],
     year: 2022,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/9fK9OX6WW1k',
@@ -709,7 +753,7 @@ const PROJECTS: Project[] = [
     title: 'Lazada x JFW 2021',
     description: 'E-commerce platform collaboration with Jakarta Fashion Week showcasing style and trends.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/z6ZCKRqdh_M'),
-    tags: ['Lazada', 'Fashion', 'E-commerce'],
+    tags: ['VFX'],
     year: 2021,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/z6ZCKRqdh_M',
@@ -721,7 +765,7 @@ const PROJECTS: Project[] = [
     title: 'FIBE MINI',
     description: 'Telecommunications brand campaign featuring compact internet solutions.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/Tk9z8DDCCvw'),
-    tags: ['FIBE', 'Telecommunications', 'Internet'],
+    tags: ['VFX'],
     year: 2021,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/Tk9z8DDCCvw',
@@ -733,7 +777,7 @@ const PROJECTS: Project[] = [
     title: 'J&T 100 Juta Pelanggan',
     description: 'Logistics company milestone celebration reaching 100 million customers.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/HEcn-7qUF38'),
-    tags: ['J&T Express', 'Milestone', 'Logistics'],
+    tags: ['VFX'],
     year: 2021,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/HEcn-7qUF38',
@@ -745,7 +789,7 @@ const PROJECTS: Project[] = [
     title: 'The World of Realfood',
     description: 'Food brand campaign showcasing authentic flavors and quality ingredients.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/8ZnkKQ_qSVs'),
-    tags: ['Realfood', 'Food & Beverage', 'Authentic'],
+    tags: ['Liquid'],
     year: 2021,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/8ZnkKQ_qSVs',
@@ -757,7 +801,7 @@ const PROJECTS: Project[] = [
     title: 'OPPO Encobuds',
     description: 'Audio accessories campaign highlighting wireless earbuds technology and sound quality.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/T6Tn_nkdGoA'),
-    tags: ['OPPO', 'Audio', 'Technology'],
+    tags: ['VFX'],
     year: 2021,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/T6Tn_nkdGoA',
@@ -769,7 +813,7 @@ const PROJECTS: Project[] = [
     title: 'J&T Super',
     description: 'Logistics service premium offering showcasing enhanced delivery solutions.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/GnvMlHJbq3o'),
-    tags: ['J&T Express', 'Premium', 'Logistics'],
+    tags: ['VFX'],
     year: 2021,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/GnvMlHJbq3o',
@@ -781,7 +825,7 @@ const PROJECTS: Project[] = [
     title: 'Mobile Legends 5th Anniversary',
     description: 'Gaming milestone celebration marking five years of Mobile Legends success.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/z3M6UjXvrCI'),
-    tags: ['Mobile Legends', 'Anniversary', 'Gaming'],
+    tags: ['VFX'],
     year: 2021,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/z3M6UjXvrCI',
@@ -793,7 +837,7 @@ const PROJECTS: Project[] = [
     title: 'OPPO Reno 6 x PUBG',
     description: 'Smartphone gaming collaboration showcasing device performance in mobile gaming.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/SVB2ns7rTf8'),
-    tags: ['OPPO', 'Gaming', 'PUBG'],
+    tags: ['VFX'],
     year: 2021,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/SVB2ns7rTf8',
@@ -805,7 +849,7 @@ const PROJECTS: Project[] = [
     title: 'Realfood UP',
     description: 'Food brand campaign highlighting nutritional benefits and energy boosting properties.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/kN3L3MXCML0'),
-    tags: ['Realfood', 'Nutrition', 'Energy'],
+    tags: ['Liquid'],
     year: 2021,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/kN3L3MXCML0',
@@ -817,7 +861,7 @@ const PROJECTS: Project[] = [
     title: 'Telkomsel 5G',
     description: 'Telecommunications 5G network launch campaign showcasing next-generation connectivity.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/wp0NKJ2acag'),
-    tags: ['Telkomsel', '5G', 'Technology'],
+    tags: ['VFX'],
     year: 2021,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/wp0NKJ2acag',
@@ -829,7 +873,7 @@ const PROJECTS: Project[] = [
     title: 'Hemaviton Neuro Forte',
     description: 'Brain health supplement campaign focusing on cognitive enhancement and mental clarity.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/u8kQbaUx2yY'),
-    tags: ['Hemaviton', 'Health', 'Brain'],
+    tags: ['VFX'],
     year: 2021,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/u8kQbaUx2yY',
@@ -841,7 +885,7 @@ const PROJECTS: Project[] = [
     title: 'BNI Mobile Banking',
     description: 'Banking application campaign highlighting digital banking convenience and security features.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/kceDIvOJahw'),
-    tags: ['BNI', 'Banking', 'Mobile App'],
+    tags: ['VFX'],
     year: 2021,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/kceDIvOJahw',
@@ -853,7 +897,7 @@ const PROJECTS: Project[] = [
     title: 'KulKul World',
     description: 'Travel and lifestyle platform campaign showcasing cultural experiences and destinations.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/-5IlW21DcwI'),
-    tags: ['KulKul', 'Travel', 'Lifestyle'],
+    tags: ['VFX'],
     year: 2021,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/-5IlW21DcwI',
@@ -865,7 +909,7 @@ const PROJECTS: Project[] = [
     title: 'OPPO Reno 5 5G - Car',
     description: 'Smartphone campaign featuring automotive-themed visuals and 5G connectivity.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/-PrXQeot2lc'),
-    tags: ['OPPO', '5G', 'Automotive'],
+    tags: ['VFX'],
     year: 2021,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/-PrXQeot2lc',
@@ -877,7 +921,7 @@ const PROJECTS: Project[] = [
     title: 'Klop Saluto Coklat',
     description: 'Chocolate snack brand campaign with indulgent flavors and satisfying moments.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/CEF7_ECg_e0'),
-    tags: ['Klop', 'Chocolate', 'Snack'],
+    tags: ['VFX'],
     year: 2021,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/CEF7_ECg_e0',
@@ -889,7 +933,7 @@ const PROJECTS: Project[] = [
     title: 'Wyeth S26',
     description: 'Baby formula brand campaign emphasizing nutrition and infant development.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/PrD4Py1SBKI'),
-    tags: ['Wyeth', 'Baby Formula', 'Nutrition'],
+    tags: ['VFX'],
     year: 2021,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/PrD4Py1SBKI',
@@ -901,7 +945,7 @@ const PROJECTS: Project[] = [
     title: 'Chitato Maxx',
     description: 'Snack brand campaign featuring bold flavors and maximum satisfaction.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/UQrdaDwY_CU'),
-    tags: ['Chitato', 'Snack', 'Bold'],
+    tags: ['VFX'],
     year: 2021,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/UQrdaDwY_CU',
@@ -913,7 +957,7 @@ const PROJECTS: Project[] = [
     title: 'Smartfren - Unlimited Daebak',
     description: 'Telecommunications unlimited data campaign with K-pop inspired messaging.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/M6bXLDcbjYU'),
-    tags: ['Smartfren', 'Unlimited', 'K-pop'],
+    tags: ['VFX'],
     year: 2021,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/M6bXLDcbjYU',
@@ -925,7 +969,7 @@ const PROJECTS: Project[] = [
     title: 'XL Axiata 4.5G',
     description: 'Telecommunications advanced network campaign showcasing enhanced connectivity speeds.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/_aese95_hpw'),
-    tags: ['XL Axiata', '4.5G', 'Telecommunications'],
+    tags: ['VFX'],
     year: 2020,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/_aese95_hpw',
@@ -937,7 +981,7 @@ const PROJECTS: Project[] = [
     title: 'OPPO Reno 4 F - Beatbox',
     description: 'Smartphone campaign featuring music and beatboxing with device audio capabilities.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/3xj7R7AHAjU'),
-    tags: ['OPPO', 'Music', 'Audio'],
+    tags: ['VFX'],
     year: 2020,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/3xj7R7AHAjU',
@@ -949,7 +993,7 @@ const PROJECTS: Project[] = [
     title: 'OPPO Reno 4 F - Basketball',
     description: 'Smartphone campaign with basketball theme showcasing device durability and performance.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/WU-zGbk1EyY'),
-    tags: ['OPPO', 'Sports', 'Basketball'],
+    tags: ['VFX'],
     year: 2020,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/WU-zGbk1EyY',
@@ -961,7 +1005,7 @@ const PROJECTS: Project[] = [
     title: 'Pertamina HUT RI',
     description: 'National oil company Indonesian Independence Day celebration campaign.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/eyDJdfAkPWc'),
-    tags: ['Pertamina', 'Independence Day', 'Patriotic'],
+    tags: ['VFX'],
     year: 2020,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/eyDJdfAkPWc',
@@ -973,7 +1017,7 @@ const PROJECTS: Project[] = [
     title: 'Free Fire x Money Heist',
     description: 'Gaming collaboration with popular Netflix series featuring themed content.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/ffKrFeehdu0'),
-    tags: ['Free Fire', 'Gaming', 'Collaboration'],
+    tags: ['VFX'],
     year: 2020,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/ffKrFeehdu0',
@@ -985,7 +1029,7 @@ const PROJECTS: Project[] = [
     title: 'J&T Gapai Mimpimu',
     description: 'Logistics company inspirational campaign about achieving dreams and aspirations.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/N5vH8q4bEho'),
-    tags: ['J&T Express', 'Inspirational', 'Dreams'],
+    tags: ['VFX'],
     year: 2020,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/N5vH8q4bEho',
@@ -997,7 +1041,7 @@ const PROJECTS: Project[] = [
     title: 'OPPO Reno 4 Selective',
     description: 'Smartphone campaign highlighting selective focus photography features.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/jcqoo26CtDM'),
-    tags: ['OPPO', 'Photography', 'Technology'],
+    tags: ['VFX'],
     year: 2020,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/jcqoo26CtDM',
@@ -1009,7 +1053,7 @@ const PROJECTS: Project[] = [
     title: 'OPPO Reno 4 Blue',
     description: 'Smartphone campaign showcasing device design in elegant blue colorway.',
     thumbnail: getYouTubeThumbnail('https://youtu.be/v4JXEizyTok'),
-    tags: ['OPPO', 'Design', 'Blue'],
+    tags: ['VFX'],
     year: 2020,
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/v4JXEizyTok',
@@ -1018,23 +1062,27 @@ const PROJECTS: Project[] = [
   }
 ];
 
-// Extract unique tags from all projects
-const getAllUniqueTags = (): string[] => {
-  const allTags = PROJECTS.flatMap(project => project.tags);
-  return [...new Set(allTags)].sort();
-};
-
-const AVAILABLE_TAGS = getAllUniqueTags();
+const TAG_OPTIONS = ['Beauty', 'Liquid', 'VFX', 'Character Animation'];
+const YEAR_OPTIONS = [2025, 2024, 2023, 2022, 2021, 2020];
 
 export const ProjectsBrowser = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
 
   const filteredProjects = PROJECTS.filter(project => {
-    const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesTags = selectedTags.length === 0 || selectedTags.some(tag => project.tags.includes(tag));
-    return matchesSearch && matchesTags;
+    const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         project.client.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesTags = selectedTags.length === 0 || 
+                       selectedTags.some(tag => project.tags.includes(tag));
+    
+    const matchesYear = selectedYear === null || project.year === selectedYear;
+    
+    return matchesSearch && matchesTags && matchesYear;
   });
 
   const toggleTag = (tag: string) => {
@@ -1047,116 +1095,186 @@ export const ProjectsBrowser = () => {
 
   const clearFilters = () => {
     setSelectedTags([]);
+    setSelectedYear(null);
     setSearchTerm('');
   };
 
   return (
-    <>
-      <div className="bg-white/10 backdrop-blur-2xl rounded-3xl border border-white/20 p-8 shadow-2xl">
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold text-white mb-2">Our Projects</h2>
-          <p className="text-white/70">Explore our creative portfolio and behind-the-scenes stories</p>
-        </div>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="text-center space-y-4">
+        <h1 className="text-4xl font-bold text-white">Our Projects</h1>
+        <p className="text-xl text-white/80 max-w-2xl mx-auto">
+          Explore our portfolio of creative campaigns, visual effects, and brand storytelling across different industries.
+        </p>
+      </div>
 
-        {/* Search and Filter Controls */}
-        <div className="mb-8 space-y-4">
-          {/* Search Bar */}
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white/50 w-5 h-5" />
+      {/* Search and Filter Controls */}
+      <div className="space-y-4">
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/60 w-4 h-4" />
             <Input
-              type="text"
               placeholder="Search projects..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-12 bg-white/5 border-white/20 text-white placeholder:text-white/50 focus:border-white/40 rounded-full"
+              className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-white/60"
             />
           </div>
+          <Button
+            onClick={() => setShowFilters(!showFilters)}
+            variant="outline"
+            className="border-white/20 text-white hover:bg-white/10"
+          >
+            <Filter className="w-4 h-4 mr-2" />
+            Filters
+          </Button>
+        </div>
 
-          {/* Filter Tags */}
-          <div className="flex flex-wrap gap-3 items-center">
-            <div className="flex items-center gap-2 text-white/70">
-              <Filter className="w-4 h-4" />
-              <span className="text-sm">Filter by tags:</span>
+        {/* Filter Panel */}
+        {showFilters && (
+          <div className="bg-white/5 backdrop-blur-sm rounded-lg p-6 space-y-4">
+            {/* Tag Filters */}
+            <div>
+              <h3 className="text-white font-medium mb-3 flex items-center gap-2">
+                <Layers className="w-4 h-4" />
+                Categories
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {TAG_OPTIONS.map(tag => (
+                  <Badge
+                    key={tag}
+                    variant={selectedTags.includes(tag) ? "default" : "outline"}
+                    className={`cursor-pointer transition-colors ${
+                      selectedTags.includes(tag)
+                        ? 'bg-white text-black hover:bg-white/90'
+                        : 'border-white/20 text-white hover:bg-white/10'
+                    }`}
+                    onClick={() => toggleTag(tag)}
+                  >
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
             </div>
-            {AVAILABLE_TAGS.map(tag => (
-              <Badge
-                key={tag}
-                variant={selectedTags.includes(tag) ? "default" : "outline"}
-                className={`cursor-pointer transition-all duration-200 ${
-                  selectedTags.includes(tag)
-                    ? 'bg-white text-purple-900 hover:bg-white/90'
-                    : 'border-white/30 text-white hover:bg-white/10'
-                }`}
-                onClick={() => toggleTag(tag)}
-              >
-                {tag}
-              </Badge>
-            ))}
-            {(selectedTags.length > 0 || searchTerm) && (
+
+            {/* Year Filter */}
+            <div>
+              <h3 className="text-white font-medium mb-3 flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
+                Year
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {YEAR_OPTIONS.map(year => (
+                  <Badge
+                    key={year}
+                    variant={selectedYear === year ? "default" : "outline"}
+                    className={`cursor-pointer transition-colors ${
+                      selectedYear === year
+                        ? 'bg-white text-black hover:bg-white/90'
+                        : 'border-white/20 text-white hover:bg-white/10'
+                    }`}
+                    onClick={() => setSelectedYear(selectedYear === year ? null : year)}
+                  >
+                    {year}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+
+            {/* Clear Filters */}
+            {(selectedTags.length > 0 || selectedYear !== null || searchTerm) && (
               <Button
-                variant="ghost"
-                size="sm"
                 onClick={clearFilters}
-                className="text-white/70 hover:text-white hover:bg-white/10"
+                variant="ghost"
+                className="text-white hover:bg-white/10"
               >
-                <X className="w-4 h-4 mr-1" />
-                Clear
+                <X className="w-4 h-4 mr-2" />
+                Clear all filters
               </Button>
             )}
           </div>
-        </div>
-
-        {/* Projects Grid - Extended panels with separate sections for image and text */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredProjects.map((project, index) => (
-            <div
-              key={project.id}
-              className="group cursor-pointer bg-white/5 rounded-2xl overflow-hidden border border-white/10 hover:border-white/30 transition-all duration-500 hover:transform hover:scale-105 animate-fade-in"
-              style={{
-                animationDelay: `${index * 0.1}s`,
-                animationFillMode: 'both'
-              }}
-              onClick={() => setSelectedProject(project)}
-            >
-              {/* Thumbnail Section */}
-              <div className="aspect-[4/3] relative overflow-hidden">
-                <img
-                  src={project.thumbnail}
-                  alt={project.title}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-              </div>
-              
-              {/* Text Content Section */}
-              <div className="p-5 space-y-3">
-                <h3 className="text-xl font-bold text-white group-hover:text-purple-200 transition-colors leading-tight">
-                  {project.title}
-                </h3>
-                <p className="text-white/70 text-sm leading-relaxed line-clamp-3">
-                  {project.description}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {filteredProjects.length === 0 && (
-          <div className="text-center py-12">
-            <Layers className="w-16 h-16 text-white/30 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-white mb-2">No projects found</h3>
-            <p className="text-white/60">Try adjusting your search or filter criteria</p>
-          </div>
         )}
       </div>
+
+      {/* Results Summary */}
+      <div className="text-white/70 text-sm">
+        Showing {filteredProjects.length} of {PROJECTS.length} projects
+      </div>
+
+      {/* Projects Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredProjects.map((project) => (
+          <div
+            key={project.id}
+            className="group cursor-pointer bg-white/5 backdrop-blur-sm rounded-lg overflow-hidden border border-white/10 hover:border-white/20 transition-all duration-300 hover:scale-105"
+            onClick={() => setSelectedProject(project)}
+          >
+            <div className="aspect-video bg-gray-800 overflow-hidden">
+              <img
+                src={project.thumbnail || 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400'}
+                alt={project.title}
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                onError={(e) => {
+                  e.currentTarget.src = 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400';
+                }}
+              />
+            </div>
+            <div className="p-4 space-y-3">
+              <div className="flex items-start justify-between gap-2">
+                <h3 className="font-semibold text-white group-hover:text-blue-300 transition-colors line-clamp-1">
+                  {project.title}
+                </h3>
+                <span className="text-xs text-white/60 bg-white/10 px-2 py-1 rounded-full whitespace-nowrap">
+                  {project.year}
+                </span>
+              </div>
+              <p className="text-sm text-white/70 line-clamp-2">
+                {project.description}
+              </p>
+              <div className="flex items-center gap-2 text-xs text-white/60">
+                <Users className="w-3 h-3" />
+                <span className="line-clamp-1">{project.client}</span>
+              </div>
+              <div className="flex flex-wrap gap-1">
+                {project.tags.slice(0, 2).map((tag, index) => (
+                  <Badge key={index} variant="secondary" className="text-xs bg-white/10 text-white/80 hover:bg-white/20">
+                    {tag}
+                  </Badge>
+                ))}
+                {project.tags.length > 2 && (
+                  <Badge variant="secondary" className="text-xs bg-white/10 text-white/80">
+                    +{project.tags.length - 2}
+                  </Badge>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* No Results */}
+      {filteredProjects.length === 0 && (
+        <div className="text-center py-12">
+          <p className="text-white/60">No projects found matching your criteria.</p>
+          <Button
+            onClick={clearFilters}
+            variant="ghost"
+            className="mt-4 text-white hover:bg-white/10"
+          >
+            Clear filters
+          </Button>
+        </div>
+      )}
 
       {/* Project Detail Modal */}
       {selectedProject && (
         <ProjectDetailModal
           project={selectedProject}
+          isOpen={!!selectedProject}
           onClose={() => setSelectedProject(null)}
         />
       )}
-    </>
+    </div>
   );
 };

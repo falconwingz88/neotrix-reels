@@ -11,116 +11,326 @@ export interface Project {
   description: string;
   thumbnail: string;
   tags: string[];
-  dateCreated: string;
-  teamMembers: string[];
-  backstory: string;
-  behindTheScenes: string[];
+  year: number;
+  client: string;
+  brand: string;
+  mainVideoUrl?: string;
+  additionalVideos?: string[];
+  videoThumbnail?: string;
 }
+
+// Helper function to extract YouTube video ID from URL
+const getYouTubeVideoId = (url: string): string | null => {
+  const regex = /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/;
+  const match = url.match(regex);
+  return match ? match[1] : null;
+};
+
+// Helper function to get YouTube thumbnail
+const getYouTubeThumbnail = (url: string): string => {
+  const videoId = getYouTubeVideoId(url);
+  if (videoId) {
+    return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+  }
+  return 'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=800&h=600&fit=crop';
+};
+
+// Helper function to extract brand name from project title
+const getBrandName = (title: string): string => {
+  return title.split(' ').slice(0, 2).join(' ');
+};
+
+// Helper function to parse multiple URLs
+const parseUrls = (urlString: string): string[] => {
+  if (!urlString) return [];
+  return urlString.split(',').map(url => url.trim()).filter(url => url.length > 0);
+};
 
 const PROJECTS: Project[] = [
   {
     id: '1',
-    title: 'Liquid Motion Graphics',
-    description: 'A stunning collection of fluid animations showcasing liquid dynamics and particle systems.',
-    thumbnail: 'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=800&h=600&fit=crop',
-    tags: ['Liquid', 'Commercial'],
-    dateCreated: '2024-01-15',
-    teamMembers: ['Alex Chen', 'Sarah Kim', 'Mike Rodriguez'],
-    backstory: 'This project was born from our fascination with fluid dynamics and the challenge of creating realistic liquid simulations that could be used in commercial applications.',
-    behindTheScenes: [
-      'We spent 3 weeks perfecting the particle system algorithms',
-      'The team experimented with over 50 different shader combinations',
-      'Initial renders took 12 hours per frame before optimization'
-    ]
+    title: 'Wardah UV Shield',
+    description: 'Sunscreen commercial showcasing UV protection technology with cutting-edge 3D animation for Liquid Production.',
+    thumbnail: 'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
+    tags: ['Wardah', '2025', 'Commercial'],
+    year: 2025,
+    client: 'Liquid Production',
+    brand: 'Wardah',
+    mainVideoUrl: '',
+    additionalVideos: [],
+    videoThumbnail: 'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg'
   },
   {
     id: '2',
-    title: 'Character Walk Cycle',
-    description: 'Dynamic character animation featuring realistic movement and personality-driven motion.',
-    thumbnail: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&h=600&fit=crop',
-    tags: ['Character Animation', '3D Character'],
-    dateCreated: '2024-02-08',
-    teamMembers: ['Emma Wilson', 'David Park', 'Lisa Zhang'],
-    backstory: 'Inspired by classic Disney animation principles, we wanted to create a character that felt alive and had genuine personality in every step.',
-    behindTheScenes: [
-      'Motion capture sessions with professional actors',
-      'Hand-animated secondary animations for clothing and hair',
-      'Over 200 iterations of the walk cycle timing'
-    ]
+    title: 'Caplang',
+    description: 'Creative commercial project delivered for Lieve and Masterpiece, showcasing innovative storytelling.',
+    thumbnail: 'https://img.youtube.com/vi/os941LA67aE/maxresdefault.jpg',
+    tags: ['Caplang', '2025', 'Commercial'],
+    year: 2025,
+    client: 'Lieve, Masterpiece',
+    brand: 'Caplang',
+    mainVideoUrl: 'https://youtu.be/os941LA67aE',
+    additionalVideos: ['https://youtu.be/GTk5W7jzSc0'],
+    videoThumbnail: 'https://img.youtube.com/vi/os941LA67aE/maxresdefault.jpg'
   },
   {
     id: '3',
-    title: 'Product Launch Campaign',
-    description: 'Commercial animation series for a major tech product launch, featuring sleek 3D visuals.',
-    thumbnail: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop',
-    tags: ['Commercial', '3D Character'],
-    dateCreated: '2024-01-30',
-    teamMembers: ['John Smith', 'Maria Garcia', 'Tom Anderson', 'Jessica Lee'],
-    backstory: 'A high-profile commercial project that required perfect timing and flawless execution to meet the client\'s ambitious vision.',
-    behindTheScenes: [
-      'Pre-visualization phase took 2 weeks of storyboarding',
-      'Client requested 47 revisions before final approval',
-      'Final render farm used 120 GPUs for 72 hours straight'
-    ]
+    title: 'Yamalube',
+    description: 'Motorcycle oil commercial featuring dynamic 3D product visualization for Faris Aprillio.',
+    thumbnail: 'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
+    tags: ['Yamalube', '2025', 'Commercial'],
+    year: 2025,
+    client: 'Faris Aprillio',
+    brand: 'Yamalube',
+    mainVideoUrl: '',
+    additionalVideos: [],
+    videoThumbnail: 'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg'
   },
   {
     id: '4',
-    title: 'Fantasy Adventure Series',
-    description: 'Epic fantasy series featuring magical creatures and breathtaking environments.',
-    thumbnail: 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=800&h=600&fit=crop',
-    tags: ['Series', 'Character Animation', '3D Character'],
-    dateCreated: '2023-11-20',
-    teamMembers: ['Rachel Thompson', 'Kevin Wu', 'Sophie Martinez', 'Daniel Kim', 'Anna Rodriguez'],
-    backstory: 'Our biggest project to date - a 12-episode series that pushed our creative and technical limits to tell an unforgettable story.',
-    behindTheScenes: [
-      'Created over 50 unique character designs',
-      'Built 25 distinct environments from scratch',
-      'Recorded original music score with 40-piece orchestra'
-    ]
+    title: 'Wuling',
+    description: 'Automotive commercial showcasing vehicle features through sophisticated 3D animation for Above Space.',
+    thumbnail: 'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
+    tags: ['Wuling', '2025', 'Automotive'],
+    year: 2025,
+    client: 'Above Space',
+    brand: 'Wuling',
+    mainVideoUrl: '',
+    additionalVideos: [],
+    videoThumbnail: 'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg'
   },
   {
     id: '5',
-    title: 'Liquid Abstract Art',
-    description: 'Experimental liquid simulations creating mesmerizing abstract visual patterns.',
-    thumbnail: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=800&h=600&fit=crop',
-    tags: ['Liquid'],
-    dateCreated: '2024-03-05',
-    teamMembers: ['Oliver Chang', 'Zoe Adams'],
-    backstory: 'An artistic exploration into the beauty of fluid dynamics, where mathematics meets pure visual poetry.',
-    behindTheScenes: [
-      'Used machine learning to generate unique flow patterns',
-      'Experimented with non-Newtonian fluid properties',
-      'Created custom color palette generator based on music'
-    ]
+    title: 'Ultima II X Mikha Tambayong',
+    description: 'Beauty campaign featuring celebrity endorsement with premium visual effects for Lieve.',
+    thumbnail: 'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
+    tags: ['Ultima', '2025', 'Beauty'],
+    year: 2025,
+    client: 'Lieve',
+    brand: 'Ultima II',
+    mainVideoUrl: '',
+    additionalVideos: [],
+    videoThumbnail: 'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg'
   },
   {
     id: '6',
-    title: 'Corporate Explainer Series',
-    description: 'Professional animated explainer videos for corporate training and marketing.',
-    thumbnail: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop',
-    tags: ['Commercial', 'Series'],
-    dateCreated: '2024-02-18',
-    teamMembers: ['Grace Liu', 'Marcus Johnson', 'Nina Patel'],
-    backstory: 'A series of educational animations that make complex business concepts accessible and engaging for all audiences.',
-    behindTheScenes: [
-      'Collaborated with educational psychologists for optimal learning',
-      'Created modular animation system for easy updates',
-      'Translated into 8 different languages'
-    ]
+    title: 'Bibit X Deddy Corbuzier',
+    description: 'Investment app commercial featuring celebrity collaboration for Adi Victory.',
+    thumbnail: 'https://img.youtube.com/vi/mFd3rPt-R-U/maxresdefault.jpg',
+    tags: ['Bibit', '2024', 'Fintech'],
+    year: 2024,
+    client: 'Adi Victory',
+    brand: 'Bibit',
+    mainVideoUrl: 'https://youtube.com/shorts/mFd3rPt-R-U?feature=share',
+    additionalVideos: [],
+    videoThumbnail: 'https://img.youtube.com/vi/mFd3rPt-R-U/maxresdefault.jpg'
+  },
+  {
+    id: '7',
+    title: 'Infestation Spirit',
+    description: 'Gaming commercial featuring dynamic action sequences for Milkyway Studio.',
+    thumbnail: 'https://img.youtube.com/vi/P-gxYwF0r0w/maxresdefault.jpg',
+    tags: ['Gaming', '2024', 'Action'],
+    year: 2024,
+    client: 'Milkyway Studio',
+    brand: 'Infestation Spirit',
+    mainVideoUrl: 'https://youtu.be/P-gxYwF0r0w?si=mN1o7TkonEUrydHW',
+    additionalVideos: [],
+    videoThumbnail: 'https://img.youtube.com/vi/P-gxYwF0r0w/maxresdefault.jpg'
+  },
+  {
+    id: '8',
+    title: 'J&T Express',
+    description: 'Logistics company commercial showcasing delivery services for Milkyway Studio.',
+    thumbnail: 'https://img.youtube.com/vi/rzXekAUlEvI/maxresdefault.jpg',
+    tags: ['J&T', '2024', 'Logistics'],
+    year: 2024,
+    client: 'Milkyway Studio',
+    brand: 'J&T Express',
+    mainVideoUrl: 'https://youtu.be/rzXekAUlEvI?si=5RbPP0gExQwiSTSq',
+    additionalVideos: [],
+    videoThumbnail: 'https://img.youtube.com/vi/rzXekAUlEvI/maxresdefault.jpg'
+  },
+  {
+    id: '9',
+    title: 'Valorant VCT Ascension Pacific',
+    description: 'Esports tournament promotional content featuring high-energy gaming visuals for Milkyway Studio.',
+    thumbnail: 'https://img.youtube.com/vi/OT4MzLnsx1o/maxresdefault.jpg',
+    tags: ['Valorant', '2024', 'Esports'],
+    year: 2024,
+    client: 'Milkyway Studio',
+    brand: 'Valorant VCT',
+    mainVideoUrl: 'https://youtu.be/OT4MzLnsx1o?si=WGoF4WRMVFl-GQX2',
+    additionalVideos: [],
+    videoThumbnail: 'https://img.youtube.com/vi/OT4MzLnsx1o/maxresdefault.jpg'
+  },
+  {
+    id: '10',
+    title: 'Mobile Legend All Star',
+    description: 'Gaming tournament promotional video featuring epic battle sequences for Milkyway Studio.',
+    thumbnail: 'https://img.youtube.com/vi/239w3mLbR78/maxresdefault.jpg',
+    tags: ['Mobile Legends', '2024', 'Gaming'],
+    year: 2024,
+    client: 'Milkyway Studio',
+    brand: 'Mobile Legend',
+    mainVideoUrl: 'https://youtu.be/239w3mLbR78?si=2M9dDAd3fT-q1oKQ',
+    additionalVideos: [],
+    videoThumbnail: 'https://img.youtube.com/vi/239w3mLbR78/maxresdefault.jpg'
+  },
+  {
+    id: '11',
+    title: 'Garuda Miles',
+    description: 'Airline loyalty program commercial featuring travel-inspired visuals for Lieve.',
+    thumbnail: 'https://img.youtube.com/vi/-7_nktP0pG4/maxresdefault.jpg',
+    tags: ['Garuda', '2024', 'Travel'],
+    year: 2024,
+    client: 'Lieve',
+    brand: 'Garuda Miles',
+    mainVideoUrl: 'https://youtu.be/-7_nktP0pG4',
+    additionalVideos: [],
+    videoThumbnail: 'https://img.youtube.com/vi/-7_nktP0pG4/maxresdefault.jpg'
+  },
+  {
+    id: '12',
+    title: 'Ultima II Brand Manifesto',
+    description: 'Brand manifesto video showcasing beauty and elegance for Winaya Studio.',
+    thumbnail: 'https://img.youtube.com/vi/fe_LzsL1x-I/maxresdefault.jpg',
+    tags: ['Ultima', '2024', 'Beauty'],
+    year: 2024,
+    client: 'Winaya Studio',
+    brand: 'Ultima II',
+    mainVideoUrl: 'https://youtu.be/fe_LzsL1x-I',
+    additionalVideos: [],
+    videoThumbnail: 'https://img.youtube.com/vi/fe_LzsL1x-I/maxresdefault.jpg'
+  },
+  {
+    id: '13',
+    title: 'Natur-E',
+    description: 'Vitamin supplement commercial featuring natural elements and health benefits for Winaya Studio.',
+    thumbnail: 'https://img.youtube.com/vi/VWRsTt-DQj4/maxresdefault.jpg',
+    tags: ['Natur-E', '2024', 'Health'],
+    year: 2024,
+    client: 'Winaya Studio',
+    brand: 'Natur-E',
+    mainVideoUrl: 'https://youtu.be/VWRsTt-DQj4',
+    additionalVideos: [],
+    videoThumbnail: 'https://img.youtube.com/vi/VWRsTt-DQj4/maxresdefault.jpg'
+  },
+  {
+    id: '14',
+    title: 'RWS Casino',
+    description: 'Casino entertainment commercial featuring luxury and excitement for hiremistress.',
+    thumbnail: 'https://img.youtube.com/vi/oMSz56zS2uk/maxresdefault.jpg',
+    tags: ['RWS', '2024', 'Entertainment'],
+    year: 2024,
+    client: 'hiremistress',
+    brand: 'RWS Casino',
+    mainVideoUrl: 'https://youtu.be/oMSz56zS2uk',
+    additionalVideos: ['https://youtu.be/7eDrA8IrLeA'],
+    videoThumbnail: 'https://img.youtube.com/vi/oMSz56zS2uk/maxresdefault.jpg'
+  },
+  {
+    id: '15',
+    title: 'BBL X Chelsea Islan',
+    description: 'Beauty brand collaboration featuring celebrity endorsement with multiple campaign videos for Lieve.',
+    thumbnail: 'https://img.youtube.com/vi/x7gmGrbucIU/maxresdefault.jpg',
+    tags: ['BBL', '2024', 'Beauty'],
+    year: 2024,
+    client: 'Lieve',
+    brand: 'BBL',
+    mainVideoUrl: 'https://youtu.be/x7gmGrbucIU',
+    additionalVideos: ['https://youtu.be/jiAVzjXO4Uw', 'https://youtu.be/Fq8lmuzh5e0', 'https://youtu.be/GkTJquLGTzc'],
+    videoThumbnail: 'https://img.youtube.com/vi/x7gmGrbucIU/maxresdefault.jpg'
+  },
+  {
+    id: '16',
+    title: 'Indomilk X Timnas',
+    description: 'Sports sponsorship commercial featuring Indonesian national football team for United Creative.',
+    thumbnail: 'https://img.youtube.com/vi/GMeCmOyHu1g/maxresdefault.jpg',
+    tags: ['Indomilk', '2023', 'Sports'],
+    year: 2023,
+    client: 'United Creative',
+    brand: 'Indomilk',
+    mainVideoUrl: 'https://youtube.com/shorts/GMeCmOyHu1g',
+    additionalVideos: [],
+    videoThumbnail: 'https://img.youtube.com/vi/GMeCmOyHu1g/maxresdefault.jpg'
+  },
+  {
+    id: '17',
+    title: 'BCA Sekali Jalan',
+    description: 'Banking service commercial featuring travel and financial convenience for Cuatrodia.',
+    thumbnail: 'https://img.youtube.com/vi/vYOt2WfiZpM/maxresdefault.jpg',
+    tags: ['BCA', '2023', 'Banking'],
+    year: 2023,
+    client: 'Cuatrodia',
+    brand: 'BCA',
+    mainVideoUrl: 'https://youtu.be/vYOt2WfiZpM',
+    additionalVideos: [],
+    videoThumbnail: 'https://img.youtube.com/vi/vYOt2WfiZpM/maxresdefault.jpg'
+  },
+  {
+    id: '18',
+    title: 'Kopi Kenangan Matcha',
+    description: 'Coffee chain commercial featuring matcha products for Milkyway Studio.',
+    thumbnail: 'https://img.youtube.com/vi/ZyRs2eIR4Mo/maxresdefault.jpg',
+    tags: ['Kopi Kenangan', '2023', 'F&B'],
+    year: 2023,
+    client: 'Milkyway Studio',
+    brand: 'Kopi Kenangan',
+    mainVideoUrl: 'https://youtu.be/ZyRs2eIR4Mo?si=9DOpLpNpoWbpOqc_',
+    additionalVideos: [],
+    videoThumbnail: 'https://img.youtube.com/vi/ZyRs2eIR4Mo/maxresdefault.jpg'
+  },
+  {
+    id: '19',
+    title: 'Flimty X Deddy Corbuzier',
+    description: 'Health supplement commercial featuring celebrity endorsement for Milkyway Studio.',
+    thumbnail: 'https://img.youtube.com/vi/HbaDfSrCBp4/maxresdefault.jpg',
+    tags: ['Flimty', '2023', 'Health'],
+    year: 2023,
+    client: 'Milkyway Studio',
+    brand: 'Flimty',
+    mainVideoUrl: 'https://youtu.be/HbaDfSrCBp4?si=NrIbL_KBHlO-lEDq',
+    additionalVideos: [],
+    videoThumbnail: 'https://img.youtube.com/vi/HbaDfSrCBp4/maxresdefault.jpg'
+  },
+  {
+    id: '20',
+    title: 'Mobile Legends M4',
+    description: 'Gaming tournament championship promotional content for Milkyway Studio.',
+    thumbnail: 'https://img.youtube.com/vi/7tCSKIO1Qkc/maxresdefault.jpg',
+    tags: ['Mobile Legends', '2022', 'Gaming'],
+    year: 2022,
+    client: 'Milkyway Studio',
+    brand: 'Mobile Legends',
+    mainVideoUrl: 'https://youtu.be/7tCSKIO1Qkc?si=DiH00hbO4UNNgYd7',
+    additionalVideos: [],
+    videoThumbnail: 'https://img.youtube.com/vi/7tCSKIO1Qkc/maxresdefault.jpg'
   }
 ];
 
-const AVAILABLE_TAGS = ['Liquid', 'Character Animation', 'Commercial', '3D Character', 'Series'];
+// Generate tags from projects dynamically
+const AVAILABLE_TAGS = Array.from(new Set(
+  PROJECTS.flatMap(project => project.tags)
+)).sort();
+
+const AVAILABLE_YEARS = Array.from(new Set(
+  PROJECTS.map(project => project.year)
+)).sort((a, b) => b - a);
 
 export const ProjectsBrowser = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [selectedYears, setSelectedYears] = useState<number[]>([]);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   const filteredProjects = PROJECTS.filter(project => {
-    const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                         project.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         project.client.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesTags = selectedTags.length === 0 || selectedTags.some(tag => project.tags.includes(tag));
-    return matchesSearch && matchesTags;
+    const matchesYears = selectedYears.length === 0 || selectedYears.includes(project.year);
+    return matchesSearch && matchesTags && matchesYears;
   });
 
   const toggleTag = (tag: string) => {
@@ -131,8 +341,17 @@ export const ProjectsBrowser = () => {
     );
   };
 
+  const toggleYear = (year: number) => {
+    setSelectedYears(prev => 
+      prev.includes(year) 
+        ? prev.filter(y => y !== year)
+        : [...prev, year]
+    );
+  };
+
   const clearFilters = () => {
     setSelectedTags([]);
+    setSelectedYears([]);
     setSearchTerm('');
   };
 
@@ -159,36 +378,60 @@ export const ProjectsBrowser = () => {
           </div>
 
           {/* Filter Tags */}
-          <div className="flex flex-wrap gap-3 items-center">
-            <div className="flex items-center gap-2 text-white/70">
-              <Filter className="w-4 h-4" />
-              <span className="text-sm">Filter by tags:</span>
+          <div className="space-y-3">
+            <div className="flex flex-wrap gap-3 items-center">
+              <div className="flex items-center gap-2 text-white/70">
+                <Filter className="w-4 h-4" />
+                <span className="text-sm">Filter by tags:</span>
+              </div>
+              {AVAILABLE_TAGS.slice(0, 12).map(tag => (
+                <Badge
+                  key={tag}
+                  variant={selectedTags.includes(tag) ? "default" : "outline"}
+                  className={`cursor-pointer transition-all duration-200 ${
+                    selectedTags.includes(tag)
+                      ? 'bg-white text-purple-900 hover:bg-white/90'
+                      : 'border-white/30 text-white hover:bg-white/10'
+                  }`}
+                  onClick={() => toggleTag(tag)}
+                >
+                  {tag}
+                </Badge>
+              ))}
             </div>
-            {AVAILABLE_TAGS.map(tag => (
-              <Badge
-                key={tag}
-                variant={selectedTags.includes(tag) ? "default" : "outline"}
-                className={`cursor-pointer transition-all duration-200 ${
-                  selectedTags.includes(tag)
-                    ? 'bg-white text-purple-900 hover:bg-white/90'
-                    : 'border-white/30 text-white hover:bg-white/10'
-                }`}
-                onClick={() => toggleTag(tag)}
-              >
-                {tag}
-              </Badge>
-            ))}
-            {(selectedTags.length > 0 || searchTerm) && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={clearFilters}
-                className="text-white/70 hover:text-white hover:bg-white/10"
-              >
-                <X className="w-4 h-4 mr-1" />
-                Clear
-              </Button>
-            )}
+            
+            {/* Year Filter */}
+            <div className="flex flex-wrap gap-3 items-center">
+              <div className="flex items-center gap-2 text-white/70">
+                <Calendar className="w-4 h-4" />
+                <span className="text-sm">Filter by year:</span>
+              </div>
+              {AVAILABLE_YEARS.map(year => (
+                <Badge
+                  key={year}
+                  variant={selectedYears.includes(year) ? "default" : "outline"}
+                  className={`cursor-pointer transition-all duration-200 ${
+                    selectedYears.includes(year)
+                      ? 'bg-white text-purple-900 hover:bg-white/90'
+                      : 'border-white/30 text-white hover:bg-white/10'
+                  }`}
+                  onClick={() => toggleYear(year)}
+                >
+                  {year}
+                </Badge>
+              ))}
+              {(selectedTags.length > 0 || selectedYears.length > 0 || searchTerm) && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearFilters}
+                  className="text-white/70 hover:text-white hover:bg-white/10"
+                >
+                  <X className="w-4 h-4 mr-1" />
+                  Clear
+                </Button>
+              )}
+            </div>
           </div>
         </div>
 
@@ -204,14 +447,30 @@ export const ProjectsBrowser = () => {
               }}
               onClick={() => setSelectedProject(project)}
             >
-              {/* Thumbnail Section */}
-              <div className="aspect-[4/3] relative overflow-hidden">
-                <img
-                  src={project.thumbnail}
-                  alt={project.title}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                />
+              {/* Video Thumbnail Section */}
+              <div className="aspect-[16/9] relative overflow-hidden">
+                {project.mainVideoUrl ? (
+                  <img
+                    src={project.videoThumbnail || project.thumbnail}
+                    alt={project.title}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-purple-900/50 to-pink-800/50 flex items-center justify-center">
+                    <div className="text-center text-white/70">
+                      <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-white/10 flex items-center justify-center">
+                        <Users className="w-6 h-6" />
+                      </div>
+                      <p className="text-sm">{project.brand}</p>
+                    </div>
+                  </div>
+                )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                <div className="absolute top-3 right-3">
+                  <Badge className="bg-white/20 text-white border-none backdrop-blur-sm">
+                    {project.year}
+                  </Badge>
+                </div>
               </div>
               
               {/* Text Content Section */}
@@ -219,9 +478,13 @@ export const ProjectsBrowser = () => {
                 <h3 className="text-xl font-bold text-white group-hover:text-purple-200 transition-colors leading-tight">
                   {project.title}
                 </h3>
-                <p className="text-white/70 text-sm leading-relaxed line-clamp-3">
+                <p className="text-white/70 text-sm leading-relaxed line-clamp-2">
                   {project.description}
                 </p>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-white/50">Client: {project.client}</span>
+                  <span className="text-purple-300">{project.brand}</span>
+                </div>
               </div>
             </div>
           ))}

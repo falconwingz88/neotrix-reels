@@ -1,7 +1,7 @@
 import { VideoPlayer } from '@/components/VideoPlayer';
-import { ProjectsBrowser } from '@/components/ProjectsBrowser';
 import { ClientLogos } from '@/components/ClientLogos';
 import { Footer } from '@/components/Footer';
+import { useNavigate } from 'react-router-dom';
 const neotrixLogo = '/lovable-uploads/e25231ff-24d7-47d0-b8da-ebd1979c96de.png';
 
 const REELS = [
@@ -32,6 +32,7 @@ const REELS = [
 ];
 
 const Index = () => {
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-800 to-blue-900 bg-[length:200%_200%] animate-gradient p-3 md:p-6 relative overflow-auto scrollbar-glassmorphism backdrop-blur-md">
       {/* Enhanced Background Effects with More Bouncing Circles and Reduced Blur */}
@@ -152,11 +153,11 @@ const Index = () => {
 
             {/* See More Panel */}
             <div className="flex-1 aspect-video bg-white/10 backdrop-blur-sm rounded-3xl border border-white/20 overflow-hidden shadow-2xl hover:bg-white/15 transition-all duration-500 cursor-pointer"
-                 onClick={() => window.open('https://www.instagram.com/neotrix.asia', '_blank')}>
+                 onClick={() => navigate('/projects')}>
               <div className="w-full h-full flex items-center justify-center">
                 <div className="text-center">
                   <h3 className="text-white text-2xl md:text-4xl font-bold mb-2">See More</h3>
-                  <p className="text-white/60 text-sm mt-2">@neotrix.asia</p>
+                  <p className="text-white/60 text-sm mt-2">Our Projects</p>
                 </div>
               </div>
             </div>
@@ -166,11 +167,6 @@ const Index = () => {
         {/* Client Logos */}
         <div className="max-w-7xl mx-auto w-full py-8">
           <ClientLogos />
-        </div>
-
-        {/* Projects Browser */}
-        <div className="max-w-7xl mx-auto w-full py-8">
-          <ProjectsBrowser />
         </div>
 
         {/* Footer */}

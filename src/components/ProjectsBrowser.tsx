@@ -5,17 +5,6 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { ProjectDetailModal } from './ProjectDetailModal';
 
-// Generated thumbnails
-import lazadaRamadanThumb from '@/assets/thumbnails/lazada-ramadan.jpg';
-import rejoice3in1Thumb from '@/assets/thumbnails/rejoice-3in1.jpg';
-import oppoEncobudsThumb from '@/assets/thumbnails/oppo-encobuds.jpg';
-import bniMobileBankingThumb from '@/assets/thumbnails/bni-mobile-banking.jpg';
-import pertaminaHutRiThumb from '@/assets/thumbnails/pertamina-hut-ri.jpg';
-import jntGapaiMimpimUThumb from '@/assets/thumbnails/jnt-gapai-mimpimu.jpg';
-import oppoReno4SelectiveThumb from '@/assets/thumbnails/oppo-reno4-selective.jpg';
-import oppoReno4BlueThumb from '@/assets/thumbnails/oppo-reno4-blue.jpg';
-import bibitDeddyCorbuZierThumb from '@/assets/thumbnails/bibit-deddy-corbuzier.jpg';
-
 export interface Project {
   id: string;
   title: string;
@@ -118,7 +107,7 @@ const PROJECTS: Project[] = [
     thumbnail: getYouTubeThumbnail('https://youtu.be/1WAHm5SAbug'),
     tags: ['Liquid'],
     year: 2025,
-    client: 'Leomotions',
+    client: 'Reyhan Hilman',
     primaryVideoUrl: 'https://youtu.be/1WAHm5SAbug',
     allVideos: ['https://youtu.be/1WAHm5SAbug'],
     deliveryFiles: []
@@ -139,7 +128,7 @@ const PROJECTS: Project[] = [
     id: '9',
     title: 'Bibit x Deddy Corbuzier',
     description: 'Investment platform campaign featuring influencer collaboration and financial education.',
-    thumbnail: bibitDeddyCorbuZierThumb,
+    thumbnail: getYouTubeThumbnail('https://youtube.com/shorts/mFd3rPt-R-U'),
     tags: ['Character Animation'],
     year: 2024,
     client: 'Adi Victory',
@@ -523,7 +512,7 @@ const PROJECTS: Project[] = [
     id: '43',
     title: 'Lazada Ramadan',
     description: 'E-commerce platform campaign celebrating Ramadan with special promotions.',
-    thumbnail: lazadaRamadanThumb,
+    thumbnail: getYouTubeThumbnail('https://youtu.be/kLqeoHgZU0o'),
     tags: ['VFX'],
     year: 2023,
     client: 'Milkyway Studio',
@@ -607,7 +596,7 @@ const PROJECTS: Project[] = [
     id: '50',
     title: 'Rejoice 3in1',
     description: 'Hair care brand campaign featuring multi-benefit shampoo with comprehensive care.',
-    thumbnail: rejoice3in1Thumb,
+    thumbnail: getYouTubeThumbnail('https://youtu.be/Xr8Ov-AnYcI'),
     tags: ['Beauty'],
     year: 2022,
     client: 'Milkyway Studio',
@@ -739,7 +728,7 @@ const PROJECTS: Project[] = [
     id: '61',
     title: 'OPPO Encobuds',
     description: 'Audio accessories campaign highlighting wireless earbuds technology and sound quality.',
-    thumbnail: oppoEncobudsThumb,
+    thumbnail: getYouTubeThumbnail('https://youtu.be/T6Tn_nkdGoA'),
     tags: ['VFX'],
     year: 2021,
     client: 'Milkyway Studio',
@@ -823,7 +812,7 @@ const PROJECTS: Project[] = [
     id: '68',
     title: 'BNI Mobile Banking',
     description: 'Banking application campaign highlighting digital banking convenience and security features.',
-    thumbnail: bniMobileBankingThumb,
+    thumbnail: getYouTubeThumbnail('https://youtu.be/kceDIvOJahw'),
     tags: ['VFX'],
     year: 2021,
     client: 'Milkyway Studio',
@@ -943,7 +932,7 @@ const PROJECTS: Project[] = [
     id: '78',
     title: 'Pertamina HUT RI',
     description: 'National oil company Indonesian Independence Day celebration campaign.',
-    thumbnail: pertaminaHutRiThumb,
+    thumbnail: getYouTubeThumbnail('https://youtu.be/eyDJdfAkPWc'),
     tags: ['VFX'],
     year: 2020,
     client: 'Milkyway Studio',
@@ -967,7 +956,7 @@ const PROJECTS: Project[] = [
     id: '80',
     title: 'J&T Gapai Mimpimu',
     description: 'Logistics company inspirational campaign about achieving dreams and aspirations.',
-    thumbnail: jntGapaiMimpimUThumb,
+    thumbnail: getYouTubeThumbnail('https://youtu.be/N5vH8q4bEho'),
     tags: ['VFX'],
     year: 2020,
     client: 'Milkyway Studio',
@@ -979,7 +968,7 @@ const PROJECTS: Project[] = [
     id: '81',
     title: 'OPPO Reno 4 Selective',
     description: 'Smartphone campaign highlighting selective focus photography features.',
-    thumbnail: oppoReno4SelectiveThumb,
+    thumbnail: getYouTubeThumbnail('https://youtu.be/jcqoo26CtDM'),
     tags: ['VFX'],
     year: 2020,
     client: 'Milkyway Studio',
@@ -991,7 +980,7 @@ const PROJECTS: Project[] = [
     id: '82',
     title: 'OPPO Reno 4 Blue',
     description: 'Smartphone campaign showcasing device design in elegant blue colorway.',
-    thumbnail: oppoReno4BlueThumb,
+    thumbnail: getYouTubeThumbnail('https://youtu.be/v4JXEizyTok'),
     tags: ['VFX'],
     year: 2020,
     client: 'Milkyway Studio',
@@ -1063,7 +1052,7 @@ export const ProjectsBrowser = () => {
           <Button
             onClick={() => setShowFilters(!showFilters)}
             variant="outline"
-            className="border-white/40 text-white hover:bg-white/10 bg-white/5"
+            className="border-white/20 text-white hover:bg-white/10"
           >
             <Filter className="w-4 h-4 mr-2" />
             Filters

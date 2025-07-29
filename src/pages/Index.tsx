@@ -152,13 +152,11 @@ const Index = () => {
             </div>
 
             {/* See More Panel */}
-            <div className="flex-1 aspect-video bg-white/10 backdrop-blur-sm rounded-3xl border border-white/20 overflow-hidden shadow-2xl hover:bg-white/15 transition-all duration-500 cursor-pointer"
+            <div className="flex-1 aspect-video md:aspect-video bg-white/10 backdrop-blur-sm rounded-3xl border border-white/20 overflow-hidden shadow-2xl hover:bg-white/15 transition-all duration-500 cursor-pointer flex items-center justify-center"
                  onClick={() => navigate('/projects')}>
-              <div className="w-full h-full flex items-center justify-center">
-                <div className="text-center">
-                  <h3 className="text-white text-2xl md:text-4xl font-bold mb-2">See More</h3>
-                  <p className="text-white/60 text-sm mt-2">Our Projects</p>
-                </div>
+              <div className="text-center px-4">
+                <h3 className="text-white text-xl md:text-4xl font-bold mb-1 md:mb-2">See More</h3>
+                <p className="text-white/60 text-xs md:text-sm">Our Projects</p>
               </div>
             </div>
           </div>

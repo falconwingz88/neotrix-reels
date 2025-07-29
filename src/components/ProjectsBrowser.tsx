@@ -77,18 +77,6 @@ const categorizeProject = (title: string, description: string): string[] => {
 
 const PROJECTS: Project[] = [
   {
-    id: '1',
-    title: 'Wardah UV Shield',
-    description: 'Sunscreen campaign showcasing protection and skincare benefits with premium beauty aesthetics.',
-    thumbnail: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400',
-    tags: ['Beauty'],
-    year: 2025,
-    client: 'Liquid Production',
-    primaryVideoUrl: '',
-    allVideos: [],
-    deliveryFiles: []
-  },
-  {
     id: '2',
     title: 'Caplang',
     description: 'Creative advertising campaign with dynamic visual storytelling and engaging brand narrative.',
@@ -98,30 +86,6 @@ const PROJECTS: Project[] = [
     client: 'Lieve, Masterpiece',
     primaryVideoUrl: 'https://youtu.be/os941LA67aE',
     allVideos: ['https://youtu.be/os941LA67aE', 'https://youtu.be/GTk5W7jzSc0'],
-    deliveryFiles: []
-  },
-  {
-    id: '3',
-    title: 'Yamalube',
-    description: 'Motorcycle lubricant brand campaign featuring high-performance visuals and technical excellence.',
-    thumbnail: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400',
-    tags: ['VFX'],
-    year: 2025,
-    client: 'Faris Aprillio',
-    primaryVideoUrl: '',
-    allVideos: [],
-    deliveryFiles: []
-  },
-  {
-    id: '4',
-    title: 'Hansaplast',
-    description: 'Healthcare brand campaign emphasizing care, protection, and healing with medical precision.',
-    thumbnail: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400',
-    tags: ['VFX'],
-    year: 2025,
-    client: 'Lieve',
-    primaryVideoUrl: '',
-    allVideos: [],
     deliveryFiles: []
   },
   {
@@ -137,27 +101,15 @@ const PROJECTS: Project[] = [
     deliveryFiles: ['https://drive.google.com/file/d/1Ytd-GYd56XpusWyvyNwz0m67dcD4ya-t/view?usp=drive_link']
   },
   {
-    id: '6',
-    title: 'Clevo Reedit',
-    description: 'Technology brand campaign featuring cutting-edge innovation and performance excellence.',
-    thumbnail: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400',
-    tags: ['VFX'],
-    year: 2025,
-    client: 'Lilac Post',
-    primaryVideoUrl: '',
-    allVideos: [],
-    deliveryFiles: ['https://drive.google.com/file/d/1ywsE0a5JfkWLuuh8LewStgtn1pC2dUUw/view?usp=drive_link']
-  },
-  {
     id: '7',
     title: 'Paddle Pop',
     description: 'Ice cream brand campaign with playful animations and joyful family moments.',
-    thumbnail: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400',
+    thumbnail: getYouTubeThumbnail('https://youtu.be/1WAHm5SAbug'),
     tags: ['Liquid'],
     year: 2025,
     client: 'Reyhan Hilman',
-    primaryVideoUrl: '',
-    allVideos: [],
+    primaryVideoUrl: 'https://youtu.be/1WAHm5SAbug',
+    allVideos: ['https://youtu.be/1WAHm5SAbug'],
     deliveryFiles: []
   },
   {
@@ -168,8 +120,8 @@ const PROJECTS: Project[] = [
     tags: ['Beauty', 'Character Animation'],
     year: 2025,
     client: 'Lieve',
-    primaryVideoUrl: '',
-    allVideos: [],
+    primaryVideoUrl: 'https://drive.google.com/file/d/1T6iYkJ0Dz2BqmRttbT70PfSzJvVD8Svi/view?usp=sharing',
+    allVideos: ['https://drive.google.com/file/d/1T6iYkJ0Dz2BqmRttbT70PfSzJvVD8Svi/view?usp=sharing', 'https://drive.google.com/file/d/1NC2q-dPpiYqq0mzgLj8N77WoggXIIiEJ/view?usp=drive_link', 'https://drive.google.com/file/d/1-Z0eNWi9yRd_AVGgaE7coqpDHId46b5F/view?usp=drive_link'],
     deliveryFiles: ['https://drive.google.com/file/d/1T6iYkJ0Dz2BqmRttbT70PfSzJvVD8Svi/view?usp=sharing', 'https://drive.google.com/file/d/1NC2q-dPpiYqq0mzgLj8N77WoggXIIiEJ/view?usp=drive_link', 'https://drive.google.com/file/d/1-Z0eNWi9yRd_AVGgaE7coqpDHId46b5F/view?usp=drive_link']
   },
   {
@@ -190,30 +142,6 @@ const PROJECTS: Project[] = [
     description: 'Beverage brand campaign showcasing refreshing moments and lifestyle integration.',
     thumbnail: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400',
     tags: ['Liquid'],
-    year: 2024,
-    client: 'Lieve',
-    primaryVideoUrl: '',
-    allVideos: [],
-    deliveryFiles: []
-  },
-  {
-    id: '11',
-    title: 'Enfagrow',
-    description: 'Nutrition brand focusing on child development and family wellness.',
-    thumbnail: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400',
-    tags: ['VFX'],
-    year: 2024,
-    client: 'Lieve',
-    primaryVideoUrl: '',
-    allVideos: [],
-    deliveryFiles: []
-  },
-  {
-    id: '12',
-    title: 'Scarlett Whitening',
-    description: 'Beauty brand campaign emphasizing skincare innovation and radiant results.',
-    thumbnail: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400',
-    tags: ['Beauty'],
     year: 2024,
     client: 'Lieve',
     primaryVideoUrl: '',

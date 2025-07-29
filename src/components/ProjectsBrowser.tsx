@@ -1165,18 +1165,18 @@ export const ProjectsBrowser = () => {
                 <h3 className="font-semibold text-white group-hover:text-blue-300 transition-colors line-clamp-1">
                   {project.title}
                 </h3>
-                <span className="text-xs text-white/60 bg-white/10 px-2 py-1 rounded-full whitespace-nowrap">
+                <span className="hidden md:block text-xs text-white/60 bg-white/10 px-2 py-1 rounded-full whitespace-nowrap">
                   {project.year}
                 </span>
               </div>
               <p className="text-sm text-white/70 line-clamp-2">
                 {project.description}
               </p>
-              <div className="flex items-center gap-2 text-xs text-white/60">
+              <div className="hidden md:flex items-center gap-2 text-xs text-white/60">
                 <Users className="w-3 h-3" />
                 <span className="line-clamp-1">{project.client}</span>
               </div>
-              <div className="flex flex-wrap gap-1">
+              <div className="hidden md:flex flex-wrap gap-1">
                 {project.tags.slice(0, 2).map((tag, index) => (
                   <Badge key={index} variant="secondary" className="text-xs bg-white/10 text-white/80 hover:bg-white/20">
                     {tag}

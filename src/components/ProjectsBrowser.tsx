@@ -1150,7 +1150,7 @@ export const ProjectsBrowser = () => {
             className="group cursor-pointer bg-white/5 backdrop-blur-sm rounded-lg overflow-hidden border border-white/10 hover:border-white/20 transition-all duration-300 hover:scale-105"
             onClick={() => setSelectedProject(project)}
           >
-            <div className="aspect-video bg-gray-800 overflow-hidden">
+            <div className="aspect-[4/3] md:aspect-video bg-gray-800 overflow-hidden">
               <img
                 src={project.thumbnail || 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400'}
                 alt={project.title}
@@ -1160,7 +1160,7 @@ export const ProjectsBrowser = () => {
                 }}
               />
             </div>
-            <div className="p-4 space-y-3">
+            <div className="p-2 md:p-4 space-y-1 md:space-y-3">
               <div className="flex items-start justify-between gap-2">
                 <h3 className="font-semibold text-white group-hover:text-blue-300 transition-colors line-clamp-1">
                   {project.title}
@@ -1169,7 +1169,7 @@ export const ProjectsBrowser = () => {
                   {project.year}
                 </span>
               </div>
-              <p className="text-sm text-white/70 line-clamp-2">
+              <p className="hidden md:block text-sm text-white/70 line-clamp-2">
                 {project.description}
               </p>
               <div className="hidden md:flex items-center gap-2 text-xs text-white/60">

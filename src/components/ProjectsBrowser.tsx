@@ -1271,7 +1271,6 @@ export const ProjectsBrowser = () => {
       {selectedProject && (
         <ProjectDetailModal
           project={selectedProject}
-          isOpen={!!selectedProject}
           onClose={() => setSelectedProject(null)}
         />
       )}

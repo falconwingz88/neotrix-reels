@@ -120,16 +120,25 @@ export const ClientLogos = () => {
             }}
           >
             {rowLogos.map((logo, logoIndex) => {
-              // Define larger logos that need to be enlarged
-              const isLargerLogo = [
-                'bibit', 'smartfren', 'telkomsel', 'oppo', 
-                'xl axiata', 'softex', 'fibe mini', 'miranda', 'resort world sentosa'
-              ].includes(logo.name.toLowerCase());
+              // Define 3x enlarged logos
+              const is3xLogo = logo.name.toLowerCase().includes('skintific');
+              
+              // Define 2x enlarged logos
+              const is2xLogo = [
+                'bibit-logo_brandlogos.net_mdpay_white.png',
+                'fibe mini_white.png', 
+                'siloam hospital_white.png',
+                'miranda_white.png',
+                'xl_white.png',
+                'oppo_white.png'
+              ].includes(logo.name);
               
               // Define smaller logos that need to be scaled down
               const isSmallerLogo = [
-                'indofood', 'wuling', 'freefire'
-              ].includes(logo.name.toLowerCase());
+                'indofood kulkuil_white.png',
+                'wuling_white.png',
+                'freefire_white.png'
+              ].includes(logo.name);
               
               return (
                 <div
@@ -140,8 +149,10 @@ export const ClientLogos = () => {
                     src={logo.url}
                     alt={logo.name}
                     className={`max-w-full max-h-full object-contain filter brightness-0 invert opacity-70 hover:opacity-100 transition-all duration-300 ${
-                      isLargerLogo 
-                        ? 'scale-100' 
+                      is3xLogo 
+                        ? 'scale-[3]' 
+                        : is2xLogo
+                        ? 'scale-[2]'
                         : isSmallerLogo
                         ? 'scale-75'
                         : ''

@@ -120,11 +120,16 @@ export const ClientLogos = () => {
             }}
           >
             {rowLogos.map((logo, logoIndex) => {
-              // Define larger logos that need to be enlarged (scale-200)
+              // Define larger logos that need to be MUCH LARGER (scale-300)
               const isLargerLogo = [
                 'bibit', 'smartfren', 'telkomsel', 'oppo', 
                 'xl axiata', 'softex', 'fibe mini', 'miranda', 'resort world sentosa',
-                'siloam hospitals', 'client 4', 'client 8', 'new logo 6'
+                'siloam hospitals', 'client 4', 'client 8', 'new logo 6',
+                // Adding more potential procold matches
+                'client 13', 'client 20', 'client 21', 'client 23', 'client 24',
+                'client 25', 'client 26', 'client 27', 'client 30', 'new logo 7',
+                'new logo 8', 'new logo 9', 'new logo 10', 'latest logo 1',
+                'latest logo 2', 'latest logo 3'
               ].includes(logo.name.toLowerCase());
               
               // Define smaller logos that need to be scaled down (scale-50)
@@ -135,14 +140,14 @@ export const ClientLogos = () => {
               return (
                 <div
                   key={`${rowIndex}-${logoIndex}`}
-                  className="flex-shrink-0 flex items-center justify-center bg-white/10 rounded-xl border border-white/10 hover:bg-white/20 transition-all duration-300 p-2 w-20 h-10 md:w-32 md:h-16"
+                  className="flex-shrink-0 flex items-center justify-center bg-white/10 rounded-xl border border-white/10 hover:bg-white/20 transition-all duration-300 p-2 w-20 h-10 md:w-32 md:h-16 overflow-visible"
                 >
                   <img
                     src={logo.url}
                     alt={logo.name}
                     className={`max-w-full max-h-full object-contain filter brightness-0 invert opacity-70 hover:opacity-100 transition-all duration-300 ${
                       isLargerLogo 
-                        ? 'scale-200' 
+                        ? 'scale-300' 
                         : isSmallerLogo
                         ? 'scale-50'
                         : ''

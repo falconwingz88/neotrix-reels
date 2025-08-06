@@ -126,29 +126,29 @@ export const ClientLogos = () => {
                 'xl axiata', 'softex', 'fibe mini', 'miranda', 'resort world sentosa'
               ].includes(logo.name.toLowerCase());
               
-              // Define smaller logos that need to be scaled down (0.8x scale)
+              // Define smaller logos that need to be scaled down
               const isSmallerLogo = [
                 'indofood', 'wuling', 'freefire'
               ].includes(logo.name.toLowerCase());
               
-              // Check for BCA logo (need to find which Client number it is)
-              const isBCALogo = logo.name.toLowerCase().includes('client') && 
-                ['client 4', 'client 5', 'client 6', 'client 7', 'client 8', 'client 9', 'client 10'].includes(logo.name.toLowerCase());
-              
               return (
                 <div
                   key={`${rowIndex}-${logoIndex}`}
-                  className="flex-shrink-0 flex items-center justify-center bg-white/10 rounded-xl border border-white/10 hover:bg-white/20 transition-all duration-300 p-2 w-20 h-10 md:w-32 md:h-16"
+                  className={`flex-shrink-0 flex items-center justify-center bg-white/10 rounded-xl border border-white/10 hover:bg-white/20 transition-all duration-300 p-2 ${
+                    isLargerLogo 
+                      ? 'w-24 h-12 md:w-40 md:h-20' 
+                      : 'w-20 h-10 md:w-32 md:h-16'
+                  }`}
                 >
                   <img
                     src={logo.url}
                     alt={logo.name}
-                    className={`max-w-full max-h-full object-contain filter brightness-0 invert opacity-70 hover:opacity-100 transition-all duration-300 ${
+                    className={`object-contain filter brightness-0 invert opacity-70 hover:opacity-100 transition-all duration-300 ${
                       isLargerLogo 
-                        ? 'scale-150' 
-                        : isSmallerLogo || isBCALogo
-                        ? 'scale-[0.8]'
-                        : ''
+                        ? 'w-full h-full scale-150' 
+                        : isSmallerLogo
+                        ? 'max-w-8 max-h-4 md:max-w-12 md:max-h-6 scale-75'
+                        : 'max-w-12 max-h-5 md:max-w-20 md:max-h-10'
                     }`}
                     onError={(e) => {
                       // Fallback to text if image fails to load

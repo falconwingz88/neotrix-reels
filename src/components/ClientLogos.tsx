@@ -116,7 +116,7 @@ export const ClientLogos = () => {
             }`}
             style={{
               animationDelay: `${rowIndex * -30}s`,
-              animationDuration: '120s'
+              animationDuration: '200s'
             }}
           >
             {rowLogos.map((logo, logoIndex) => {
@@ -147,7 +147,7 @@ export const ClientLogos = () => {
                       isLargerLogo 
                         ? 'scale-150' 
                         : isSmallerLogo || isBCALogo
-                        ? 'scale-[0.8]'
+                        ? 'scale-[0.5]'
                         : ''
                     }`}
                     onError={(e) => {

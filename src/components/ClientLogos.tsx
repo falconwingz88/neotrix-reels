@@ -101,18 +101,14 @@ export const ClientLogos = () => {
               return (
                 <div
                   key={`${rowIndex}-${logoIndex}`}
-                  className={`flex-shrink-0 flex items-center justify-center bg-white/10 rounded-xl border border-white/10 hover:bg-white/20 transition-all duration-300 ${
-                    isLargerLogo 
-                      ? 'w-28 h-14 md:w-44 md:h-22' 
-                      : 'w-20 h-10 md:w-32 md:h-16'
-                  }`}
+                  className="flex-shrink-0 w-20 h-10 md:w-32 md:h-16 flex items-center justify-center bg-white/10 rounded-xl border border-white/10 hover:bg-white/20 transition-all duration-300"
                 >
                   <img
                     src={logo.url}
                     alt={logo.name}
                     className={`object-contain filter brightness-0 invert opacity-70 hover:opacity-100 transition-all duration-300 ${
                       isLargerLogo 
-                        ? 'max-w-24 max-h-12 md:max-w-40 md:max-h-18' 
+                        ? 'w-full h-full p-1' 
                         : 'max-w-14 max-h-7 md:max-w-24 md:max-h-12'
                     }`}
                     onError={(e) => {

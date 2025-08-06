@@ -134,21 +134,17 @@ export const ClientLogos = () => {
               return (
                 <div
                   key={`${rowIndex}-${logoIndex}`}
-                  className={`flex-shrink-0 flex items-center justify-center bg-white/10 rounded-xl border border-white/10 hover:bg-white/20 transition-all duration-300 p-2 ${
-                    isLargerLogo 
-                      ? 'w-24 h-12 md:w-40 md:h-20' 
-                      : 'w-20 h-10 md:w-32 md:h-16'
-                  }`}
+                  className="flex-shrink-0 flex items-center justify-center bg-white/10 rounded-xl border border-white/10 hover:bg-white/20 transition-all duration-300 p-2 w-20 h-10 md:w-32 md:h-16"
                 >
                   <img
                     src={logo.url}
                     alt={logo.name}
-                    className={`object-contain filter brightness-0 invert opacity-70 hover:opacity-100 transition-all duration-300 ${
+                    className={`max-w-full max-h-full object-contain filter brightness-0 invert opacity-70 hover:opacity-100 transition-all duration-300 ${
                       isLargerLogo 
-                        ? 'w-full h-full scale-150' 
+                        ? 'scale-150' 
                         : isSmallerLogo
-                        ? 'max-w-8 max-h-4 md:max-w-12 md:max-h-6 scale-75'
-                        : 'max-w-12 max-h-5 md:max-w-20 md:max-h-10'
+                        ? 'scale-75'
+                        : ''
                     }`}
                     onError={(e) => {
                       // Fallback to text if image fails to load

@@ -33,7 +33,7 @@ export const StatsCounter = () => {
     if (!isVisible) return;
 
     const animateCount = (setValue: (value: number) => void, target: number) => {
-      let start = 0;
+      let start = 13;
       const duration = 6000; // 6 seconds
       const startTime = Date.now();
       

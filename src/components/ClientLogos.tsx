@@ -19,18 +19,28 @@ export const ClientLogos = () => {
     { name: 'Client 17', url: '/lovable-uploads/68dd3971-d74e-4980-a92f-c618cddda3b6.png' },
     { name: 'Client 18', url: '/lovable-uploads/cb87f0d3-4e82-4e3f-9469-cc1693dfa263.png' },
     { name: 'Client 19', url: '/lovable-uploads/095c66ca-08f0-405a-a24e-5d161594a887.png' },
-    { name: 'Client 20', url: '/lovable-uploads/19f383c4-5d82-479c-bab9-7464db949e5e.png' }
+    { name: 'Client 20', url: '/lovable-uploads/19f383c4-5d82-479c-bab9-7464db949e5e.png' },
+    { name: 'Client 21', url: '/lovable-uploads/62178f14-7e0f-495c-a601-8db7e697bcdf.png' },
+    { name: 'Client 22', url: '/lovable-uploads/382d7f57-bb77-4a9f-82b6-de8631727482.png' },
+    { name: 'Client 23', url: '/lovable-uploads/df62878e-d432-420e-a780-ebe5485418f6.png' },
+    { name: 'Client 24', url: '/lovable-uploads/541e8688-7445-4d35-b794-fe71c48a9102.png' },
+    { name: 'bibit', url: '/lovable-uploads/234e264c-694e-4db8-aac2-0174d4b8bec3.png' },
+    { name: 'Client 26', url: '/lovable-uploads/1862eea6-85c6-4c44-b5ec-62a8ebc9d947.png' },
+    { name: 'Client 27', url: '/lovable-uploads/3ce45d7a-dcbb-490d-859b-4a364b6f8993.png' },
+    { name: 'softex', url: '/lovable-uploads/f2668c32-5c66-4bcf-8f07-3b39e2c6d223.png' },
+    { name: 'Client 29', url: '/lovable-uploads/71914277-6e91-4d0f-a005-8ae1ffd16cbc.png' },
+    { name: 'Client 30', url: '/lovable-uploads/2756c1d1-fb25-46c7-bf7b-2d7ebd3ff86b.png' }
   ];
 
-  // Create enough rows to show 3 vertical rows without repetition
+  // Create enough rows to show 3 vertical rows with continuous scrolling
   const createLogoRows = () => {
     const rows = [];
-    const logosPerRow = Math.ceil(logos.length / 3);
-    
     for (let row = 0; row < 3; row++) {
-      const startIndex = row * logosPerRow;
-      const endIndex = Math.min(startIndex + logosPerRow, logos.length);
-      const rowLogos = logos.slice(startIndex, endIndex);
+      const rowLogos = [];
+      // Double the logos for seamless scrolling
+      for (let i = 0; i < logos.length * 2; i++) {
+        rowLogos.push(logos[i % logos.length]);
+      }
       rows.push(rowLogos);
     }
     return rows;
@@ -55,30 +65,41 @@ export const ClientLogos = () => {
               animationDuration: '60s' // Slow scrolling
             }}
           >
-            {rowLogos.map((logo, logoIndex) => (
-              <div
-                key={`${rowIndex}-${logoIndex}`}
-                className="flex-shrink-0 w-20 h-10 md:w-32 md:h-16 flex items-center justify-center bg-white/10 rounded-xl border border-white/10 hover:bg-white/20 transition-all duration-300"
-              >
-                <img
-                  src={logo.url}
-                  alt={logo.name}
-                  className="max-w-16 max-h-8 md:max-w-24 md:max-h-12 object-contain filter brightness-0 invert opacity-70 hover:opacity-100 transition-opacity duration-300"
-                  onError={(e) => {
-                    // Fallback to text if image fails to load
-                    const target = e.target as HTMLImageElement;
-                    target.style.display = 'none';
-                    const parent = target.parentElement;
-                    if (parent && !parent.querySelector('.logo-text')) {
-                      const textDiv = document.createElement('div');
-                      textDiv.className = 'logo-text text-white/70 font-semibold text-sm text-center px-2';
-                      textDiv.textContent = logo.name;
-                      parent.appendChild(textDiv);
-                    }
-                  }}
-                />
-              </div>
-            ))}
+            {rowLogos.map((logo, logoIndex) => {
+              const isLargerLogo = logo.name === 'bibit' || logo.name === 'softex';
+              return (
+                <div
+                  key={`${rowIndex}-${logoIndex}`}
+                  className={`flex-shrink-0 ${
+                    isLargerLogo 
+                      ? 'w-28 h-14 md:w-40 md:h-20' 
+                      : 'w-20 h-10 md:w-32 md:h-16'
+                  } flex items-center justify-center bg-white/10 rounded-xl border border-white/10 hover:bg-white/20 transition-all duration-300`}
+                >
+                  <img
+                    src={logo.url}
+                    alt={logo.name}
+                    className={`${
+                      isLargerLogo 
+                        ? 'max-w-24 max-h-12 md:max-w-36 md:max-h-16' 
+                        : 'max-w-16 max-h-8 md:max-w-24 md:max-h-12'
+                    } object-contain filter brightness-0 invert opacity-70 hover:opacity-100 transition-opacity duration-300`}
+                    onError={(e) => {
+                      // Fallback to text if image fails to load
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      const parent = target.parentElement;
+                      if (parent && !parent.querySelector('.logo-text')) {
+                        const textDiv = document.createElement('div');
+                        textDiv.className = 'logo-text text-white/70 font-semibold text-sm text-center px-2';
+                        textDiv.textContent = logo.name;
+                        parent.appendChild(textDiv);
+                      }
+                    }}
+                  />
+                </div>
+              );
+            })}
           </div>
         ))}
       </div>

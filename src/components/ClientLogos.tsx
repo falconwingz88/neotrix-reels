@@ -2,8 +2,6 @@ import { useRef, useEffect, useState } from 'react';
 
 export const ClientLogos = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [projectsCount, setProjectsCount] = useState(0);
-  const [brandsCount, setBrandsCount] = useState(0);
 
   const logos = [
     { name: 'indofood', url: '/lovable-uploads/fb7e9daf-3e5f-40d3-873a-b690e1100b10.png' },
@@ -96,40 +94,6 @@ export const ClientLogos = () => {
     }
   }, []);
 
-  // Counter animation
-  useEffect(() => {
-    const animateCount = (setValue: (value: number) => void, target: number) => {
-      let start = 0;
-      const duration = 2000; // 2 seconds
-      const startTime = Date.now();
-      
-      const updateCount = () => {
-        const currentTime = Date.now();
-        const elapsed = currentTime - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        
-        // Easing function
-        const easeOut = 1 - Math.pow(1 - progress, 3);
-        const currentValue = Math.floor(easeOut * target);
-        
-        setValue(currentValue);
-        
-        if (progress < 1) {
-          requestAnimationFrame(updateCount);
-        }
-      };
-      
-      requestAnimationFrame(updateCount);
-    };
-
-    const timer = setTimeout(() => {
-      animateCount(setProjectsCount, 148);
-      animateCount(setBrandsCount, 50);
-    }, 500); // Delay start by 500ms
-
-    return () => clearTimeout(timer);
-  }, []);
-
   return (
     <div className="bg-white/5 backdrop-blur-2xl rounded-3xl border border-white/20 shadow-2xl overflow-hidden mb-8">
       <div className="p-4 md:p-8 pb-0">
@@ -201,24 +165,6 @@ export const ClientLogos = () => {
           </div>
         ))}
         <div className="pb-6 md:pb-8"></div>
-      </div>
-
-      {/* Statistics Section */}
-      <div className="px-4 md:px-8 pb-6 md:pb-8">
-        <div className="flex justify-center gap-8 md:gap-16">
-          <div className="text-center">
-            <div className="text-white/70 text-sm md:text-base mb-1">Projects</div>
-            <div className="text-white text-2xl md:text-4xl font-bold">
-              {projectsCount}+
-            </div>
-          </div>
-          <div className="text-center">
-            <div className="text-white/70 text-sm md:text-base mb-1">Brands</div>
-            <div className="text-white text-2xl md:text-4xl font-bold">
-              {brandsCount}+
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

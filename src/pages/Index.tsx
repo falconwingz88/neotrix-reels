@@ -1,5 +1,6 @@
 import { VideoPlayer } from '@/components/VideoPlayer';
 import { ClientLogos } from '@/components/ClientLogos';
+import { StatsCounter } from '@/components/StatsCounter';
 import { Footer } from '@/components/Footer';
 import { useNavigate } from 'react-router-dom';
 const neotrixLogo = '/lovable-uploads/e25231ff-24d7-47d0-b8da-ebd1979c96de.png';
@@ -166,6 +167,9 @@ const Index = () => {
         <div className="max-w-7xl mx-auto w-full py-8">
           <ClientLogos />
         </div>
+
+        {/* Statistics Counter */}
+        <StatsCounter />
 
         {/* Footer */}
         <Footer />

@@ -122,9 +122,9 @@ export const ClientLogos = () => {
             {rowLogos.map((logo, logoIndex) => {
               // Define larger logos that need to be MUCH LARGER (scale-300)
               const isLargerLogo = [
-                'bibit', 'smartfren', 'telkomsel', 'oppo', 
-                'xl axiata', 'softex', 'fibe mini', 'miranda', 'resort world sentosa',
-                'siloam hospitals', 'client 4', 'client 8', 'new logo 6',
+                'bibit', 'xl axiata', 'oppo', 'siloam hospitals',
+                'smartfren', 'telkomsel', 'softex', 'fibe mini', 'miranda', 'resort world sentosa',
+                'client 4', 'client 8', 'new logo 6',
                 // Adding more potential procold matches
                 'client 13', 'client 20', 'client 21', 'client 23', 'client 24',
                 'client 25', 'client 26', 'client 27', 'client 30', 'new logo 7',
@@ -134,6 +134,7 @@ export const ClientLogos = () => {
               
               // Define smaller logos that need to be scaled down (scale-50)
               const isSmallerLogo = [
+                'tomoro coffee', 'valorant', 'tri', 'paddlepop',
                 'indofood', 'wuling', 'freefire', 'client 5', 'client 7', 'client 22'
               ].includes(logo.name.toLowerCase());
               

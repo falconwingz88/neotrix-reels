@@ -140,18 +140,18 @@ export const ClientLogos = () => {
               return (
                 <div
                   key={`${rowIndex}-${logoIndex}`}
-                  className={`flex-shrink-0 flex items-center justify-center bg-white/10 rounded-xl border border-white/10 hover:bg-white/20 transition-all duration-300 p-2 w-20 h-10 md:w-32 md:h-16 overflow-visible ${
-                    isLargerLogo 
-                      ? 'scale-300' 
-                      : isSmallerLogo
-                      ? 'scale-50'
-                      : ''
-                  }`}
+                  className="flex-shrink-0 flex items-center justify-center bg-white/10 rounded-xl border border-white/10 hover:bg-white/20 transition-all duration-300 p-2 w-20 h-10 md:w-32 md:h-16 overflow-visible"
                 >
                   <img
                     src={logo.url}
                     alt={logo.name}
-                    className="max-w-full max-h-full object-contain filter brightness-0 invert opacity-70 hover:opacity-100 transition-all duration-300"
+                    className={`object-contain filter brightness-0 invert opacity-70 hover:opacity-100 transition-all duration-300 ${
+                      isLargerLogo 
+                        ? 'scale-300' 
+                        : isSmallerLogo
+                        ? 'scale-50 max-w-full max-h-full'
+                        : 'max-w-full max-h-full'
+                    }`}
                     onError={(e) => {
                       // Fallback to text if image fails to load
                       const target = e.target as HTMLImageElement;

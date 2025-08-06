@@ -1,27 +1,15 @@
 export const ClientLogos = () => {
-  // Mock client logos - in a real app these would be your actual client logos
   const logos = [
-    { name: 'Netflix', url: 'https://logos-world.net/wp-content/uploads/2020/04/Netflix-Logo.png' },
-    { name: 'Adobe', url: 'https://logos-world.net/wp-content/uploads/2020/03/Adobe-Logo.png' },
-    { name: 'Microsoft', url: 'https://logos-world.net/wp-content/uploads/2020/04/Microsoft-Logo.png' },
-    { name: 'Apple', url: 'https://logos-world.net/wp-content/uploads/2020/04/Apple-Logo.png' },
-    { name: 'Google', url: 'https://logos-world.net/wp-content/uploads/2020/04/Google-Logo.png' },
-    { name: 'Amazon', url: 'https://logos-world.net/wp-content/uploads/2020/04/Amazon-Logo.png' },
-    { name: 'Meta', url: 'https://logos-world.net/wp-content/uploads/2021/10/Meta-Logo.png' },
-    { name: 'Tesla', url: 'https://logos-world.net/wp-content/uploads/2020/11/Tesla-Logo.png' },
-    { name: 'Nike', url: 'https://logos-world.net/wp-content/uploads/2020/04/Nike-Logo.png' },
-    { name: 'Coca Cola', url: 'https://logos-world.net/wp-content/uploads/2020/04/Coca-Cola-Logo.png' },
-    { name: 'Samsung', url: 'https://logos-world.net/wp-content/uploads/2020/04/Samsung-Logo.png' },
-    { name: 'Intel', url: 'https://logos-world.net/wp-content/uploads/2020/03/Intel-Logo.png' },
-    { name: 'Sony', url: 'https://logos-world.net/wp-content/uploads/2020/04/Sony-Logo.png' },
-    { name: 'Disney', url: 'https://logos-world.net/wp-content/uploads/2020/11/Disney-Logo.png' },
-    { name: 'Spotify', url: 'https://logos-world.net/wp-content/uploads/2020/06/Spotify-Logo.png' },
-    { name: 'Airbnb', url: 'https://logos-world.net/wp-content/uploads/2020/10/Airbnb-Logo.png' },
-    { name: 'Uber', url: 'https://logos-world.net/wp-content/uploads/2020/05/Uber-Logo.png' },
-    { name: 'LinkedIn', url: 'https://logos-world.net/wp-content/uploads/2020/04/LinkedIn-Logo.png' },
-    { name: 'Twitter', url: 'https://logos-world.net/wp-content/uploads/2020/04/Twitter-Logo.png' },
-    { name: 'YouTube', url: 'https://logos-world.net/wp-content/uploads/2020/04/YouTube-Logo.png' },
-    { name: 'Instagram', url: 'https://logos-world.net/wp-content/uploads/2020/04/Instagram-Logo.png' }
+    { name: 'Client 1', url: '/lovable-uploads/fb7e9daf-3e5f-40d3-873a-b690e1100b10.png' },
+    { name: 'Client 2', url: '/lovable-uploads/7cb981fa-8be6-49d2-9cf5-295b2a29eef5.png' },
+    { name: 'Client 3', url: '/lovable-uploads/d3a71186-b503-4a49-8999-e16762066c3f.png' },
+    { name: 'Client 4', url: '/lovable-uploads/302156f1-3077-4a13-a7f1-98e585a6c401.png' },
+    { name: 'Client 5', url: '/lovable-uploads/c873c688-4a8e-4f52-8ac6-b1d13fee0b59.png' },
+    { name: 'Client 6', url: '/lovable-uploads/6a3106ca-9090-4592-976d-cf41f3ec2d52.png' },
+    { name: 'Client 7', url: '/lovable-uploads/a9bd11dc-8e86-4084-ba6c-c4b519c4dc55.png' },
+    { name: 'Client 8', url: '/lovable-uploads/efe37e94-8e87-40ea-85c4-121b244b1427.png' },
+    { name: 'Client 9', url: '/lovable-uploads/d614c8fa-3f0d-44a0-b3ca-45b238298595.png' },
+    { name: 'Client 10', url: '/lovable-uploads/f5783866-79e3-4ef7-88dc-729dcfa71ae7.png' }
   ];
 
   // Create enough rows to show 3 vertical rows with different logos

@@ -1,11 +1,37 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 export const StatsCounter = () => {
   const [projectsCount, setProjectsCount] = useState(0);
   const [brandsCount, setBrandsCount] = useState(0);
+  const [isVisible, setIsVisible] = useState(false);
+  const counterRef = useRef<HTMLDivElement>(null);
+
+  // Intersection Observer to detect when component is in view
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !isVisible) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.5 } // Trigger when 50% of the component is visible
+    );
+
+    if (counterRef.current) {
+      observer.observe(counterRef.current);
+    }
+
+    return () => {
+      if (counterRef.current) {
+        observer.unobserve(counterRef.current);
+      }
+    };
+  }, [isVisible]);
 
   // Counter animation
   useEffect(() => {
+    if (!isVisible) return;
+
     const animateCount = (setValue: (value: number) => void, target: number) => {
       let start = 0;
       const duration = 6000; // 6 seconds
@@ -36,10 +62,10 @@ export const StatsCounter = () => {
     }, 500); // Delay start by 500ms
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [isVisible]);
 
   return (
-    <div className="max-w-7xl mx-auto w-full py-16">
+    <div ref={counterRef} className="max-w-7xl mx-auto w-full py-16">
       <div className="flex justify-center gap-16 md:gap-32">
         <div className="text-center animate-fade-in">
           <div className="text-white/70 text-lg md:text-xl mb-2">Projects</div>

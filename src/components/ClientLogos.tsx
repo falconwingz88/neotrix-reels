@@ -120,15 +120,16 @@ export const ClientLogos = () => {
             }}
           >
             {rowLogos.map((logo, logoIndex) => {
-              // Define larger logos that need to be enlarged
+              // Define larger logos that need to be enlarged (scale-200)
               const isLargerLogo = [
                 'bibit', 'smartfren', 'telkomsel', 'oppo', 
-                'xl axiata', 'softex', 'fibe mini', 'miranda', 'resort world sentosa'
+                'xl axiata', 'softex', 'fibe mini', 'miranda', 'resort world sentosa',
+                'siloam hospitals', 'client 4', 'client 8', 'new logo 6'
               ].includes(logo.name.toLowerCase());
               
-              // Define smaller logos that need to be scaled down
+              // Define smaller logos that need to be scaled down (scale-50)
               const isSmallerLogo = [
-                'indofood', 'wuling', 'freefire'
+                'indofood', 'wuling', 'freefire', 'client 5', 'client 7', 'client 22'
               ].includes(logo.name.toLowerCase());
               
               return (
@@ -141,9 +142,9 @@ export const ClientLogos = () => {
                     alt={logo.name}
                     className={`max-w-full max-h-full object-contain filter brightness-0 invert opacity-70 hover:opacity-100 transition-all duration-300 ${
                       isLargerLogo 
-                        ? 'scale-150' 
+                        ? 'scale-200' 
                         : isSmallerLogo
-                        ? 'scale-75'
+                        ? 'scale-50'
                         : ''
                     }`}
                     onError={(e) => {

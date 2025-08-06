@@ -7,46 +7,46 @@ export const ClientLogos = () => {
     { name: 'indofood', url: '/lovable-uploads/fb7e9daf-3e5f-40d3-873a-b690e1100b10.png' },
     { name: 'wuling', url: '/lovable-uploads/7cb981fa-8be6-49d2-9cf5-295b2a29eef5.png' },
     { name: 'freefire', url: '/lovable-uploads/d3a71186-b503-4a49-8999-e16762066c3f.png' },
-    { name: 'bca', url: '/lovable-uploads/302156f1-3077-4a13-a7f1-98e585a6c401.png' },
-    { name: 'djarum', url: '/lovable-uploads/c873c688-4a8e-4f52-8ac6-b1d13fee0b59.png' },
-    { name: 'gojek', url: '/lovable-uploads/6a3106ca-9090-4592-976d-cf41f3ec2d52.png' },
-    { name: 'grab', url: '/lovable-uploads/a9bd11dc-8e86-4084-ba6c-c4b519c4dc55.png' },
-    { name: 'shopee', url: '/lovable-uploads/efe37e94-8e87-40ea-85c4-121b244b1427.png' },
-    { name: 'tokopedia', url: '/lovable-uploads/d614c8fa-3f0d-44a0-b3ca-45b238298595.png' },
-    { name: 'bukalapak', url: '/lovable-uploads/f5783866-79e3-4ef7-88dc-729dcfa71ae7.png' },
+    { name: 'Client 4', url: '/lovable-uploads/302156f1-3077-4a13-a7f1-98e585a6c401.png' },
+    { name: 'Client 5', url: '/lovable-uploads/c873c688-4a8e-4f52-8ac6-b1d13fee0b59.png' },
+    { name: 'Client 6', url: '/lovable-uploads/6a3106ca-9090-4592-976d-cf41f3ec2d52.png' },
+    { name: 'Client 7', url: '/lovable-uploads/a9bd11dc-8e86-4084-ba6c-c4b519c4dc55.png' },
+    { name: 'Client 8', url: '/lovable-uploads/efe37e94-8e87-40ea-85c4-121b244b1427.png' },
+    { name: 'Client 9', url: '/lovable-uploads/d614c8fa-3f0d-44a0-b3ca-45b238298595.png' },
+    { name: 'Client 10', url: '/lovable-uploads/f5783866-79e3-4ef7-88dc-729dcfa71ae7.png' },
     { name: 'fibe mini', url: '/lovable-uploads/ee91b94a-553a-4308-8fcd-8a34bbfd333a.png' },
     { name: 'siloam hospitals', url: '/lovable-uploads/a5d81720-e555-45b6-b063-0a7ce6be3c36.png' },
-    { name: 'mandiri', url: '/lovable-uploads/7a01c707-10d2-4706-9c4c-8a140226c4ba.png' },
-    { name: 'bni', url: '/lovable-uploads/62616f4d-160d-4d6b-9f3a-b971f73ccb12.png' },
-    { name: 'bri', url: '/lovable-uploads/c92b1d48-44cc-4952-9226-1c9f52e814d9.png' },
-    { name: 'danamon', url: '/lovable-uploads/4785b1ed-6bdc-4ed6-ade4-b818cbff251e.png' },
-    { name: 'cimb niaga', url: '/lovable-uploads/68dd3971-d74e-4980-a92f-c618cddda3b6.png' },
-    { name: 'permata bank', url: '/lovable-uploads/cb87f0d3-4e82-4e3f-9469-cc1693dfa263.png' },
+    { name: 'Client 13', url: '/lovable-uploads/7a01c707-10d2-4706-9c4c-8a140226c4ba.png' },
+    { name: 'Client 14', url: '/lovable-uploads/62616f4d-160d-4d6b-9f3a-b971f73ccb12.png' },
+    { name: 'Client 15', url: '/lovable-uploads/c92b1d48-44cc-4952-9226-1c9f52e814d9.png' },
+    { name: 'Client 16', url: '/lovable-uploads/4785b1ed-6bdc-4ed6-ade4-b818cbff251e.png' },
+    { name: 'Client 17', url: '/lovable-uploads/68dd3971-d74e-4980-a92f-c618cddda3b6.png' },
+    { name: 'Client 18', url: '/lovable-uploads/cb87f0d3-4e82-4e3f-9469-cc1693dfa263.png' },
     { name: 'bibit', url: '/lovable-uploads/095c66ca-08f0-405a-a24e-5d161594a887.png' },
-    { name: 'dana', url: '/lovable-uploads/19f383c4-5d82-479c-bab9-7464db949e5e.png' },
-    { name: 'ovo', url: '/lovable-uploads/62178f14-7e0f-495c-a601-8db7e697bcdf.png' },
-    { name: 'gopay', url: '/lovable-uploads/382d7f57-bb77-4a9f-82b6-de8631727482.png' },
-    { name: 'linkaja', url: '/lovable-uploads/df62878e-d432-420e-a780-ebe5485418f6.png' },
-    { name: 'jenius', url: '/lovable-uploads/541e8688-7445-4d35-b794-fe71c48a9102.png' },
-    { name: 'akulaku', url: '/lovable-uploads/234e264c-694e-4db8-aac2-0174d4b8bec3.png' },
-    { name: 'kredivo', url: '/lovable-uploads/1862eea6-85c6-4c44-b5ec-62a8ebc9d947.png' },
-    { name: 'traveloka', url: '/lovable-uploads/3ce45d7a-dcbb-490d-859b-4a364b6f8993.png' },
+    { name: 'Client 20', url: '/lovable-uploads/19f383c4-5d82-479c-bab9-7464db949e5e.png' },
+    { name: 'Client 21', url: '/lovable-uploads/62178f14-7e0f-495c-a601-8db7e697bcdf.png' },
+    { name: 'Client 22', url: '/lovable-uploads/382d7f57-bb77-4a9f-82b6-de8631727482.png' },
+    { name: 'Client 23', url: '/lovable-uploads/df62878e-d432-420e-a780-ebe5485418f6.png' },
+    { name: 'Client 24', url: '/lovable-uploads/541e8688-7445-4d35-b794-fe71c48a9102.png' },
+    { name: 'Client 25', url: '/lovable-uploads/234e264c-694e-4db8-aac2-0174d4b8bec3.png' },
+    { name: 'Client 26', url: '/lovable-uploads/1862eea6-85c6-4c44-b5ec-62a8ebc9d947.png' },
+    { name: 'Client 27', url: '/lovable-uploads/3ce45d7a-dcbb-490d-859b-4a364b6f8993.png' },
     { name: 'softex', url: '/lovable-uploads/f2668c32-5c66-4bcf-8f07-3b39e2c6d223.png' },
     { name: 'resort world sentosa', url: '/lovable-uploads/71914277-6e91-4d0f-a005-8ae1ffd16cbc.png' },
-    { name: 'tiket.com', url: '/lovable-uploads/2756c1d1-fb25-46c7-bf7b-2d7ebd3ff86b.png' },
+    { name: 'Client 30', url: '/lovable-uploads/2756c1d1-fb25-46c7-bf7b-2d7ebd3ff86b.png' },
     { name: 'smartfren', url: '/lovable-uploads/f59bd0d6-8e68-4572-a8ac-c343d5809706.png' },
     { name: 'telkomsel', url: '/lovable-uploads/763593e8-727b-4109-8947-ea1cedbaa341.png' },
     { name: 'oppo', url: '/lovable-uploads/d3628a73-bbd2-4b9f-a795-0113e14fb67d.png' },
     { name: 'xl axiata', url: '/lovable-uploads/e9e1d247-d0b1-45d2-92e7-0a884e515fe9.png' },
     { name: 'miranda', url: '/lovable-uploads/ff077092-9132-49d7-be93-f0256e820d03.png' },
-    { name: 'samsung', url: '/lovable-uploads/cb01ed98-88be-4a06-b601-8d535a89c727.png' },
-    { name: 'xiaomi', url: '/lovable-uploads/1b0f52d4-a869-4962-8121-e0d21ed28dbd.png' },
-    { name: 'vivo', url: '/lovable-uploads/457f7fd0-1fac-400a-bb08-e08d7bea91c9.png' },
-    { name: 'realme', url: '/lovable-uploads/5a8474a3-705d-4568-93a9-f34b5a5b432e.png' },
-    { name: 'oneplus', url: '/lovable-uploads/5d7d4cb7-04c1-4ce3-8a72-42f86dbf5c1b.png' },
-    { name: 'unilever', url: '/lovable-uploads/f7a3e855-8b55-4227-9244-d89e78a3fc66.png' },
-    { name: 'nestle', url: '/lovable-uploads/77fe2d7b-22d9-4f85-95c1-e5d1b68af629.png' },
-    { name: 'coca cola', url: '/lovable-uploads/9132013d-52a6-4c9b-b425-3648b501b408.png' }
+    { name: 'New Logo 6', url: '/lovable-uploads/cb01ed98-88be-4a06-b601-8d535a89c727.png' },
+    { name: 'New Logo 7', url: '/lovable-uploads/1b0f52d4-a869-4962-8121-e0d21ed28dbd.png' },
+    { name: 'New Logo 8', url: '/lovable-uploads/457f7fd0-1fac-400a-bb08-e08d7bea91c9.png' },
+    { name: 'New Logo 9', url: '/lovable-uploads/5a8474a3-705d-4568-93a9-f34b5a5b432e.png' },
+    { name: 'New Logo 10', url: '/lovable-uploads/5d7d4cb7-04c1-4ce3-8a72-42f86dbf5c1b.png' },
+    { name: 'Latest Logo 1', url: '/lovable-uploads/f7a3e855-8b55-4227-9244-d89e78a3fc66.png' },
+    { name: 'Latest Logo 2', url: '/lovable-uploads/77fe2d7b-22d9-4f85-95c1-e5d1b68af629.png' },
+    { name: 'Latest Logo 3', url: '/lovable-uploads/9132013d-52a6-4c9b-b425-3648b501b408.png' }
   ];
 
   // Create 3 rows with infinite continuous looping
@@ -116,39 +116,43 @@ export const ClientLogos = () => {
             }`}
             style={{
               animationDelay: `${rowIndex * -30}s`,
-              animationDuration: '200s'
+              animationDuration: '120s'
             }}
           >
             {rowLogos.map((logo, logoIndex) => {
-              // Define larger logos that need to be enlarged
+              // Define larger logos that need to be MUCH LARGER (scale-300)
               const isLargerLogo = [
-                'bibit', 'smartfren', 'telkomsel', 'oppo', 
-                'xl axiata', 'softex', 'fibe mini', 'miranda', 'resort world sentosa'
+                'bibit', 'xl axiata', 'oppo', 'siloam hospitals',
+                'smartfren', 'telkomsel', 'softex', 'fibe mini', 'miranda', 'resort world sentosa',
+                'client 4', 'client 8', 'new logo 6',
+                // Adding more potential procold matches
+                'client 13', 'client 20', 'client 21', 'client 23', 'client 24',
+                'client 25', 'client 26', 'client 27', 'client 30', 'new logo 7',
+                'new logo 8', 'new logo 9', 'new logo 10', 'latest logo 1',
+                'latest logo 2', 'latest logo 3'
               ].includes(logo.name.toLowerCase());
               
-              // Define smaller logos that need to be scaled down (0.8x scale)
+              // Define smaller logos that need to be scaled down (scale-50)
+              // Based on the image names, these are likely the oversized logos:
               const isSmallerLogo = [
-                'indofood', 'wuling', 'freefire'
+                'indofood', 'wuling', 'freefire', 'client 5', 'client 7', 'client 22',
+                'client 6', 'client 9', 'client 10', 'client 14', 'client 15', 'client 16', 'client 17', 'client 18'
               ].includes(logo.name.toLowerCase());
-              
-              // Check for BCA logo (need to find which Client number it is)
-              const isBCALogo = logo.name.toLowerCase().includes('client') && 
-                ['client 4', 'client 5', 'client 6', 'client 7', 'client 8', 'client 9', 'client 10'].includes(logo.name.toLowerCase());
               
               return (
                 <div
                   key={`${rowIndex}-${logoIndex}`}
-                  className="flex-shrink-0 flex items-center justify-center bg-white/10 rounded-xl border border-white/10 hover:bg-white/20 transition-all duration-300 p-2 w-20 h-10 md:w-32 md:h-16"
+                  className="flex-shrink-0 flex items-center justify-center bg-white/10 rounded-xl border border-white/10 hover:bg-white/20 transition-all duration-300 p-2 w-20 h-10 md:w-32 md:h-16 overflow-visible"
                 >
                   <img
                     src={logo.url}
                     alt={logo.name}
-                    className={`max-w-full max-h-full object-contain filter brightness-0 invert opacity-70 hover:opacity-100 transition-all duration-300 ${
+                    className={`object-contain filter brightness-0 invert opacity-70 hover:opacity-100 transition-all duration-300 ${
                       isLargerLogo 
-                        ? 'scale-150' 
-                        : isSmallerLogo || isBCALogo
-                        ? 'scale-[2.0]'
-                        : ''
+                        ? 'scale-[3]' 
+                        : isSmallerLogo
+                        ? 'scale-50 max-w-full max-h-full'
+                        : 'max-w-full max-h-full'
                     }`}
                     onError={(e) => {
                       // Fallback to text if image fails to load

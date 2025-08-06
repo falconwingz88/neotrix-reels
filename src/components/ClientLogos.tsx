@@ -74,7 +74,7 @@ export const ClientLogos = () => {
   return (
     <div className="bg-white/5 backdrop-blur-2xl rounded-3xl border border-white/20 shadow-2xl overflow-hidden">
       <div className="p-4 md:p-8 pb-0">
-        <div className="mb-4 md:mb-8 text-center">
+        <div className="mb-2 md:mb-4 text-center">
           <h2 className="text-xl md:text-3xl font-bold text-white mb-2">Trusted by Industry Leaders</h2>
           <p className="text-sm md:text-base text-white/70 px-4">Proud to collaborate with amazing brands worldwide</p>
         </div>
@@ -82,13 +82,15 @@ export const ClientLogos = () => {
 
       <div 
         ref={scrollRef}
-        className="space-y-3 md:space-y-6 overflow-x-auto scrollbar-hide"
+        className="space-y-3 md:space-y-6 overflow-x-auto scrollbar-hide -mt-2"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {logoRows.map((rowLogos, rowIndex) => (
           <div
             key={rowIndex}
-            className="flex gap-3 md:gap-6 animate-scroll-horizontal w-fit px-4 md:px-8"
+            className={`flex gap-3 md:gap-6 animate-scroll-horizontal w-fit px-4 md:px-8 ${
+              rowIndex === 1 ? 'ml-8 md:ml-16' : ''
+            }`}
             style={{
               animationDelay: `${rowIndex * -20}s`,
               animationDuration: '40s'
@@ -99,16 +101,20 @@ export const ClientLogos = () => {
               return (
                 <div
                   key={`${rowIndex}-${logoIndex}`}
-                  className="flex-shrink-0 w-20 h-10 md:w-32 md:h-16 flex items-center justify-center bg-white/10 rounded-xl border border-white/10 hover:bg-white/20 transition-all duration-300"
+                  className={`flex-shrink-0 flex items-center justify-center bg-white/10 rounded-xl border border-white/10 hover:bg-white/20 transition-all duration-300 ${
+                    isLargerLogo 
+                      ? 'w-28 h-14 md:w-44 md:h-22' 
+                      : 'w-20 h-10 md:w-32 md:h-16'
+                  }`}
                 >
                   <img
                     src={logo.url}
                     alt={logo.name}
-                    className={`${
+                    className={`object-contain filter brightness-0 invert opacity-70 hover:opacity-100 transition-all duration-300 ${
                       isLargerLogo 
-                        ? 'max-w-16 max-h-8 md:max-w-28 md:max-h-14 scale-150' 
+                        ? 'max-w-24 max-h-12 md:max-w-40 md:max-h-18' 
                         : 'max-w-14 max-h-7 md:max-w-24 md:max-h-12'
-                    } object-contain filter brightness-0 invert opacity-70 hover:opacity-100 transition-all duration-300`}
+                    }`}
                     onError={(e) => {
                       // Fallback to text if image fails to load
                       const target = e.target as HTMLImageElement;

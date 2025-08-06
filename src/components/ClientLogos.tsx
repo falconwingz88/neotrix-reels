@@ -115,8 +115,8 @@ export const ClientLogos = () => {
               rowIndex === 1 ? 'ml-8 md:ml-16' : rowIndex === 2 ? 'ml-4 md:ml-8' : ''
             }`}
             style={{
-              animationDelay: `${rowIndex * -30}s`,
-              animationDuration: '250s'
+              animationDelay: `${rowIndex * -20}s`,
+              animationDuration: '220s'
             }}
           >
             {rowLogos.map((logo, logoIndex) => {

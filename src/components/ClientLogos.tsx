@@ -43,10 +43,13 @@ export const ClientLogos = () => {
     { name: 'New Logo 7', url: '/lovable-uploads/1b0f52d4-a869-4962-8121-e0d21ed28dbd.png' },
     { name: 'New Logo 8', url: '/lovable-uploads/457f7fd0-1fac-400a-bb08-e08d7bea91c9.png' },
     { name: 'New Logo 9', url: '/lovable-uploads/5a8474a3-705d-4568-93a9-f34b5a5b432e.png' },
-    { name: 'New Logo 10', url: '/lovable-uploads/5d7d4cb7-04c1-4ce3-8a72-42f86dbf5c1b.png' }
+    { name: 'New Logo 10', url: '/lovable-uploads/5d7d4cb7-04c1-4ce3-8a72-42f86dbf5c1b.png' },
+    { name: 'Latest Logo 1', url: '/lovable-uploads/f7a3e855-8b55-4227-9244-d89e78a3fc66.png' },
+    { name: 'Latest Logo 2', url: '/lovable-uploads/77fe2d7b-22d9-4f85-95c1-e5d1b68af629.png' },
+    { name: 'Latest Logo 3', url: '/lovable-uploads/9132013d-52a6-4c9b-b425-3648b501b408.png' }
   ];
 
-  // Create 3 rows with unique logos (no repetition)
+  // Create 3 rows with unique logos and ensure continuous looping
   const createLogoRows = () => {
     const logosPerRow = Math.ceil(logos.length / 3);
     const rows = [];
@@ -54,10 +57,16 @@ export const ClientLogos = () => {
     for (let row = 0; row < 3; row++) {
       const startIndex = row * logosPerRow;
       const endIndex = Math.min(startIndex + logosPerRow, logos.length);
-      const rowLogos = logos.slice(startIndex, endIndex);
+      let rowLogos = logos.slice(startIndex, endIndex);
       
-      // For seamless scrolling, duplicate the row content
-      const duplicatedRow = [...rowLogos, ...rowLogos];
+      // If row is short, fill it with logos from the beginning to ensure seamless loop
+      while (rowLogos.length < logosPerRow && rowLogos.length < logos.length) {
+        const remainingLogos = logos.slice(0, logosPerRow - rowLogos.length);
+        rowLogos = [...rowLogos, ...remainingLogos];
+      }
+      
+      // For seamless scrolling, create multiple duplicates for continuous loop
+      const duplicatedRow = [...rowLogos, ...rowLogos, ...rowLogos];
       rows.push(duplicatedRow);
     }
     return rows;
@@ -82,7 +91,7 @@ export const ClientLogos = () => {
   }, []);
 
   return (
-    <div className="bg-white/5 backdrop-blur-2xl rounded-3xl border border-white/20 shadow-2xl overflow-hidden">
+    <div className="bg-white/5 backdrop-blur-2xl rounded-3xl border border-white/20 shadow-2xl overflow-hidden mb-8">
       <div className="p-4 md:p-8 pb-0">
         <div className="mb-2 md:mb-4 text-center">
           <h2 className="text-xl md:text-3xl font-bold text-white mb-2">Trusted by Industry Leaders</h2>
@@ -99,11 +108,10 @@ export const ClientLogos = () => {
           <div
             key={rowIndex}
             className={`flex gap-3 md:gap-6 animate-scroll-horizontal w-fit px-4 md:px-8 ${
-              rowIndex === 1 ? 'ml-8 md:ml-16' : ''
+              rowIndex === 1 ? 'ml-8 md:ml-16' : rowIndex === 2 ? 'ml-4 md:ml-8' : ''
             }`}
             style={{
-              animationDelay: `${rowIndex * -25}s`,
-              animationDuration: '80s'
+              animationDelay: `${rowIndex * -27}s`
             }}
           >
             {rowLogos.map((logo, logoIndex) => {

@@ -8,7 +8,7 @@ export const StatsCounter = () => {
   useEffect(() => {
     const animateCount = (setValue: (value: number) => void, target: number) => {
       let start = 0;
-      const duration = 2000; // 2 seconds
+      const duration = 6000; // 6 seconds
       const startTime = Date.now();
       
       const updateCount = () => {

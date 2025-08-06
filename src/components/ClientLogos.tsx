@@ -133,9 +133,10 @@ export const ClientLogos = () => {
               ].includes(logo.name.toLowerCase());
               
               // Define smaller logos that need to be scaled down (scale-50)
+              // Based on the image names, these are likely the oversized logos:
               const isSmallerLogo = [
-                'tomoro coffee', 'valorant', 'tri', 'paddlepop',
-                'indofood', 'wuling', 'freefire', 'client 5', 'client 7', 'client 22'
+                'indofood', 'wuling', 'freefire', 'client 5', 'client 7', 'client 22',
+                'client 6', 'client 9', 'client 10', 'client 14', 'client 15', 'client 16', 'client 17', 'client 18'
               ].includes(logo.name.toLowerCase());
               
               return (

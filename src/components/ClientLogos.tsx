@@ -147,7 +147,7 @@ export const ClientLogos = () => {
                       isLargerLogo 
                         ? 'scale-150' 
                         : isSmallerLogo || isBCALogo
-                        ? 'scale-[0.5]'
+                        ? 'scale-[2.0]'
                         : ''
                     }`}
                     onError={(e) => {

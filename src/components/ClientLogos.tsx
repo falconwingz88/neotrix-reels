@@ -145,12 +145,12 @@ export const ClientLogos = () => {
                   <img
                     src={logo.url}
                     alt={logo.name}
-                    className={`max-w-full max-h-full object-contain filter brightness-0 invert opacity-70 hover:opacity-100 transition-all duration-300 ${
+                    className={`object-contain filter brightness-0 invert opacity-70 hover:opacity-100 transition-all duration-300 ${
                       isLargerLogo 
                         ? 'scale-300' 
                         : isSmallerLogo
-                        ? 'scale-50'
-                        : ''
+                        ? 'scale-50 max-w-full max-h-full'
+                        : 'max-w-full max-h-full'
                     }`}
                     onError={(e) => {
                       // Fallback to text if image fails to load

@@ -147,7 +147,7 @@ All colors MUST be HSL.
 
 @layer utilities {
   .animate-scroll-horizontal {
-    animation: scroll-horizontal 60s linear infinite;
+    animation: scroll-horizontal 80s linear infinite;
   }
   
   .animate-fade-in {

@@ -33,7 +33,17 @@ export const ClientLogos = () => {
     { name: 'fibe mini', url: '/lovable-uploads/3ce45d7a-dcbb-490d-859b-4a364b6f8993.png' },
     { name: 'softex', url: '/lovable-uploads/f2668c32-5c66-4bcf-8f07-3b39e2c6d223.png' },
     { name: 'Client 29', url: '/lovable-uploads/71914277-6e91-4d0f-a005-8ae1ffd16cbc.png' },
-    { name: 'Client 30', url: '/lovable-uploads/2756c1d1-fb25-46c7-bf7b-2d7ebd3ff86b.png' }
+    { name: 'Client 30', url: '/lovable-uploads/2756c1d1-fb25-46c7-bf7b-2d7ebd3ff86b.png' },
+    { name: 'New Logo 1', url: '/lovable-uploads/f59bd0d6-8e68-4572-a8ac-c343d5809706.png' },
+    { name: 'New Logo 2', url: '/lovable-uploads/763593e8-727b-4109-8947-ea1cedbaa341.png' },
+    { name: 'New Logo 3', url: '/lovable-uploads/d3628a73-bbd2-4b9f-a795-0113e14fb67d.png' },
+    { name: 'New Logo 4', url: '/lovable-uploads/e9e1d247-d0b1-45d2-92e7-0a884e515fe9.png' },
+    { name: 'New Logo 5', url: '/lovable-uploads/ff077092-9132-49d7-be93-f0256e820d03.png' },
+    { name: 'New Logo 6', url: '/lovable-uploads/cb01ed98-88be-4a06-b601-8d535a89c727.png' },
+    { name: 'New Logo 7', url: '/lovable-uploads/1b0f52d4-a869-4962-8121-e0d21ed28dbd.png' },
+    { name: 'New Logo 8', url: '/lovable-uploads/457f7fd0-1fac-400a-bb08-e08d7bea91c9.png' },
+    { name: 'New Logo 9', url: '/lovable-uploads/5a8474a3-705d-4568-93a9-f34b5a5b432e.png' },
+    { name: 'New Logo 10', url: '/lovable-uploads/5d7d4cb7-04c1-4ce3-8a72-42f86dbf5c1b.png' }
   ];
 
   // Create 3 rows with unique logos (no repetition)
@@ -92,8 +102,8 @@ export const ClientLogos = () => {
               rowIndex === 1 ? 'ml-8 md:ml-16' : ''
             }`}
             style={{
-              animationDelay: `${rowIndex * -20}s`,
-              animationDuration: '40s'
+              animationDelay: `${rowIndex * -25}s`,
+              animationDuration: '80s'
             }}
           >
             {rowLogos.map((logo, logoIndex) => {
@@ -101,15 +111,15 @@ export const ClientLogos = () => {
               return (
                 <div
                   key={`${rowIndex}-${logoIndex}`}
-                  className="flex-shrink-0 w-20 h-10 md:w-32 md:h-16 flex items-center justify-center bg-white/10 rounded-xl border border-white/10 hover:bg-white/20 transition-all duration-300"
+                  className="flex-shrink-0 w-20 h-10 md:w-32 md:h-16 flex items-center justify-center bg-white/10 rounded-xl border border-white/10 hover:bg-white/20 transition-all duration-300 p-2"
                 >
                   <img
                     src={logo.url}
                     alt={logo.name}
                     className={`object-contain filter brightness-0 invert opacity-70 hover:opacity-100 transition-all duration-300 ${
                       isLargerLogo 
-                        ? 'w-full h-full p-1' 
-                        : 'max-w-14 max-h-7 md:max-w-24 md:max-h-12'
+                        ? 'w-full h-full' 
+                        : 'max-w-12 max-h-5 md:max-w-20 md:max-h-10'
                     }`}
                     onError={(e) => {
                       // Fallback to text if image fails to load

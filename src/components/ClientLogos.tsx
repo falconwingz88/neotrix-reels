@@ -46,7 +46,8 @@ export const ClientLogos = () => {
     { name: 'wardah_white.png', url: '/client-logos/wardah_white.png' },
     { name: 'wuling_white.png', url: '/client-logos/wuling_white.png' },
     { name: 'wyeth_white.png', url: '/client-logos/wyeth_white.png' },
-    { name: 'xl_white.png', url: '/client-logos/xl_white.png' }
+    { name: 'xl_white.png', url: '/client-logos/xl_white.png' },
+    { name: 'lilac-post-pro.png', url: '/client-logos/lilac-post-pro.png' }
   ];
 
   // Create 3 rows with infinite continuous looping

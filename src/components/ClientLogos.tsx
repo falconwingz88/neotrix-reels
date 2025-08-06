@@ -126,10 +126,14 @@ export const ClientLogos = () => {
                 'xl axiata', 'softex', 'fibe mini', 'miranda', 'resort world sentosa'
               ].includes(logo.name.toLowerCase());
               
-              // Define smaller logos that need to be scaled down
+              // Define smaller logos that need to be scaled down (0.8x scale)
               const isSmallerLogo = [
                 'indofood', 'wuling', 'freefire'
               ].includes(logo.name.toLowerCase());
+              
+              // Check for BCA logo (need to find which Client number it is)
+              const isBCALogo = logo.name.toLowerCase().includes('client') && 
+                ['client 4', 'client 5', 'client 6', 'client 7', 'client 8', 'client 9', 'client 10'].includes(logo.name.toLowerCase());
               
               return (
                 <div
@@ -142,8 +146,8 @@ export const ClientLogos = () => {
                     className={`max-w-full max-h-full object-contain filter brightness-0 invert opacity-70 hover:opacity-100 transition-all duration-300 ${
                       isLargerLogo 
                         ? 'scale-150' 
-                        : isSmallerLogo
-                        ? 'scale-75'
+                        : isSmallerLogo || isBCALogo
+                        ? 'scale-[0.8]'
                         : ''
                     }`}
                     onError={(e) => {

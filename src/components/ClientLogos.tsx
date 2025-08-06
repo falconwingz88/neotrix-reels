@@ -32,15 +32,15 @@ export const ClientLogos = () => {
     { name: 'Client 30', url: '/lovable-uploads/2756c1d1-fb25-46c7-bf7b-2d7ebd3ff86b.png' }
   ];
 
-  // Create enough rows to show 3 vertical rows with continuous scrolling
+  // Create rows without repetition and with proper scrolling
   const createLogoRows = () => {
     const rows = [];
+    const logosPerRow = Math.ceil(logos.length / 3);
+    
     for (let row = 0; row < 3; row++) {
-      const rowLogos = [];
-      // Double the logos for seamless scrolling
-      for (let i = 0; i < logos.length * 2; i++) {
-        rowLogos.push(logos[i % logos.length]);
-      }
+      const startIndex = row * logosPerRow;
+      const endIndex = Math.min(startIndex + logosPerRow, logos.length);
+      const rowLogos = logos.slice(startIndex, endIndex);
       rows.push(rowLogos);
     }
     return rows;
@@ -55,18 +55,14 @@ export const ClientLogos = () => {
         <p className="text-sm md:text-base text-white/70 px-4">Proud to collaborate with amazing brands worldwide</p>
       </div>
 
-      <div className="space-y-3 md:space-y-6">
+      <div className="space-y-3 md:space-y-6 max-h-96 overflow-y-auto scrollbar-thin scrollbar-track-white/10 scrollbar-thumb-white/30">
         {logoRows.map((rowLogos, rowIndex) => (
           <div
             key={rowIndex}
-            className="flex gap-3 md:gap-8 animate-scroll-horizontal"
-            style={{
-              animationDelay: `${rowIndex * -10}s`, // Offset each row
-              animationDuration: '60s' // Slow scrolling
-            }}
+            className="flex gap-3 md:gap-8 overflow-x-auto scrollbar-thin scrollbar-track-white/10 scrollbar-thumb-white/30 pb-2"
           >
             {rowLogos.map((logo, logoIndex) => {
-              const isLargerLogo = logo.name === 'bibit' || logo.name === 'softex';
+              const isLargerLogo = logo.name === 'bibit' || logo.name === 'softex' || logo.url.includes('7a01c707') || logo.url.includes('f2668c32') || logo.url.includes('234e264c');
               return (
                 <div
                   key={`${rowIndex}-${logoIndex}`}

@@ -34,11 +34,11 @@ export const ClientLogos = () => {
     { name: 'softex', url: '/lovable-uploads/f2668c32-5c66-4bcf-8f07-3b39e2c6d223.png' },
     { name: 'Client 29', url: '/lovable-uploads/71914277-6e91-4d0f-a005-8ae1ffd16cbc.png' },
     { name: 'Client 30', url: '/lovable-uploads/2756c1d1-fb25-46c7-bf7b-2d7ebd3ff86b.png' },
-    { name: 'New Logo 1', url: '/lovable-uploads/f59bd0d6-8e68-4572-a8ac-c343d5809706.png' },
-    { name: 'New Logo 2', url: '/lovable-uploads/763593e8-727b-4109-8947-ea1cedbaa341.png' },
-    { name: 'New Logo 3', url: '/lovable-uploads/d3628a73-bbd2-4b9f-a795-0113e14fb67d.png' },
-    { name: 'New Logo 4', url: '/lovable-uploads/e9e1d247-d0b1-45d2-92e7-0a884e515fe9.png' },
-    { name: 'New Logo 5', url: '/lovable-uploads/ff077092-9132-49d7-be93-f0256e820d03.png' },
+    { name: 'smartfren', url: '/lovable-uploads/f59bd0d6-8e68-4572-a8ac-c343d5809706.png' },
+    { name: 'telkomsel', url: '/lovable-uploads/763593e8-727b-4109-8947-ea1cedbaa341.png' },
+    { name: 'oppo', url: '/lovable-uploads/d3628a73-bbd2-4b9f-a795-0113e14fb67d.png' },
+    { name: 'xl axiata', url: '/lovable-uploads/e9e1d247-d0b1-45d2-92e7-0a884e515fe9.png' },
+    { name: 'miranda', url: '/lovable-uploads/ff077092-9132-49d7-be93-f0256e820d03.png' },
     { name: 'New Logo 6', url: '/lovable-uploads/cb01ed98-88be-4a06-b601-8d535a89c727.png' },
     { name: 'New Logo 7', url: '/lovable-uploads/1b0f52d4-a869-4962-8121-e0d21ed28dbd.png' },
     { name: 'New Logo 8', url: '/lovable-uploads/457f7fd0-1fac-400a-bb08-e08d7bea91c9.png' },
@@ -49,7 +49,7 @@ export const ClientLogos = () => {
     { name: 'Latest Logo 3', url: '/lovable-uploads/9132013d-52a6-4c9b-b425-3648b501b408.png' }
   ];
 
-  // Create 3 rows with unique logos and ensure continuous looping
+  // Create 3 rows with infinite continuous looping
   const createLogoRows = () => {
     const logosPerRow = Math.ceil(logos.length / 3);
     const rows = [];
@@ -60,13 +60,17 @@ export const ClientLogos = () => {
       let rowLogos = logos.slice(startIndex, endIndex);
       
       // If row is short, fill it with logos from the beginning to ensure seamless loop
-      while (rowLogos.length < logosPerRow && rowLogos.length < logos.length) {
-        const remainingLogos = logos.slice(0, logosPerRow - rowLogos.length);
-        rowLogos = [...rowLogos, ...remainingLogos];
+      while (rowLogos.length < logosPerRow) {
+        const remainingCount = logosPerRow - rowLogos.length;
+        const fillLogos = logos.slice(0, Math.min(remainingCount, logos.length));
+        rowLogos = [...rowLogos, ...fillLogos];
       }
       
-      // For seamless scrolling, create multiple duplicates for continuous loop
-      const duplicatedRow = [...rowLogos, ...rowLogos, ...rowLogos];
+      // Create 6 duplicates for truly seamless infinite scrolling with no gaps
+      const duplicatedRow = [
+        ...rowLogos, ...rowLogos, ...rowLogos, 
+        ...rowLogos, ...rowLogos, ...rowLogos
+      ];
       rows.push(duplicatedRow);
     }
     return rows;
@@ -111,11 +115,16 @@ export const ClientLogos = () => {
               rowIndex === 1 ? 'ml-8 md:ml-16' : rowIndex === 2 ? 'ml-4 md:ml-8' : ''
             }`}
             style={{
-              animationDelay: `${rowIndex * -27}s`
+              animationDelay: `${rowIndex * -30}s`,
+              animationDuration: '120s'
             }}
           >
             {rowLogos.map((logo, logoIndex) => {
-              const isLargerLogo = logo.name === 'bibit' || logo.name === 'softex' || logo.name === 'siloam hospitals' || logo.name === 'fibe mini';
+              const isLargerLogo = [
+                'bibit', 'smartfren', 'telkomsel', 'oppo', 
+                'xl axiata', 'softex', 'fibe mini', 'miranda'
+              ].includes(logo.name.toLowerCase());
+              
               return (
                 <div
                   key={`${rowIndex}-${logoIndex}`}
@@ -126,7 +135,7 @@ export const ClientLogos = () => {
                     alt={logo.name}
                     className={`object-contain filter brightness-0 invert opacity-70 hover:opacity-100 transition-all duration-300 ${
                       isLargerLogo 
-                        ? 'w-full h-full' 
+                        ? 'w-full h-full scale-150' 
                         : 'max-w-12 max-h-5 md:max-w-20 md:max-h-10'
                     }`}
                     onError={(e) => {
@@ -147,6 +156,7 @@ export const ClientLogos = () => {
             })}
           </div>
         ))}
+        <div className="pb-6 md:pb-8"></div>
       </div>
     </div>
   );

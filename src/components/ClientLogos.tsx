@@ -25,23 +25,26 @@ export const ClientLogos = () => {
     { name: 'Client 23', url: '/lovable-uploads/df62878e-d432-420e-a780-ebe5485418f6.png' },
     { name: 'Client 24', url: '/lovable-uploads/541e8688-7445-4d35-b794-fe71c48a9102.png' },
     { name: 'bibit', url: '/lovable-uploads/234e264c-694e-4db8-aac2-0174d4b8bec3.png' },
-    { name: 'Client 26', url: '/lovable-uploads/1862eea6-85c6-4c44-b5ec-62a8ebc9d947.png' },
+    { name: 'siloam hospitals', url: '/lovable-uploads/1862eea6-85c6-4c44-b5ec-62a8ebc9d947.png' },
     { name: 'Client 27', url: '/lovable-uploads/3ce45d7a-dcbb-490d-859b-4a364b6f8993.png' },
     { name: 'softex', url: '/lovable-uploads/f2668c32-5c66-4bcf-8f07-3b39e2c6d223.png' },
     { name: 'Client 29', url: '/lovable-uploads/71914277-6e91-4d0f-a005-8ae1ffd16cbc.png' },
     { name: 'Client 30', url: '/lovable-uploads/2756c1d1-fb25-46c7-bf7b-2d7ebd3ff86b.png' }
   ];
 
-  // Create enough rows to show 3 vertical rows with continuous scrolling
+  // Create 3 rows with unique logos (no repetition)
   const createLogoRows = () => {
+    const logosPerRow = Math.ceil(logos.length / 3);
     const rows = [];
+    
     for (let row = 0; row < 3; row++) {
-      const rowLogos = [];
-      // Double the logos for seamless scrolling
-      for (let i = 0; i < logos.length * 2; i++) {
-        rowLogos.push(logos[i % logos.length]);
-      }
-      rows.push(rowLogos);
+      const startIndex = row * logosPerRow;
+      const endIndex = Math.min(startIndex + logosPerRow, logos.length);
+      const rowLogos = logos.slice(startIndex, endIndex);
+      
+      // For seamless scrolling, duplicate the row content
+      const duplicatedRow = [...rowLogos, ...rowLogos];
+      rows.push(duplicatedRow);
     }
     return rows;
   };
@@ -55,24 +58,24 @@ export const ClientLogos = () => {
         <p className="text-sm md:text-base text-white/70 px-4">Proud to collaborate with amazing brands worldwide</p>
       </div>
 
-      <div className="space-y-3 md:space-y-6">
+      <div className="space-y-3 md:space-y-6 overflow-hidden">
         {logoRows.map((rowLogos, rowIndex) => (
           <div
             key={rowIndex}
-            className="flex gap-3 md:gap-8 animate-scroll-horizontal"
+            className="flex gap-3 md:gap-8 animate-scroll-horizontal w-fit"
             style={{
-              animationDelay: `${rowIndex * -10}s`, // Offset each row
-              animationDuration: '60s' // Slow scrolling
+              animationDelay: `${rowIndex * -20}s`,
+              animationDuration: '40s'
             }}
           >
             {rowLogos.map((logo, logoIndex) => {
-              const isLargerLogo = logo.name === 'bibit' || logo.name === 'softex';
+              const isLargerLogo = logo.name === 'bibit' || logo.name === 'softex' || logo.name === 'siloam hospitals';
               return (
                 <div
                   key={`${rowIndex}-${logoIndex}`}
                   className={`flex-shrink-0 ${
                     isLargerLogo 
-                      ? 'w-28 h-14 md:w-40 md:h-20' 
+                      ? 'w-32 h-16 md:w-48 md:h-24' 
                       : 'w-20 h-10 md:w-32 md:h-16'
                   } flex items-center justify-center bg-white/10 rounded-xl border border-white/10 hover:bg-white/20 transition-all duration-300`}
                 >
@@ -81,7 +84,7 @@ export const ClientLogos = () => {
                     alt={logo.name}
                     className={`${
                       isLargerLogo 
-                        ? 'max-w-24 max-h-12 md:max-w-36 md:max-h-16' 
+                        ? 'max-w-28 max-h-14 md:max-w-44 md:max-h-20' 
                         : 'max-w-16 max-h-8 md:max-w-24 md:max-h-12'
                     } object-contain filter brightness-0 invert opacity-70 hover:opacity-100 transition-opacity duration-300`}
                     onError={(e) => {

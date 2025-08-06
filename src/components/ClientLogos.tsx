@@ -149,7 +149,7 @@ export const ClientLogos = () => {
                     alt={logo.name}
                     className={`object-contain filter brightness-0 invert opacity-70 hover:opacity-100 transition-all duration-300 ${
                       isLargerLogo 
-                        ? 'scale-300' 
+                        ? 'scale-[3]' 
                         : isSmallerLogo
                         ? 'scale-50 max-w-full max-h-full'
                         : 'max-w-full max-h-full'

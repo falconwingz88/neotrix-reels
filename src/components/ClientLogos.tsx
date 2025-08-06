@@ -120,39 +120,31 @@ export const ClientLogos = () => {
             }}
           >
             {rowLogos.map((logo, logoIndex) => {
-              // Define larger logos that need to be MUCH LARGER (scale-300)
+              // Define larger logos that need to be enlarged
               const isLargerLogo = [
-                'bibit', 'xl axiata', 'oppo', 'siloam hospitals',
-                'smartfren', 'telkomsel', 'softex', 'fibe mini', 'miranda', 'resort world sentosa',
-                'client 4', 'client 8', 'new logo 6',
-                // Adding more potential procold matches
-                'client 13', 'client 20', 'client 21', 'client 23', 'client 24',
-                'client 25', 'client 26', 'client 27', 'client 30', 'new logo 7',
-                'new logo 8', 'new logo 9', 'new logo 10', 'latest logo 1',
-                'latest logo 2', 'latest logo 3'
+                'bibit', 'smartfren', 'telkomsel', 'oppo', 
+                'xl axiata', 'softex', 'fibe mini', 'miranda', 'resort world sentosa'
               ].includes(logo.name.toLowerCase());
               
-              // Define smaller logos that need to be scaled down (scale-50)
-              // Based on the image names, these are likely the oversized logos:
+              // Define smaller logos that need to be scaled down
               const isSmallerLogo = [
-                'indofood', 'wuling', 'freefire', 'client 5', 'client 7', 'client 22',
-                'client 6', 'client 9', 'client 10', 'client 14', 'client 15', 'client 16', 'client 17', 'client 18'
+                'indofood', 'wuling', 'freefire'
               ].includes(logo.name.toLowerCase());
               
               return (
                 <div
                   key={`${rowIndex}-${logoIndex}`}
-                  className="flex-shrink-0 flex items-center justify-center bg-white/10 rounded-xl border border-white/10 hover:bg-white/20 transition-all duration-300 p-2 w-20 h-10 md:w-32 md:h-16 overflow-visible"
+                  className="flex-shrink-0 flex items-center justify-center bg-white/10 rounded-xl border border-white/10 hover:bg-white/20 transition-all duration-300 p-2 w-20 h-10 md:w-32 md:h-16"
                 >
                   <img
                     src={logo.url}
                     alt={logo.name}
-                    className={`object-contain filter brightness-0 invert opacity-70 hover:opacity-100 transition-all duration-300 ${
+                    className={`max-w-full max-h-full object-contain filter brightness-0 invert opacity-70 hover:opacity-100 transition-all duration-300 ${
                       isLargerLogo 
-                        ? 'scale-[3]' 
+                        ? 'scale-150' 
                         : isSmallerLogo
-                        ? 'scale-50 max-w-full max-h-full'
-                        : 'max-w-full max-h-full'
+                        ? 'scale-75'
+                        : ''
                     }`}
                     onError={(e) => {
                       // Fallback to text if image fails to load

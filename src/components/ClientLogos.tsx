@@ -1,4 +1,8 @@
+import { useRef, useEffect } from 'react';
+
 export const ClientLogos = () => {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
   const logos = [
     { name: 'Client 1', url: '/lovable-uploads/fb7e9daf-3e5f-40d3-873a-b690e1100b10.png' },
     { name: 'Client 2', url: '/lovable-uploads/7cb981fa-8be6-49d2-9cf5-295b2a29eef5.png' },
@@ -26,7 +30,7 @@ export const ClientLogos = () => {
     { name: 'Client 24', url: '/lovable-uploads/541e8688-7445-4d35-b794-fe71c48a9102.png' },
     { name: 'bibit', url: '/lovable-uploads/234e264c-694e-4db8-aac2-0174d4b8bec3.png' },
     { name: 'siloam hospitals', url: '/lovable-uploads/1862eea6-85c6-4c44-b5ec-62a8ebc9d947.png' },
-    { name: 'Client 27', url: '/lovable-uploads/3ce45d7a-dcbb-490d-859b-4a364b6f8993.png' },
+    { name: 'fibe mini', url: '/lovable-uploads/3ce45d7a-dcbb-490d-859b-4a364b6f8993.png' },
     { name: 'softex', url: '/lovable-uploads/f2668c32-5c66-4bcf-8f07-3b39e2c6d223.png' },
     { name: 'Client 29', url: '/lovable-uploads/71914277-6e91-4d0f-a005-8ae1ffd16cbc.png' },
     { name: 'Client 30', url: '/lovable-uploads/2756c1d1-fb25-46c7-bf7b-2d7ebd3ff86b.png' }
@@ -51,42 +55,60 @@ export const ClientLogos = () => {
 
   const logoRows = createLogoRows();
 
+  // Add horizontal scroll functionality
+  useEffect(() => {
+    const handleWheel = (e: WheelEvent) => {
+      if (scrollRef.current) {
+        e.preventDefault();
+        scrollRef.current.scrollLeft += e.deltaY;
+      }
+    };
+
+    const currentRef = scrollRef.current;
+    if (currentRef) {
+      currentRef.addEventListener('wheel', handleWheel);
+      return () => currentRef.removeEventListener('wheel', handleWheel);
+    }
+  }, []);
+
   return (
-    <div className="bg-white/5 backdrop-blur-2xl rounded-3xl border border-white/20 p-4 md:p-8 shadow-2xl overflow-hidden">
-      <div className="mb-4 md:mb-8 text-center">
-        <h2 className="text-xl md:text-3xl font-bold text-white mb-2">Trusted by Industry Leaders</h2>
-        <p className="text-sm md:text-base text-white/70 px-4">Proud to collaborate with amazing brands worldwide</p>
+    <div className="bg-white/5 backdrop-blur-2xl rounded-3xl border border-white/20 shadow-2xl overflow-hidden">
+      <div className="p-4 md:p-8 pb-0">
+        <div className="mb-4 md:mb-8 text-center">
+          <h2 className="text-xl md:text-3xl font-bold text-white mb-2">Trusted by Industry Leaders</h2>
+          <p className="text-sm md:text-base text-white/70 px-4">Proud to collaborate with amazing brands worldwide</p>
+        </div>
       </div>
 
-      <div className="space-y-3 md:space-y-6 overflow-hidden">
+      <div 
+        ref={scrollRef}
+        className="space-y-3 md:space-y-6 overflow-x-auto scrollbar-hide"
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      >
         {logoRows.map((rowLogos, rowIndex) => (
           <div
             key={rowIndex}
-            className="flex gap-3 md:gap-8 animate-scroll-horizontal w-fit"
+            className="flex gap-3 md:gap-6 animate-scroll-horizontal w-fit px-4 md:px-8"
             style={{
               animationDelay: `${rowIndex * -20}s`,
               animationDuration: '40s'
             }}
           >
             {rowLogos.map((logo, logoIndex) => {
-              const isLargerLogo = logo.name === 'bibit' || logo.name === 'softex' || logo.name === 'siloam hospitals';
+              const isLargerLogo = logo.name === 'bibit' || logo.name === 'softex' || logo.name === 'siloam hospitals' || logo.name === 'fibe mini';
               return (
                 <div
                   key={`${rowIndex}-${logoIndex}`}
-                  className={`flex-shrink-0 ${
-                    isLargerLogo 
-                      ? 'w-32 h-16 md:w-48 md:h-24' 
-                      : 'w-20 h-10 md:w-32 md:h-16'
-                  } flex items-center justify-center bg-white/10 rounded-xl border border-white/10 hover:bg-white/20 transition-all duration-300`}
+                  className="flex-shrink-0 w-20 h-10 md:w-32 md:h-16 flex items-center justify-center bg-white/10 rounded-xl border border-white/10 hover:bg-white/20 transition-all duration-300"
                 >
                   <img
                     src={logo.url}
                     alt={logo.name}
                     className={`${
                       isLargerLogo 
-                        ? 'max-w-28 max-h-14 md:max-w-44 md:max-h-20' 
-                        : 'max-w-16 max-h-8 md:max-w-24 md:max-h-12'
-                    } object-contain filter brightness-0 invert opacity-70 hover:opacity-100 transition-opacity duration-300`}
+                        ? 'max-w-16 max-h-8 md:max-w-28 md:max-h-14 scale-150' 
+                        : 'max-w-14 max-h-7 md:max-w-24 md:max-h-12'
+                    } object-contain filter brightness-0 invert opacity-70 hover:opacity-100 transition-all duration-300`}
                     onError={(e) => {
                       // Fallback to text if image fails to load
                       const target = e.target as HTMLImageElement;
@@ -94,7 +116,7 @@ export const ClientLogos = () => {
                       const parent = target.parentElement;
                       if (parent && !parent.querySelector('.logo-text')) {
                         const textDiv = document.createElement('div');
-                        textDiv.className = 'logo-text text-white/70 font-semibold text-sm text-center px-2';
+                        textDiv.className = 'logo-text text-white/70 font-semibold text-xs text-center px-1';
                         textDiv.textContent = logo.name;
                         parent.appendChild(textDiv);
                       }

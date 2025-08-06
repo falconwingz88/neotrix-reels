@@ -116,7 +116,7 @@ export const ClientLogos = () => {
             }`}
             style={{
               animationDelay: `${rowIndex * -30}s`,
-              animationDuration: '120s'
+              animationDuration: '250s'
             }}
           >
             {rowLogos.map((logo, logoIndex) => {
@@ -141,7 +141,7 @@ export const ClientLogos = () => {
                     alt={logo.name}
                     className={`max-w-full max-h-full object-contain filter brightness-0 invert opacity-70 hover:opacity-100 transition-all duration-300 ${
                       isLargerLogo 
-                        ? 'scale-150' 
+                        ? 'scale-100' 
                         : isSmallerLogo
                         ? 'scale-75'
                         : ''

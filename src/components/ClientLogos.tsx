@@ -9,18 +9,28 @@ export const ClientLogos = () => {
     { name: 'Client 7', url: '/lovable-uploads/a9bd11dc-8e86-4084-ba6c-c4b519c4dc55.png' },
     { name: 'Client 8', url: '/lovable-uploads/efe37e94-8e87-40ea-85c4-121b244b1427.png' },
     { name: 'Client 9', url: '/lovable-uploads/d614c8fa-3f0d-44a0-b3ca-45b238298595.png' },
-    { name: 'Client 10', url: '/lovable-uploads/f5783866-79e3-4ef7-88dc-729dcfa71ae7.png' }
+    { name: 'Client 10', url: '/lovable-uploads/f5783866-79e3-4ef7-88dc-729dcfa71ae7.png' },
+    { name: 'Client 11', url: '/lovable-uploads/ee91b94a-553a-4308-8fcd-8a34bbfd333a.png' },
+    { name: 'Client 12', url: '/lovable-uploads/a5d81720-e555-45b6-b063-0a7ce6be3c36.png' },
+    { name: 'Client 13', url: '/lovable-uploads/7a01c707-10d2-4706-9c4c-8a140226c4ba.png' },
+    { name: 'Client 14', url: '/lovable-uploads/62616f4d-160d-4d6b-9f3a-b971f73ccb12.png' },
+    { name: 'Client 15', url: '/lovable-uploads/c92b1d48-44cc-4952-9226-1c9f52e814d9.png' },
+    { name: 'Client 16', url: '/lovable-uploads/4785b1ed-6bdc-4ed6-ade4-b818cbff251e.png' },
+    { name: 'Client 17', url: '/lovable-uploads/68dd3971-d74e-4980-a92f-c618cddda3b6.png' },
+    { name: 'Client 18', url: '/lovable-uploads/cb87f0d3-4e82-4e3f-9469-cc1693dfa263.png' },
+    { name: 'Client 19', url: '/lovable-uploads/095c66ca-08f0-405a-a24e-5d161594a887.png' },
+    { name: 'Client 20', url: '/lovable-uploads/19f383c4-5d82-479c-bab9-7464db949e5e.png' }
   ];
 
-  // Create enough rows to show 3 vertical rows with different logos
+  // Create enough rows to show 3 vertical rows without repetition
   const createLogoRows = () => {
     const rows = [];
+    const logosPerRow = Math.ceil(logos.length / 3);
+    
     for (let row = 0; row < 3; row++) {
-      const rowLogos = [];
-      // Double the logos for seamless scrolling
-      for (let i = 0; i < logos.length * 2; i++) {
-        rowLogos.push(logos[i % logos.length]);
-      }
+      const startIndex = row * logosPerRow;
+      const endIndex = Math.min(startIndex + logosPerRow, logos.length);
+      const rowLogos = logos.slice(startIndex, endIndex);
       rows.push(rowLogos);
     }
     return rows;

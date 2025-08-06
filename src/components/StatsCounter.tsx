@@ -43,13 +43,13 @@ export const StatsCounter = () => {
       <div className="flex justify-center gap-16 md:gap-32">
         <div className="text-center animate-fade-in">
           <div className="text-white/70 text-lg md:text-xl mb-2">Projects</div>
-          <div className="text-white text-5xl md:text-7xl font-bold">
+          <div className="text-white text-7xl md:text-9xl font-bold">
             {projectsCount}+
           </div>
         </div>
         <div className="text-center animate-fade-in">
           <div className="text-white/70 text-lg md:text-xl mb-2">Brands</div>
-          <div className="text-white text-5xl md:text-7xl font-bold">
+          <div className="text-white text-7xl md:text-9xl font-bold">
             {brandsCount}+
           </div>
         </div>

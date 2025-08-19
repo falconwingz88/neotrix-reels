@@ -176,10 +176,10 @@ const Index = () => {
         {/* Contact CTA */}
         <div className="max-w-7xl mx-auto w-full py-16 text-center">
           <Button
-            className="bg-white/10 backdrop-blur-sm border-2 border-white/20 text-white hover:bg-white/20 hover:border-white/30 transition-all duration-300 rounded-full px-12 py-8 text-4xl md:text-6xl font-bold min-h-[120px] md:min-h-[160px]"
+            className="bg-white/10 backdrop-blur-sm border-2 border-white/20 text-white hover:bg-white/20 hover:border-white/30 transition-all duration-300 rounded-full px-6 py-4 text-2xl md:text-3xl font-bold min-h-[60px] md:min-h-[80px]"
             onClick={() => window.open('mailto:contact@neotrix.asia', '_blank')}
           >
-            <Mail className="w-8 h-8 md:w-12 md:h-12 mr-4 md:mr-6" />
+            <Mail className="w-4 h-4 md:w-6 md:h-6 mr-2 md:mr-3" />
             Contact us now
           </Button>
         </div>

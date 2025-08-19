@@ -871,7 +871,7 @@ const PROJECTS: Project[] = [
     id: '78',
     title: 'Pertamina HUT RI',
     description: 'National oil company Indonesian Independence Day celebration campaign.',
-    thumbnail: pertaminaHutRiThumbnail,
+    thumbnail: getYouTubeThumbnail('https://youtu.be/eyDJdfAkPWc'),
     tags: ['VFX'],
     year: 2020,
     client: 'Milkyway Studio',
@@ -895,7 +895,7 @@ const PROJECTS: Project[] = [
     id: '80',
     title: 'J&T Gapai Mimpimu',
     description: 'Logistics company inspirational campaign about achieving dreams and aspirations.',
-    thumbnail: jntGapaiMimpumuThumbnail,
+    thumbnail: getYouTubeThumbnail('https://youtu.be/N5vH8q4bEho'),
     tags: ['VFX'],
     year: 2020,
     client: 'Milkyway Studio',
@@ -907,7 +907,7 @@ const PROJECTS: Project[] = [
     id: '81',
     title: 'OPPO Reno 4 Selective',
     description: 'Smartphone campaign highlighting selective focus photography features.',
-    thumbnail: oppoReno4SelectiveThumbnail,
+    thumbnail: getYouTubeThumbnail('https://youtu.be/jcqoo26CtDM'),
     tags: ['VFX'],
     year: 2020,
     client: 'Milkyway Studio',
@@ -976,18 +976,6 @@ const PROJECTS: Project[] = [
     allVideos: [],
     deliveryFiles: ['https://drive.google.com/file/d/1tkwHrZv4tpUZXCRrNF1u_q4sMnirTizn/view?usp=drive_link']
   },
-  {
-    id: '30',
-    title: 'Procold',
-    description: 'Cold medicine brand campaign focusing on relief, recovery, and wellness.',
-    thumbnail: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400',
-    tags: ['VFX'],
-    year: 2024,
-    client: 'Maika',
-    primaryVideoUrl: '',
-    allVideos: [],
-    deliveryFiles: []
-  }
 ];
 
 const TAG_OPTIONS = ['Beauty', 'Liquid', 'VFX', 'Character Animation'];

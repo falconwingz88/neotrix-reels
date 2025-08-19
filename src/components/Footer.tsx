@@ -22,16 +22,34 @@ export const Footer = () => {
             <h4 className="text-lg font-semibold text-white">Contact</h4>
             <div className="space-y-3">
               <div className="flex items-center gap-3 text-white/70">
-                <Mail className="w-4 h-4 text-purple-400" />
-                <span>contact@neotrix.asia</span>
-              </div>
-              <div className="flex items-center gap-3 text-white/70">
                 <Phone className="w-4 h-4 text-purple-400" />
                 <span>+62 87797681961</span>
               </div>
               <div className="flex items-center gap-3 text-white/70">
                 <MapPin className="w-4 h-4 text-purple-400" />
-                <span>Jl. Surya Utama No.15 Blok P, Kedoya Utara, Kec. Kb. Jeruk, Jakarta, Daerah Khusus Ibukota Jakarta 11520</span>
+                <span>Surya Utama Road 15, West Jakarta 11520, Indonesia</span>
+              </div>
+            </div>
+            
+            <div className="space-y-3 mt-6">
+              <h5 className="text-md font-medium text-white">E-mail US:</h5>
+              <div className="space-y-2">
+                <div className="text-white/70">
+                  <div className="font-medium text-white">Fernaldy Wiranata (Aldy)</div>
+                  <div className="text-sm text-white/50">Co-Founder / COO</div>
+                  <div className="flex items-center gap-2 mt-1">
+                    <Mail className="w-3 h-3 text-purple-400" />
+                    <span className="text-sm">aldy@neotrix.asia</span>
+                  </div>
+                </div>
+                <div className="text-white/70">
+                  <div className="font-medium text-white">Elvina Lie</div>
+                  <div className="text-sm text-white/50">Co-Founder / CEO</div>
+                  <div className="flex items-center gap-2 mt-1">
+                    <Mail className="w-3 h-3 text-purple-400" />
+                    <span className="text-sm">elvina@neotrix.asia</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

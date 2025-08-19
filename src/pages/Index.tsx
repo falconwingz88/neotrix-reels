@@ -2,7 +2,9 @@ import { VideoPlayer } from '@/components/VideoPlayer';
 import { ClientLogos } from '@/components/ClientLogos';
 import { StatsCounter } from '@/components/StatsCounter';
 import { Footer } from '@/components/Footer';
+import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import { Mail } from 'lucide-react';
 const neotrixLogo = '/lovable-uploads/e25231ff-24d7-47d0-b8da-ebd1979c96de.png';
 
 const REELS = [
@@ -170,6 +172,18 @@ const Index = () => {
 
         {/* Statistics Counter */}
         <StatsCounter />
+
+        {/* Contact CTA */}
+        <div className="max-w-7xl mx-auto w-full py-8 text-center">
+          <Button
+            size="lg"
+            className="bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 hover:border-white/30 transition-all duration-300 rounded-full px-8 py-4 text-lg font-semibold"
+            onClick={() => window.open('mailto:contact@neotrix.asia', '_blank')}
+          >
+            <Mail className="w-5 h-5 mr-2" />
+            Contact us now
+          </Button>
+        </div>
 
         {/* Footer */}
         <Footer />

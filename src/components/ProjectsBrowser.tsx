@@ -13,7 +13,7 @@ import bniMobileBankingThumbnail from '@/assets/thumbnails/bni-mobile-banking.jp
 import pertaminaHutRiThumbnail from '@/assets/thumbnails/pertamina-hut-ri.jpg';
 import jntGapaiMimpumuThumbnail from '@/assets/thumbnails/jnt-gapai-mimpimu.jpg';
 import oppoReno4SelectiveThumbnail from '@/assets/thumbnails/oppo-reno4-selective.jpg';
-import oppoReno4BlueThumbnail from '@/assets/thumbnails/oppo-reno4-blue.jpg';
+
 import bibitDeddyCorbuzierThumbnail from '@/assets/thumbnails/bibit-deddy-corbuzier.jpg';
 
 export interface Project {
@@ -913,18 +913,6 @@ const PROJECTS: Project[] = [
     client: 'Milkyway Studio',
     primaryVideoUrl: 'https://youtu.be/jcqoo26CtDM',
     allVideos: ['https://youtu.be/jcqoo26CtDM'],
-    deliveryFiles: []
-  },
-  {
-    id: '82',
-    title: 'OPPO Reno 4 Blue',
-    description: 'Smartphone campaign showcasing device design in elegant blue colorway.',
-    thumbnail: oppoReno4BlueThumbnail,
-    tags: ['VFX'],
-    year: 2020,
-    client: 'Milkyway Studio',
-    primaryVideoUrl: 'https://youtu.be/v4JXEizyTok',
-    allVideos: ['https://youtu.be/v4JXEizyTok'],
     deliveryFiles: []
   },
   // Moved to bottom as requested

@@ -32,7 +32,7 @@ export const Footer = () => {
             </div>
             
             <div className="space-y-3 mt-6">
-              <h5 className="text-md font-medium text-white">E-mail US:</h5>
+              <h5 className="text-md font-medium text-white">E-mail Us:</h5>
               <div className="space-y-2">
                 <div className="text-white/70">
                   <div className="font-medium text-white">Fernaldy Wiranata (Aldy)</div>

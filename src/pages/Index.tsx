@@ -174,13 +174,12 @@ const Index = () => {
         <StatsCounter />
 
         {/* Contact CTA */}
-        <div className="max-w-7xl mx-auto w-full py-8 text-center">
+        <div className="max-w-7xl mx-auto w-full py-16 text-center">
           <Button
-            size="lg"
-            className="bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 hover:border-white/30 transition-all duration-300 rounded-full px-8 py-4 text-lg font-semibold"
+            className="bg-white/10 backdrop-blur-sm border-2 border-white/20 text-white hover:bg-white/20 hover:border-white/30 transition-all duration-300 rounded-full px-12 py-8 text-4xl md:text-6xl font-bold min-h-[120px] md:min-h-[160px]"
             onClick={() => window.open('mailto:contact@neotrix.asia', '_blank')}
           >
-            <Mail className="w-5 h-5 mr-2" />
+            <Mail className="w-8 h-8 md:w-12 md:h-12 mr-4 md:mr-6" />
             Contact us now
           </Button>
         </div>

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { VideoPlayer } from '@/components/VideoPlayer';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 
@@ -63,8 +63,16 @@ const Reels = () => {
 
   return (
     <div className="relative w-full h-screen bg-black overflow-hidden">
-      {/* Back Button */}
-      <div className="absolute top-4 left-4 z-50">
+      {/* Navigation Buttons */}
+      <div className="absolute top-4 left-4 z-50 flex gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="w-10 h-10 rounded-full bg-black/30 backdrop-blur-sm hover:bg-black/50 transition-all duration-300"
+          onClick={() => window.open('https://neotrix.asia', '_blank')}
+        >
+          <Home className="w-5 h-5 text-white" />
+        </Button>
         <Button
           variant="ghost"
           size="icon"

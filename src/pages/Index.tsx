@@ -4,7 +4,7 @@ import { StatsCounter } from '@/components/StatsCounter';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { Mail } from 'lucide-react';
+import { Mail, Home } from 'lucide-react';
 const neotrixLogo = '/lovable-uploads/e25231ff-24d7-47d0-b8da-ebd1979c96de.png';
 
 const REELS = [
@@ -38,6 +38,18 @@ const Index = () => {
   const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-800 to-blue-900 bg-[length:200%_200%] animate-gradient p-3 md:p-6 relative overflow-auto scrollbar-glassmorphism backdrop-blur-md">
+      {/* Home Button */}
+      <div className="absolute top-4 left-4 z-50">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300"
+          onClick={() => window.open('https://neotrix.asia', '_blank')}
+        >
+          <Home className="w-5 h-5 text-white" />
+        </Button>
+      </div>
+
       {/* Enhanced Background Effects with More Bouncing Circles and Reduced Blur */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Large Background Circles - Less Blurred */}

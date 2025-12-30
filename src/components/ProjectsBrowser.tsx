@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { ProjectDetailModal } from './ProjectDetailModal';
+import { useProjects } from '@/contexts/ProjectsContext';
 
 // Import thumbnails
 import lazadaRamadanThumbnail from '@/assets/thumbnails/lazada-ramadan.jpg';
@@ -982,13 +983,30 @@ const TAG_OPTIONS = ['Beauty', 'Liquid', 'VFX', 'Character Animation'];
 const YEAR_OPTIONS = [2025, 2024, 2023, 2022, 2021, 2020];
 
 export const ProjectsBrowser = () => {
+  const { customProjects } = useProjects();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [showFilters, setShowFilters] = useState(false);
 
-  const filteredProjects = PROJECTS.filter(project => {
+  // Convert custom projects to Project format and combine with existing projects
+  const customProjectsConverted: Project[] = customProjects.map(cp => ({
+    id: cp.id,
+    title: cp.title,
+    description: cp.description,
+    thumbnail: cp.links[0] ? getYouTubeThumbnail(cp.links[0]) : '',
+    tags: cp.tags,
+    year: new Date(cp.createdAt).getFullYear(),
+    client: cp.credits || 'Neotrix',
+    primaryVideoUrl: cp.links[0] || '',
+    allVideos: cp.links,
+    deliveryFiles: [],
+  }));
+
+  const allProjects = [...customProjectsConverted, ...PROJECTS];
+
+  const filteredProjects = allProjects.filter(project => {
     const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          project.client.toLowerCase().includes(searchTerm.toLowerCase());
@@ -1115,7 +1133,7 @@ export const ProjectsBrowser = () => {
 
       {/* Results Summary */}
       <div className="text-white/70 text-sm">
-        Showing {filteredProjects.length} of {PROJECTS.length} projects
+        Showing {filteredProjects.length} of {allProjects.length} projects
       </div>
 
       {/* Projects Grid */}

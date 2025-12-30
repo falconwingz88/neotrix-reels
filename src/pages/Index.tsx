@@ -4,7 +4,7 @@ import { StatsCounter } from '@/components/StatsCounter';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { Mail, Home } from 'lucide-react';
+import { Mail, Home, User } from 'lucide-react';
 const neotrixLogo = '/lovable-uploads/e25231ff-24d7-47d0-b8da-ebd1979c96de.png';
 
 const REELS = [
@@ -38,8 +38,8 @@ const Index = () => {
   const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-800 to-blue-900 bg-[length:200%_200%] animate-gradient p-3 md:p-6 relative overflow-auto scrollbar-glassmorphism backdrop-blur-md">
-      {/* Home Button */}
-      <div className="absolute top-4 left-4 z-50">
+      {/* Home & Admin Buttons */}
+      <div className="absolute top-4 left-4 z-50 flex items-center gap-2">
         <Button
           variant="ghost"
           className="group flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300 hover:scale-110 px-3 py-2 h-auto min-w-10"
@@ -49,6 +49,14 @@ const Index = () => {
           <span className="text-white text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap overflow-hidden w-0 group-hover:w-auto group-hover:ml-1">
             Home
           </span>
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="w-8 h-8 rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300"
+          onClick={() => navigate('/admin-login')}
+        >
+          <User className="w-4 h-4 text-white/60" />
         </Button>
       </div>
 

@@ -13,6 +13,7 @@ export interface CustomProject {
 interface ProjectsContextType {
   customProjects: CustomProject[];
   addProject: (project: Omit<CustomProject, 'id' | 'createdAt'>) => void;
+  updateProject: (id: string, project: Omit<CustomProject, 'id' | 'createdAt'>) => void;
   deleteProject: (id: string) => void;
 }
 
@@ -39,12 +40,22 @@ export const ProjectsProvider = ({ children }: { children: ReactNode }) => {
     setCustomProjects((prev) => [newProject, ...prev]);
   };
 
+  const updateProject = (id: string, project: Omit<CustomProject, 'id' | 'createdAt'>) => {
+    setCustomProjects((prev) =>
+      prev.map((p) =>
+        p.id === id
+          ? { ...p, ...project }
+          : p
+      )
+    );
+  };
+
   const deleteProject = (id: string) => {
     setCustomProjects((prev) => prev.filter((p) => p.id !== id));
   };
 
   return (
-    <ProjectsContext.Provider value={{ customProjects, addProject, deleteProject }}>
+    <ProjectsContext.Provider value={{ customProjects, addProject, updateProject, deleteProject }}>
       {children}
     </ProjectsContext.Provider>
   );

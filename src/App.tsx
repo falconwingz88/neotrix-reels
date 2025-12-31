@@ -14,6 +14,7 @@ import ClientDetail from "./pages/ClientDetail";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ProjectsProvider } from "./contexts/ProjectsContext";
 import { ContactsProvider } from "./contexts/ContactsContext";
+import AboutUs from "./pages/AboutUs";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,7 @@ const App = () => (
                 <Route path="/reels" element={<Reels />} />
                 <Route path="/projects" element={<Projects />} />
                 <Route path="/contact" element={<Contact />} />
+                <Route path="/about-us" element={<AboutUs />} />
                 <Route path="/admin-login" element={<AdminLogin />} />
                 <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/client/:id" element={<ClientDetail />} />

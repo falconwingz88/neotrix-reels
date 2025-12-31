@@ -29,6 +29,9 @@ export const Header = () => {
           <Button variant="ghost" className="rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300 px-4 py-2 text-white font-medium" onClick={() => navigate('/projects')}>
             Works
           </Button>
+          <Button variant="ghost" className="rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300 px-4 py-2 text-white font-medium" onClick={() => navigate('/about-us')}>
+            Contact Us
+          </Button>
           <Button variant="ghost" className="rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300 px-4 py-2 text-white font-medium" onClick={() => navigate('/contact')}>
             Book Now 
           </Button>

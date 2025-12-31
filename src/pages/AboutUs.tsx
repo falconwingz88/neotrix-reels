@@ -20,7 +20,7 @@ const CO_FOUNDERS = [
   }
 ];
 
-const OFFICE_ADDRESS = "Surya Utama Road 15, West Jakarta 11520, Indonesia";
+const OFFICE_ADDRESS = "Jl. Surya Utama No.15 Blok P, North Kedoya, Kebonjeruk, Jakarta 11520, Indonesia";
 
 export const AboutUs = () => {
   return (
@@ -99,7 +99,7 @@ export const AboutUs = () => {
             {/* Google Maps Embed */}
             <div className="bg-white/10 backdrop-blur-md rounded-3xl border border-white/20 overflow-hidden shadow-2xl">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3966.5!2d106.75!3d-6.17!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sNeotrix%20Asia!5e0!3m2!1sen!2sid!4v1700000000000!5m2!1sen!2sid"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3966.4833!2d106.7619!3d-6.1685!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69f7db8e0c8c8d%3A0x8e9f8e8e8e8e8e8e!2sNeotrix%20Asia!5e0!3m2!1sen!2sid!4v1700000000000!5m2!1sen!2sid"
                 width="100%"
                 height="400"
                 style={{ border: 0 }}
@@ -114,7 +114,7 @@ export const AboutUs = () => {
             {/* Direct Link to Google Maps */}
             <div className="text-center mt-6">
               <a
-                href="https://www.google.com/maps/search/Neotrix+Asia+Surya+Utama+Road+15+West+Jakarta"
+                href="https://maps.app.goo.gl/UXYXpbP1peTPHEAz9"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 text-purple-300 hover:text-white transition-colors"

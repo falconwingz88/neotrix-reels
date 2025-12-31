@@ -35,7 +35,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { useProjects, CustomProject } from '@/contexts/ProjectsContext';
 import { useContacts } from '@/contexts/ContactsContext';
-import { ArrowLeft, Plus, LogOut, X, Trash2, Edit2, Users, AlertCircle, Check, Image, Link2, FolderOpen, RefreshCw, CalendarIcon, FolderKanban, MessageSquare, MapPin, Clock } from 'lucide-react';
+import { ArrowLeft, Plus, LogOut, X, Trash2, Edit2, Users, AlertCircle, Check, Image, Link2, FolderOpen, RefreshCw, CalendarIcon, FolderKanban, MessageSquare, MapPin, Clock, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import UndoNotification, { UndoNotificationItem } from '@/components/UndoNotification';
 import { cn } from '@/lib/utils';
@@ -863,8 +863,20 @@ const AdminDashboard = () => {
                             contact.projectStatus === 'discuss' ? 'Wants to discuss' : contact.projectStatus;
                           
                           return (
-                            <TableRow key={contact.id} className="border-white/10">
-                              <TableCell className="text-white font-medium">{contact.name}</TableCell>
+                            <TableRow 
+                              key={contact.id} 
+                              className="border-white/10 cursor-pointer hover:bg-white/5 transition-colors"
+                              onClick={() => navigate(`/client/${contact.id}`)}
+                            >
+                              <TableCell className="text-white font-medium">
+                                <div className="flex items-center gap-2">
+                                  {contact.name}
+                                  <ExternalLink className="w-3 h-3 text-white/40" />
+                                </div>
+                                <div className="text-xs font-mono text-white/40">
+                                  LEAD-{contact.id.slice(-6).toUpperCase()}
+                                </div>
+                              </TableCell>
                               <TableCell className="text-white/70">{contact.role}</TableCell>
                               <TableCell>
                                 <div className="space-y-1">
@@ -911,7 +923,7 @@ const AdminDashboard = () => {
                                   {format(new Date(contact.submittedAt), 'p')}
                                 </div>
                               </TableCell>
-                              <TableCell className="text-right">
+                              <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                                 <Button
                                   variant="ghost"
                                   size="icon"

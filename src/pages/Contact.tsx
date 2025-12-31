@@ -25,6 +25,7 @@ export const Contact = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const { addContact } = useContacts();
   const [location, setLocation] = useState("Unknown");
+  const [savedContactId, setSavedContactId] = useState<string | null>(null);
 
   // Form data
   const [name, setName] = useState("");
@@ -60,8 +61,9 @@ export const Contact = () => {
   const canProceedStep3 = videoVersions !== "" && videoDuration !== "";
   const canProceedStep4 = deliveryDate !== undefined || startDate !== undefined;
 
-  const saveContactSubmission = () => {
+  const saveContactSubmission = (): string => {
     const finalRole = role === "Other" ? otherRole : role;
+    const contactId = Date.now().toString();
     addContact({
       name,
       role: finalRole,
@@ -74,6 +76,8 @@ export const Contact = () => {
       startDate: startDate ? startDate.toISOString() : null,
       location,
     });
+    setSavedContactId(contactId);
+    return contactId;
   };
 
   const goToNextStep = () => {
@@ -107,37 +111,18 @@ export const Contact = () => {
     }
   };
 
-  const generateWhatsAppMessage = () => {
-    const finalRole = role === "Other" ? otherRole : role;
-    const projectStatusLabel = PROJECT_STATUS.find((s) => s.value === projectStatus)?.label || projectStatus;
-
-    let message = `Hi! I'm ${name} (${finalRole}).\n\n`;
-    message += `Project Status: ${projectStatusLabel}\n`;
-
-    if (projectStatus === "have_project") {
-      message += `Has Deck/Storyboard: ${hasDeck ? "Yes" : "No"}\n`;
-      if (hasDeck && deckLink) {
-        message += `Deck Link: ${deckLink}\n`;
-      }
-    }
-
-    // Only include video details if user has a project
-    if (projectStatus === "have_project") {
-      message += `\nVideo Details:\n`;
-      message += `- Number of versions: ${videoVersions}\n`;
-      message += `- Duration: ${videoDuration}\n`;
-    }
-
-    message += `\nTimeline:\n`;
-    message += `- Delivery needed by: ${deliveryDate ? format(deliveryDate, "PPP") : "Not specified"}\n`;
-    message += `- Can start from: ${startDate ? format(startDate, "PPP") : "Not specified"}\n`;
-    message += `\nLooking forward to working together!`;
-
+  const generateWhatsAppMessage = (contactId: string) => {
+    const clientLink = `${window.location.origin}/client/${contactId}`;
+    const message = `Hi! I want to talk more about a project I have.\n\nHere are the details: ${clientLink}`;
     return encodeURIComponent(message);
   };
 
   const openWhatsApp = () => {
-    const message = generateWhatsAppMessage();
+    // Use saved contact ID or get the most recent one
+    const contactId = savedContactId;
+    if (!contactId) return;
+    
+    const message = generateWhatsAppMessage(contactId);
     const waLink = `https://wa.me/6287797681961?text=${message}`;
 
     // Create a temporary anchor to force the exact URL

@@ -44,7 +44,7 @@ const Index = () => {
   const navigate = useNavigate();
   const { customProjects } = useProjects();
 
-  // Get more projects for scrolling preview (12 projects for 4 rows of 3)
+  // Get more projects for scrolling preview (18 projects for 6 rows of 3)
   const previewProjects = customProjects
     .map(cp => ({
       id: cp.id,
@@ -61,7 +61,7 @@ const Index = () => {
       const dateB = b.deliveryDate ? new Date(b.deliveryDate).getTime() : new Date(b.createdAt).getTime();
       return dateB - dateA;
     })
-    .slice(0, 12);
+    .slice(0, 18);
 
   // Duplicate projects for seamless infinite scroll
   const duplicatedProjects = [...previewProjects, ...previewProjects];

@@ -5,8 +5,12 @@ import { Footer } from '@/components/Footer';
 import { Header } from '@/components/Header';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { Mail } from 'lucide-react';
+import { Mail, ArrowRight, Users } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { useProjects } from '@/contexts/ProjectsContext';
+
 const neotrixLogo = '/lovable-uploads/e25231ff-24d7-47d0-b8da-ebd1979c96de.png';
+
 const REELS = [{
   id: '1',
   src: 'https://youtu.be/tlpjTqTaj_Y',
@@ -19,18 +23,49 @@ const REELS = [{
   author: 'neotrix.asia'
 }, {
   id: '3',
-  src: 'https://youtu.be/dDYHSj54Wn0',
-  title: 'Animation Reels',
-  author: 'neotrix.asia'
-}, {
-  id: '4',
   src: 'https://youtu.be/WcAUX5glZWc',
   title: 'Beauty Reels',
   author: 'neotrix.asia'
 }];
+
+// Helper function to extract YouTube video ID and generate thumbnail
+const getYouTubeVideoId = (url: string): string => {
+  if (!url) return '';
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|shorts\/)([^#&?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[2].length === 11) ? match[2] : '';
+};
+
+const getYouTubeThumbnail = (url: string): string => {
+  const videoId = getYouTubeVideoId(url);
+  return videoId ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : '';
+};
+
 const Index = () => {
   const navigate = useNavigate();
-  return <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-800 to-blue-900 bg-[length:200%_200%] animate-gradient p-3 md:p-6 relative overflow-auto scrollbar-glassmorphism backdrop-blur-md">
+  const { customProjects } = useProjects();
+
+  // Get latest 6 projects for preview
+  const previewProjects = customProjects
+    .map(cp => ({
+      id: cp.id,
+      title: cp.title,
+      thumbnail: cp.thumbnail || (cp.links[0] ? getYouTubeThumbnail(cp.links[0]) : ''),
+      tags: cp.tags,
+      year: cp.year || new Date(cp.createdAt).getFullYear(),
+      client: cp.client || cp.credits || 'Neotrix',
+      deliveryDate: cp.deliveryDate,
+      createdAt: cp.createdAt,
+    }))
+    .sort((a, b) => {
+      const dateA = a.deliveryDate ? new Date(a.deliveryDate).getTime() : new Date(a.createdAt).getTime();
+      const dateB = b.deliveryDate ? new Date(b.deliveryDate).getTime() : new Date(b.createdAt).getTime();
+      return dateB - dateA;
+    })
+    .slice(0, 6);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-800 to-blue-900 bg-[length:200%_200%] animate-gradient p-3 md:p-6 relative overflow-auto scrollbar-glassmorphism backdrop-blur-md">
       {/* Header */}
       <Header />
 
@@ -50,16 +85,14 @@ const Index = () => {
         
         {/* Floating Circle Shapes - Green Blue Gradient with 25% Blur */}
         {[...Array(15)].map((_, i) => {
-        // Generate non-overlapping positions
         const baseSize = 60 + i * 15;
-        const positions = [];
-        let attempts = 0;
         let left, top;
+        let attempts = 0;
         do {
-          left = Math.random() * 90; // Leave some margin
+          left = Math.random() * 90;
           top = Math.random() * 90;
           attempts++;
-        } while (attempts < 20); // Limit attempts to prevent infinite loop
+        } while (attempts < 20);
 
         return <div key={i} className="absolute rounded-full bg-gradient-to-br from-green-500/50 to-blue-600/50" style={{
           width: `${baseSize}px`,
@@ -103,37 +136,83 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Secondary Videos */}
+        {/* Secondary Videos - Liquid and Beauty Reels in one row */}
         <div className="flex flex-col gap-4 md:gap-6 max-w-7xl mx-auto w-full mb-8 md:mb-12">
           <h2 className="text-xl md:text-3xl font-bold text-white text-center mb-4 md:mb-6 px-4">More From Our Portfolio</h2>
 
-          {/* Bottom Row - Two videos side by side on desktop, stacked on mobile */}
-          <div className="flex flex-col md:flex-row gap-4 md:gap-6 max-w-7xl mx-auto w-full mb-4 md:mb-6">
+          <div className="flex flex-col md:flex-row gap-4 md:gap-6 max-w-7xl mx-auto w-full">
             {/* Liquid Reels */}
             <div className="flex-1 aspect-video bg-white/10 backdrop-blur-sm rounded-3xl border border-white/20 overflow-hidden shadow-2xl hover:bg-white/15 transition-all duration-500">
               <VideoPlayer src={REELS[1].src} title={REELS[1].title} author={REELS[1].author} isActive={true} />
             </div>
 
-            {/* Animation Reels */}
+            {/* Beauty Reels */}
             <div className="flex-1 aspect-video bg-white/10 backdrop-blur-sm rounded-3xl border border-white/20 overflow-hidden shadow-2xl hover:bg-white/15 transition-all duration-500">
               <VideoPlayer src={REELS[2].src} title={REELS[2].title} author={REELS[2].author} isActive={true} />
             </div>
           </div>
+        </div>
 
-          {/* Beauty Reels Row */}
-          <div className="flex flex-col md:flex-row gap-4 md:gap-6 max-w-7xl mx-auto w-full">
-            {/* Beauty Reels */}
-            <div className="flex-1 aspect-video bg-white/10 backdrop-blur-sm rounded-3xl border border-white/20 overflow-hidden shadow-2xl hover:bg-white/15 transition-all duration-500">
-              <VideoPlayer src={REELS[3].src} title={REELS[3].title} author={REELS[3].author} isActive={true} />
-            </div>
+        {/* Projects Preview Section */}
+        <div className="max-w-7xl mx-auto w-full mb-8 md:mb-12">
+          <div className="flex items-center justify-between mb-6 px-2">
+            <h2 className="text-xl md:text-3xl font-bold text-white">Our Projects</h2>
+            <Button
+              variant="ghost"
+              className="text-white/80 hover:text-white hover:bg-white/10"
+              onClick={() => navigate('/projects')}
+            >
+              View All
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          </div>
 
-            {/* See More Panel */}
-            <div className="flex-1 aspect-video md:aspect-video bg-white/10 backdrop-blur-sm rounded-3xl border border-white/20 overflow-hidden shadow-2xl hover:bg-white/15 transition-all duration-500 cursor-pointer flex items-center justify-center" onClick={() => navigate('/projects')}>
-              <div className="text-center px-4">
-                <h3 className="text-white text-xl md:text-4xl font-bold mb-1 md:mb-2">See More</h3>
-                <p className="text-white/60 text-xs md:text-sm">Our Projects</p>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+            {previewProjects.map((project) => (
+              <div
+                key={project.id}
+                className="group cursor-pointer bg-white/5 backdrop-blur-sm rounded-xl overflow-hidden border border-white/10 hover:border-white/20 transition-all duration-300 hover:scale-105"
+                onClick={() => navigate('/projects')}
+              >
+                <div className="aspect-[4/3] md:aspect-video bg-gray-800 overflow-hidden">
+                  <img
+                    src={project.thumbnail || 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400'}
+                    alt={project.title}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                    onError={(e) => {
+                      e.currentTarget.src = 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400';
+                    }}
+                  />
+                </div>
+                <div className="p-2 md:p-4 space-y-1 md:space-y-2">
+                  <h3 className="font-semibold text-white text-sm md:text-base group-hover:text-blue-300 transition-colors line-clamp-1">
+                    {project.title}
+                  </h3>
+                  <div className="hidden md:flex items-center gap-2 text-xs text-white/60">
+                    <Users className="w-3 h-3" />
+                    <span className="line-clamp-1">{project.client}</span>
+                  </div>
+                  <div className="hidden md:flex flex-wrap gap-1">
+                    {project.tags.slice(0, 2).map((tag, index) => (
+                      <Badge key={index} variant="secondary" className="text-xs bg-white/10 text-white/80 hover:bg-white/20">
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
               </div>
-            </div>
+            ))}
+          </div>
+
+          {/* See All Projects Button */}
+          <div className="text-center mt-8">
+            <Button
+              className="bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 hover:border-white/30 transition-all duration-300 rounded-full px-8 py-3"
+              onClick={() => navigate('/projects')}
+            >
+              Explore All Projects
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
           </div>
         </div>
 
@@ -156,6 +235,8 @@ const Index = () => {
         {/* Footer */}
         <Footer />
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default Index;

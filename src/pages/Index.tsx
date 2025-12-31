@@ -5,8 +5,7 @@ import { Footer } from '@/components/Footer';
 import { Header } from '@/components/Header';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { Mail, ArrowRight, Users } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { Mail, ArrowRight } from 'lucide-react';
 import { useProjects } from '@/contexts/ProjectsContext';
 
 const neotrixLogo = '/lovable-uploads/e25231ff-24d7-47d0-b8da-ebd1979c96de.png';
@@ -153,66 +152,43 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Projects Preview Section */}
+        {/* Projects Preview Section - One Big Panel */}
         <div className="max-w-7xl mx-auto w-full mb-8 md:mb-12">
-          <div className="flex items-center justify-between mb-6 px-2">
-            <h2 className="text-xl md:text-3xl font-bold text-white">Our Projects</h2>
-            <Button
-              variant="ghost"
-              className="text-white/80 hover:text-white hover:bg-white/10"
-              onClick={() => navigate('/projects')}
-            >
-              View All
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
-            {previewProjects.map((project) => (
-              <div
-                key={project.id}
-                className="group cursor-pointer bg-white/5 backdrop-blur-sm rounded-xl overflow-hidden border border-white/10 hover:border-white/20 transition-all duration-300 hover:scale-105"
-                onClick={() => navigate('/projects')}
-              >
-                <div className="aspect-[4/3] md:aspect-video bg-gray-800 overflow-hidden">
+          <h2 className="text-xl md:text-3xl font-bold text-white text-center mb-6 px-2">Our Projects</h2>
+          
+          <div
+            className="group relative cursor-pointer bg-white/10 backdrop-blur-sm rounded-3xl border border-white/20 overflow-hidden shadow-2xl transition-all duration-500 hover:border-white/30"
+            onClick={() => navigate('/projects')}
+          >
+            {/* Project Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-1 p-1 transition-opacity duration-500 group-hover:opacity-40">
+              {previewProjects.map((project) => (
+                <div
+                  key={project.id}
+                  className="aspect-[4/3] md:aspect-video overflow-hidden"
+                >
                   <img
                     src={project.thumbnail || 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400'}
                     alt={project.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                    className="w-full h-full object-cover"
                     onError={(e) => {
                       e.currentTarget.src = 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400';
                     }}
                   />
                 </div>
-                <div className="p-2 md:p-4 space-y-1 md:space-y-2">
-                  <h3 className="font-semibold text-white text-sm md:text-base group-hover:text-blue-300 transition-colors line-clamp-1">
-                    {project.title}
-                  </h3>
-                  <div className="hidden md:flex items-center gap-2 text-xs text-white/60">
-                    <Users className="w-3 h-3" />
-                    <span className="line-clamp-1">{project.client}</span>
-                  </div>
-                  <div className="hidden md:flex flex-wrap gap-1">
-                    {project.tags.slice(0, 2).map((tag, index) => (
-                      <Badge key={index} variant="secondary" className="text-xs bg-white/10 text-white/80 hover:bg-white/20">
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
 
-          {/* See All Projects Button */}
-          <div className="text-center mt-8">
-            <Button
-              className="bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 hover:border-white/30 transition-all duration-300 rounded-full px-8 py-3"
-              onClick={() => navigate('/projects')}
-            >
-              Explore All Projects
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
+            {/* Hover Overlay with "See More" */}
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-black/20">
+              <div className="text-center">
+                <h3 className="text-white text-3xl md:text-5xl font-bold mb-2">See More</h3>
+                <p className="text-white/80 text-sm md:text-lg flex items-center justify-center gap-2">
+                  Explore All Projects
+                  <ArrowRight className="w-5 h-5" />
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 

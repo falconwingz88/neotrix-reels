@@ -138,7 +138,7 @@ export const Contact = () => {
 
   const openWhatsApp = () => {
     const message = generateWhatsAppMessage();
-    const waLink = `https://wa.me/6287797681961?text={message}`;
+    const waLink = `https://wa.me/6287797681961?text=${message}`;
 
     // Create a temporary anchor to force the exact URL
     const a = document.createElement("a");

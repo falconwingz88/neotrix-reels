@@ -1,9 +1,7 @@
 import { Instagram, Mail, Phone, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
 export const Footer = () => {
-  return (
-    <footer className="bg-white/5 backdrop-blur-xl border-t border-white/10 mt-16 w-full">
+  return <footer className="bg-white/5 backdrop-blur-xl border-t border-white/10 mt-16 w-full">
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Company Info */}
@@ -36,7 +34,7 @@ export const Footer = () => {
               <div className="space-y-2">
                 <div className="text-white/70">
                   <div className="font-medium text-white">Fernaldy Wiranata (Aldy)</div>
-                  <div className="text-sm text-white/50">Co-Founder / COO</div>
+                  <div className="text-sm text-white/50">Co-Founder / Studio Head</div>
                   <div className="flex items-center gap-2 mt-1">
                     <Mail className="w-3 h-3 text-purple-400" />
                     <span className="text-sm">aldy@neotrix.asia</span>
@@ -44,7 +42,7 @@ export const Footer = () => {
                 </div>
                 <div className="text-white/70">
                   <div className="font-medium text-white">Elvina Lie</div>
-                  <div className="text-sm text-white/50">Co-Founder / CEO</div>
+                  <div className="text-sm text-white/50">Co-Founder / Executive Producer</div>
                   <div className="flex items-center gap-2 mt-1">
                     <Mail className="w-3 h-3 text-purple-400" />
                     <span className="text-sm">elvina@neotrix.asia</span>
@@ -68,12 +66,7 @@ export const Footer = () => {
           {/* Social & Follow */}
           <div className="space-y-4">
             <h4 className="text-lg font-semibold text-white">Follow Us</h4>
-            <Button
-              variant="outline"
-              size="lg"
-              className="bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 hover:border-white/30 transition-all duration-300 rounded-full px-6 py-3 w-full"
-              onClick={() => window.open('https://instagram.com/neotrix.asia', '_blank')}
-            >
+            <Button variant="outline" size="lg" className="bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 hover:border-white/30 transition-all duration-300 rounded-full px-6 py-3 w-full" onClick={() => window.open('https://instagram.com/neotrix.asia', '_blank')}>
               <Instagram className="w-5 h-5 mr-2" />
               @neotrix.asia
             </Button>
@@ -90,6 +83,5 @@ export const Footer = () => {
           </p>
         </div>
       </div>
-    </footer>
-  );
+    </footer>;
 };

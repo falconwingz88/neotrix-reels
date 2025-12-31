@@ -8,14 +8,16 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProjects, CustomProject } from '@/contexts/ProjectsContext';
-import { ArrowLeft, Plus, LogOut, X, Trash2, Edit2, Users, AlertCircle, Check, Lock } from 'lucide-react';
+import { ArrowLeft, Plus, LogOut, X, Trash2, Edit2, Users, AlertCircle, Check, Image, Link2, FolderOpen, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { PROJECTS, TAG_OPTIONS, Project } from '@/components/ProjectsBrowser';
+
+const TAG_OPTIONS = ['Beauty', 'Liquid', 'VFX', 'Character Animation'];
+const YEAR_OPTIONS = [2025, 2024, 2023, 2022, 2021, 2020];
 
 // Helper function to extract YouTube video ID and generate thumbnail
 const getYouTubeVideoId = (url: string): string => {
   if (!url) return '';
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|shorts\/)([^#&?]*).*/;
   const match = url.match(regExp);
   return (match && match[2].length === 11) ? match[2] : '';
 };
@@ -37,7 +39,7 @@ const isValidUrl = (string: string): boolean => {
 
 const AdminDashboard = () => {
   const { isAuthenticated, logout } = useAuth();
-  const { customProjects, addProject, updateProject, deleteProject } = useProjects();
+  const { customProjects, addProject, updateProject, deleteProject, initializeDefaultProjects } = useProjects();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -45,9 +47,13 @@ const AdminDashboard = () => {
   const [editingProject, setEditingProject] = useState<CustomProject | null>(null);
   const [projectName, setProjectName] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
   const [links, setLinks] = useState('');
   const [description, setDescription] = useState('');
   const [credits, setCredits] = useState('');
+  const [thumbnailUrl, setThumbnailUrl] = useState('');
+  const [fileLink, setFileLink] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
 
   // Redirect if not authenticated
   if (!isAuthenticated) {
@@ -61,13 +67,24 @@ const AdminDashboard = () => {
   const hasInvalidLinks = invalidLinks.length > 0 && parsedLinks.length > 0;
   const firstValidLink = parsedLinks.find(link => isValidUrl(link)) || '';
   
-  // Generate preview thumbnail
+  // Validate file link
+  const fileLinkTrimmed = fileLink.trim();
+  const hasInvalidFileLink = fileLinkTrimmed && !isValidUrl(fileLinkTrimmed);
+  
+  // Validate thumbnail URL
+  const thumbnailTrimmed = thumbnailUrl.trim();
+  const hasInvalidThumbnail = thumbnailTrimmed && !isValidUrl(thumbnailTrimmed);
+  
+  // Generate preview thumbnail (priority: custom thumbnail > youtube thumbnail > placeholder)
   const previewThumbnail = useMemo(() => {
+    if (thumbnailTrimmed && isValidUrl(thumbnailTrimmed)) {
+      return thumbnailTrimmed;
+    }
     return getYouTubeThumbnail(firstValidLink);
-  }, [firstValidLink]);
+  }, [thumbnailTrimmed, firstValidLink]);
 
   // Check if form is valid for submission
-  const isFormValid = projectName.trim() && !hasInvalidLinks;
+  const isFormValid = projectName.trim() && !hasInvalidLinks && !hasInvalidFileLink && !hasInvalidThumbnail;
 
   const handleLogout = () => {
     logout();
@@ -81,9 +98,12 @@ const AdminDashboard = () => {
   const resetForm = () => {
     setProjectName('');
     setSelectedTags([]);
+    setSelectedYear(new Date().getFullYear());
     setLinks('');
     setDescription('');
     setCredits('');
+    setThumbnailUrl('');
+    setFileLink('');
     setEditingProject(null);
     setShowForm(false);
   };
@@ -115,6 +135,10 @@ const AdminDashboard = () => {
       tags: selectedTags,
       links: parsedLinks.filter(link => isValidUrl(link)),
       credits: credits.trim(),
+      thumbnail: thumbnailTrimmed || undefined,
+      fileLink: fileLinkTrimmed || undefined,
+      year: selectedYear,
+      client: credits.trim() || 'Neotrix',
     };
 
     if (editingProject) {
@@ -138,10 +162,14 @@ const AdminDashboard = () => {
     setEditingProject(project);
     setProjectName(project.title);
     setSelectedTags(project.tags);
+    setSelectedYear(project.year || new Date().getFullYear());
     setLinks(project.links.join('\n'));
     setDescription(project.description);
     setCredits(project.credits);
+    setThumbnailUrl(project.thumbnail || '');
+    setFileLink(project.fileLink || '');
     setShowForm(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleDelete = (id: string, title: string) => {
@@ -162,12 +190,32 @@ const AdminDashboard = () => {
 
   // Get thumbnail for a project
   const getProjectThumbnail = (project: CustomProject) => {
+    if (project.thumbnail) return project.thumbnail;
     const firstLink = project.links[0];
     if (firstLink) {
       const ytThumb = getYouTubeThumbnail(firstLink);
       if (ytThumb) return ytThumb;
     }
     return 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400';
+  };
+
+  // Filter projects
+  const filteredProjects = customProjects.filter(project =>
+    project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    project.credits.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleResetProjects = () => {
+    if (window.confirm('This will reset all projects to the default list. Your custom changes will be lost. Continue?')) {
+      localStorage.removeItem('neotrix_projects_initialized');
+      localStorage.removeItem('neotrix_custom_projects');
+      initializeDefaultProjects();
+      toast({
+        title: "Projects reset",
+        description: "All projects have been reset to defaults.",
+      });
+    }
   };
 
   return (
@@ -184,30 +232,48 @@ const AdminDashboard = () => {
             Back to Home
           </Button>
         </div>
-        <Button
-          variant="ghost"
-          onClick={handleLogout}
-          className="text-white hover:bg-white/10 flex items-center gap-2"
-        >
-          <LogOut className="w-4 h-4" />
-          Logout
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            onClick={handleResetProjects}
+            className="text-yellow-300 hover:bg-yellow-500/20 flex items-center gap-2"
+          >
+            <RefreshCw className="w-4 h-4" />
+            Reset Projects
+          </Button>
+          <Button
+            variant="ghost"
+            onClick={handleLogout}
+            className="text-white hover:bg-white/10 flex items-center gap-2"
+          >
+            <LogOut className="w-4 h-4" />
+            Logout
+          </Button>
+        </div>
       </div>
 
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Admin Dashboard</h1>
-        <p className="text-white/60 mb-8">Manage your projects and content</p>
+        <p className="text-white/60 mb-8">Manage your projects and content ({customProjects.length} projects)</p>
 
-        {/* New Project Button */}
-        {!showForm && (
-          <Button
-            onClick={() => setShowForm(true)}
-            className="mb-8 bg-white/20 hover:bg-white/30 text-white border border-white/20"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            New Project
-          </Button>
-        )}
+        {/* Search and New Project */}
+        <div className="flex flex-col md:flex-row gap-4 mb-8">
+          <Input
+            placeholder="Search projects..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="bg-white/10 border-white/20 text-white placeholder:text-white/40 flex-1"
+          />
+          {!showForm && (
+            <Button
+              onClick={() => setShowForm(true)}
+              className="bg-white/20 hover:bg-white/30 text-white border border-white/20"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              New Project
+            </Button>
+          )}
+        </div>
 
         {/* New Project Form */}
         {showForm && (
@@ -247,7 +313,7 @@ const AdminDashboard = () => {
                         {projectName || 'Project Name'}
                       </h3>
                       <span className="text-xs text-white/60 bg-white/10 px-2 py-1 rounded-full whitespace-nowrap">
-                        {new Date().getFullYear()}
+                        {selectedYear}
                       </span>
                     </div>
                     <p className="text-sm text-white/70 line-clamp-2">
@@ -275,6 +341,12 @@ const AdminDashboard = () => {
                         </Badge>
                       )}
                     </div>
+                    {fileLinkTrimmed && (
+                      <div className="flex items-center gap-2 text-xs text-green-400">
+                        <FolderOpen className="w-3 h-3" />
+                        <span>Has file link (admin only)</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -292,6 +364,26 @@ const AdminDashboard = () => {
                   placeholder="e.g. Brand Campaign 2024"
                   required
                 />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-white">Year</Label>
+                <div className="flex flex-wrap gap-2">
+                  {YEAR_OPTIONS.map(year => (
+                    <Badge
+                      key={year}
+                      variant={selectedYear === year ? "default" : "outline"}
+                      className={`cursor-pointer transition-colors ${
+                        selectedYear === year
+                          ? 'bg-white text-black hover:bg-white/90'
+                          : 'border-white/20 text-white hover:bg-white/10'
+                      }`}
+                      onClick={() => setSelectedYear(year)}
+                    >
+                      {year}
+                    </Badge>
+                  ))}
+                </div>
               </div>
 
               <div className="space-y-2">
@@ -317,7 +409,34 @@ const AdminDashboard = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="links" className="text-white">Links</Label>
+                <Label htmlFor="thumbnail" className="text-white flex items-center gap-2">
+                  <Image className="w-4 h-4" />
+                  Thumbnail URL
+                </Label>
+                <Input
+                  id="thumbnail"
+                  type="text"
+                  value={thumbnailUrl}
+                  onChange={(e) => setThumbnailUrl(e.target.value)}
+                  className={`bg-white/10 border-white/20 text-white placeholder:text-white/40 ${
+                    hasInvalidThumbnail ? 'border-red-500' : ''
+                  }`}
+                  placeholder="https://example.com/image.jpg (optional, auto-generated from YouTube)"
+                />
+                {hasInvalidThumbnail && (
+                  <div className="flex items-start gap-2 text-red-400 text-sm">
+                    <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                    <span>Please enter a valid URL</span>
+                  </div>
+                )}
+                <p className="text-white/50 text-xs">Leave empty to auto-generate from YouTube link</p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="links" className="text-white flex items-center gap-2">
+                  <Link2 className="w-4 h-4" />
+                  Video/Project Links
+                </Label>
                 <Textarea
                   id="links"
                   value={links}
@@ -339,6 +458,30 @@ const AdminDashboard = () => {
               </div>
 
               <div className="space-y-2">
+                <Label htmlFor="fileLink" className="text-white flex items-center gap-2">
+                  <FolderOpen className="w-4 h-4" />
+                  File Link (Admin Only)
+                </Label>
+                <Input
+                  id="fileLink"
+                  type="text"
+                  value={fileLink}
+                  onChange={(e) => setFileLink(e.target.value)}
+                  className={`bg-white/10 border-white/20 text-white placeholder:text-white/40 ${
+                    hasInvalidFileLink ? 'border-red-500' : ''
+                  }`}
+                  placeholder="https://drive.google.com/... (high-res files for admins)"
+                />
+                {hasInvalidFileLink && (
+                  <div className="flex items-start gap-2 text-red-400 text-sm">
+                    <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                    <span>Please enter a valid URL</span>
+                  </div>
+                )}
+                <p className="text-white/50 text-xs">Google Drive link for high-resolution files. Only visible to logged-in admins.</p>
+              </div>
+
+              <div className="space-y-2">
                 <Label htmlFor="description" className="text-white">Description</Label>
                 <Textarea
                   id="description"
@@ -350,14 +493,14 @@ const AdminDashboard = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="credits" className="text-white">Credits</Label>
+                <Label htmlFor="credits" className="text-white">Credits / Client</Label>
                 <Input
                   id="credits"
                   type="text"
                   value={credits}
                   onChange={(e) => setCredits(e.target.value)}
                   className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
-                  placeholder="e.g. Client: Brand Name, Studio: Partner Studio"
+                  placeholder="e.g. Milkyway Studio, Client Name"
                 />
               </div>
 
@@ -378,7 +521,7 @@ const AdminDashboard = () => {
                 ) : (
                   <>
                     <AlertCircle className="w-4 h-4 mr-2" />
-                    {!projectName.trim() ? 'Project name required' : 'Fix invalid links'}
+                    {!projectName.trim() ? 'Project name required' : 'Fix invalid URLs'}
                   </>
                 )}
               </Button>
@@ -386,15 +529,19 @@ const AdminDashboard = () => {
           </div>
         )}
 
-        {/* Existing Custom Projects */}
-        <div className="space-y-4 mb-8">
-          <h2 className="text-xl font-semibold text-white">Custom Projects ({customProjects.length})</h2>
+        {/* Projects List */}
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold text-white">
+            All Projects ({filteredProjects.length}{searchTerm ? ` of ${customProjects.length}` : ''})
+          </h2>
           
-          {customProjects.length === 0 ? (
-            <p className="text-white/60">No custom projects yet. Click "New Project" to add one.</p>
+          {filteredProjects.length === 0 ? (
+            <p className="text-white/60">
+              {searchTerm ? 'No projects found matching your search.' : 'No projects yet. Click "New Project" to add one.'}
+            </p>
           ) : (
             <div className="grid gap-4">
-              {customProjects.map((project) => (
+              {filteredProjects.map((project) => (
                 <div
                   key={project.id}
                   className="bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 p-4 flex items-start gap-4"
@@ -413,7 +560,16 @@ const AdminDashboard = () => {
 
                   {/* Project Info */}
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-white font-medium mb-1 truncate">{project.title}</h3>
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="text-white font-medium truncate">{project.title}</h3>
+                      <span className="text-xs text-white/40">({project.year || 'N/A'})</span>
+                      {project.fileLink && (
+                        <Badge variant="secondary" className="bg-green-500/20 text-green-300 text-xs">
+                          <FolderOpen className="w-3 h-3 mr-1" />
+                          Files
+                        </Badge>
+                      )}
+                    </div>
                     {project.description && (
                       <p className="text-white/60 text-sm mb-2 line-clamp-1">{project.description}</p>
                     )}
@@ -425,7 +581,7 @@ const AdminDashboard = () => {
                       ))}
                     </div>
                     {project.credits && (
-                      <p className="text-white/50 text-xs mt-2">{project.credits}</p>
+                      <p className="text-white/50 text-xs mt-2">Client: {project.credits}</p>
                     )}
                   </div>
 
@@ -452,67 +608,6 @@ const AdminDashboard = () => {
               ))}
             </div>
           )}
-        </div>
-
-        {/* Hardcoded Projects (Read-only display with info) */}
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-white flex items-center gap-2">
-            All Projects ({PROJECTS.length})
-            <Badge variant="secondary" className="bg-yellow-500/20 text-yellow-300 text-xs">
-              <Lock className="w-3 h-3 mr-1" />
-              Hardcoded
-            </Badge>
-          </h2>
-          <p className="text-white/50 text-sm">
-            These projects are hardcoded in the system. Contact developer to modify them.
-          </p>
-          
-          <div className="grid gap-4">
-            {PROJECTS.map((project) => (
-              <div
-                key={project.id}
-                className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-4 flex items-start gap-4"
-              >
-                {/* Thumbnail */}
-                <div className="w-24 h-16 md:w-32 md:h-20 flex-shrink-0 rounded-lg overflow-hidden bg-gray-800">
-                  <img
-                    src={project.thumbnail || 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400'}
-                    alt={project.title}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.currentTarget.src = 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400';
-                    }}
-                  />
-                </div>
-
-                {/* Project Info */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="text-white font-medium truncate">{project.title}</h3>
-                    <span className="text-xs text-white/40">({project.year})</span>
-                  </div>
-                  {project.description && (
-                    <p className="text-white/60 text-sm mb-2 line-clamp-1">{project.description}</p>
-                  )}
-                  <div className="flex flex-wrap gap-2">
-                    {project.tags.map((tag, i) => (
-                      <Badge key={i} variant="secondary" className="bg-white/10 text-white/60">
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-                  {project.client && (
-                    <p className="text-white/40 text-xs mt-2">Client: {project.client}</p>
-                  )}
-                </div>
-
-                {/* Read-only indicator */}
-                <div className="flex-shrink-0">
-                  <Lock className="w-4 h-4 text-white/30" />
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
       </div>
     </div>

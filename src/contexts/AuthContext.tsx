@@ -13,14 +13,15 @@ const ADMIN_USERNAME = 'admin';
 const ADMIN_PASSWORD = 'admin';
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  // Changed from sessionStorage to localStorage for persistent login
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    return sessionStorage.getItem('neotrix_admin_auth') === 'true';
+    return localStorage.getItem('neotrix_admin_auth') === 'true';
   });
 
   const login = (username: string, password: string): boolean => {
     if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
       setIsAuthenticated(true);
-      sessionStorage.setItem('neotrix_admin_auth', 'true');
+      localStorage.setItem('neotrix_admin_auth', 'true');
       return true;
     }
     return false;
@@ -28,7 +29,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = () => {
     setIsAuthenticated(false);
-    sessionStorage.removeItem('neotrix_admin_auth');
+    localStorage.removeItem('neotrix_admin_auth');
   };
 
   return (

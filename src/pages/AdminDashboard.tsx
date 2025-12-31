@@ -1,11 +1,18 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Calendar } from '@/components/ui/calendar';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,9 +25,10 @@ import {
 } from '@/components/ui/alert-dialog';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProjects, CustomProject } from '@/contexts/ProjectsContext';
-import { ArrowLeft, Plus, LogOut, X, Trash2, Edit2, Users, AlertCircle, Check, Image, Link2, FolderOpen, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Plus, LogOut, X, Trash2, Edit2, Users, AlertCircle, Check, Image, Link2, FolderOpen, RefreshCw, CalendarIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import UndoNotification, { UndoNotificationItem } from '@/components/UndoNotification';
+import { cn } from '@/lib/utils';
 
 const TAG_OPTIONS = ['Beauty', 'Liquid', 'VFX', 'Character Animation', 'Non-Character Animation', 'FX', 'AI'];
 const YEAR_OPTIONS = [2030, 2029, 2028, 2027, 2026, 2025, 2024, 2023, 2022, 2021, 2020];
@@ -66,6 +74,8 @@ const AdminDashboard = () => {
   const [thumbnailUrl, setThumbnailUrl] = useState('');
   const [fileLink, setFileLink] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [projectStartDate, setProjectStartDate] = useState<Date | undefined>(undefined);
+  const [deliveryDate, setDeliveryDate] = useState<Date | undefined>(undefined);
   
   // Delete confirmation state
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -124,6 +134,8 @@ const AdminDashboard = () => {
     setClient('');
     setThumbnailUrl('');
     setFileLink('');
+    setProjectStartDate(undefined);
+    setDeliveryDate(undefined);
     setEditingProject(null);
     setShowForm(false);
   };
@@ -159,6 +171,8 @@ const AdminDashboard = () => {
       fileLink: fileLinkTrimmed || undefined,
       year: selectedYear,
       client: client.trim() || 'Neotrix',
+      projectStartDate: projectStartDate?.toISOString(),
+      deliveryDate: deliveryDate?.toISOString(),
     };
 
     if (editingProject) {
@@ -189,6 +203,8 @@ const AdminDashboard = () => {
     setClient(project.client || '');
     setThumbnailUrl(project.thumbnail || '');
     setFileLink(project.fileLink || '');
+    setProjectStartDate(project.projectStartDate ? new Date(project.projectStartDate) : undefined);
+    setDeliveryDate(project.deliveryDate ? new Date(project.deliveryDate) : undefined);
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -541,6 +557,72 @@ const AdminDashboard = () => {
                   </div>
                 )}
                 <p className="text-white/50 text-xs">Google Drive link for high-resolution files. Only visible to logged-in admins.</p>
+              </div>
+
+              {/* Project Duration */}
+              <div className="space-y-2">
+                <Label className="text-white flex items-center gap-2">
+                  <CalendarIcon className="w-4 h-4" />
+                  Project Duration
+                </Label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Start Date */}
+                  <div className="space-y-1">
+                    <Label className="text-white/70 text-sm">Start Date</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left font-normal bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white",
+                            !projectStartDate && "text-white/40"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {projectStartDate ? format(projectStartDate, "PPP") : <span>Pick start date</span>}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 bg-zinc-900 border-white/20" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={projectStartDate}
+                          onSelect={setProjectStartDate}
+                          initialFocus
+                          className={cn("p-3 pointer-events-auto")}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+
+                  {/* Delivery Date */}
+                  <div className="space-y-1">
+                    <Label className="text-white/70 text-sm">Delivery Date</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left font-normal bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white",
+                            !deliveryDate && "text-white/40"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {deliveryDate ? format(deliveryDate, "PPP") : <span>Pick delivery date</span>}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 bg-zinc-900 border-white/20" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={deliveryDate}
+                          onSelect={setDeliveryDate}
+                          initialFocus
+                          className={cn("p-3 pointer-events-auto")}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </div>
+                <p className="text-white/50 text-xs">Optional: Track when the project started and was delivered.</p>
               </div>
 
               <div className="space-y-2">

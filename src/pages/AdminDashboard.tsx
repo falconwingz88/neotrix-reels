@@ -8,10 +8,9 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProjects, CustomProject } from '@/contexts/ProjectsContext';
-import { ArrowLeft, Plus, LogOut, X, Trash2, Edit2, Users, AlertCircle, Check } from 'lucide-react';
+import { ArrowLeft, Plus, LogOut, X, Trash2, Edit2, Users, AlertCircle, Check, Lock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-
-const TAG_OPTIONS = ['Beauty', 'Liquid', 'VFX', 'Character Animation'];
+import { PROJECTS, TAG_OPTIONS, Project } from '@/components/ProjectsBrowser';
 
 // Helper function to extract YouTube video ID and generate thumbnail
 const getYouTubeVideoId = (url: string): string => {
@@ -388,7 +387,7 @@ const AdminDashboard = () => {
         )}
 
         {/* Existing Custom Projects */}
-        <div className="space-y-4">
+        <div className="space-y-4 mb-8">
           <h2 className="text-xl font-semibold text-white">Custom Projects ({customProjects.length})</h2>
           
           {customProjects.length === 0 ? (
@@ -453,6 +452,67 @@ const AdminDashboard = () => {
               ))}
             </div>
           )}
+        </div>
+
+        {/* Hardcoded Projects (Read-only display with info) */}
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+            All Projects ({PROJECTS.length})
+            <Badge variant="secondary" className="bg-yellow-500/20 text-yellow-300 text-xs">
+              <Lock className="w-3 h-3 mr-1" />
+              Hardcoded
+            </Badge>
+          </h2>
+          <p className="text-white/50 text-sm">
+            These projects are hardcoded in the system. Contact developer to modify them.
+          </p>
+          
+          <div className="grid gap-4">
+            {PROJECTS.map((project) => (
+              <div
+                key={project.id}
+                className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-4 flex items-start gap-4"
+              >
+                {/* Thumbnail */}
+                <div className="w-24 h-16 md:w-32 md:h-20 flex-shrink-0 rounded-lg overflow-hidden bg-gray-800">
+                  <img
+                    src={project.thumbnail || 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400'}
+                    alt={project.title}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.src = 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400';
+                    }}
+                  />
+                </div>
+
+                {/* Project Info */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="text-white font-medium truncate">{project.title}</h3>
+                    <span className="text-xs text-white/40">({project.year})</span>
+                  </div>
+                  {project.description && (
+                    <p className="text-white/60 text-sm mb-2 line-clamp-1">{project.description}</p>
+                  )}
+                  <div className="flex flex-wrap gap-2">
+                    {project.tags.map((tag, i) => (
+                      <Badge key={i} variant="secondary" className="bg-white/10 text-white/60">
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+                  {project.client && (
+                    <p className="text-white/40 text-xs mt-2">Client: {project.client}</p>
+                  )}
+                </div>
+
+                {/* Read-only indicator */}
+                <div className="flex-shrink-0">
+                  <Lock className="w-4 h-4 text-white/30" />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

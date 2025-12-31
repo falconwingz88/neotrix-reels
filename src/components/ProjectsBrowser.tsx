@@ -87,7 +87,7 @@ const categorizeProject = (title: string, description: string): string[] => {
   return tags.length > 0 ? tags : ['VFX']; // Default to VFX if no specific category
 };
 
-const PROJECTS: Project[] = [
+export const PROJECTS: Project[] = [
   {
     id: '2',
     title: 'Caplang',
@@ -979,7 +979,7 @@ const PROJECTS: Project[] = [
   },
 ];
 
-const TAG_OPTIONS = ['Beauty', 'Liquid', 'VFX', 'Character Animation'];
+export const TAG_OPTIONS = ['Beauty', 'Liquid', 'VFX', 'Character Animation'];
 const YEAR_OPTIONS = [2025, 2024, 2023, 2022, 2021, 2020];
 
 export const ProjectsBrowser = () => {

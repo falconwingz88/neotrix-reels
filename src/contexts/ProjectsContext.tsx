@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface CustomProject {
   id: string;
@@ -18,16 +19,15 @@ export interface CustomProject {
 
 interface ProjectsContextType {
   customProjects: CustomProject[];
-  addProject: (project: Omit<CustomProject, 'id' | 'createdAt'>) => void;
-  updateProject: (id: string, project: Partial<Omit<CustomProject, 'id' | 'createdAt'>>) => void;
-  deleteProject: (id: string) => void;
-  initializeDefaultProjects: () => void;
+  addProject: (project: Omit<CustomProject, 'id' | 'createdAt'>) => Promise<void>;
+  updateProject: (id: string, project: Partial<Omit<CustomProject, 'id' | 'createdAt'>>) => Promise<void>;
+  deleteProject: (id: string) => Promise<void>;
+  initializeDefaultProjects: () => Promise<void>;
+  loading: boolean;
+  refetch: () => Promise<void>;
 }
 
 const ProjectsContext = createContext<ProjectsContextType | undefined>(undefined);
-
-const STORAGE_KEY = 'neotrix_custom_projects';
-const INITIALIZED_KEY = 'neotrix_projects_initialized';
 
 // Helper function to extract YouTube video ID and generate thumbnail
 const getYouTubeVideoId = (url: string): string => {
@@ -498,204 +498,121 @@ const DEFAULT_PROJECTS: Omit<CustomProject, 'id' | 'createdAt'>[] = [
     year: 2021,
   },
   {
-    title: 'Mobile Legends 5th Anniversary',
-    description: 'Gaming milestone celebration marking five years of Mobile Legends success.',
+    title: 'Free Fire Ramadan',
+    description: 'Mobile gaming campaign celebrating Ramadan with special in-game events.',
     tags: ['VFX'],
-    links: ['https://youtu.be/z3M6UjXvrCI'],
+    links: ['https://youtu.be/rYv7gQlLm5M'],
     credits: 'Milkyway Studio',
     client: 'Milkyway Studio',
     year: 2021,
   },
   {
-    title: 'OPPO Reno 6 x PUBG',
-    description: 'Smartphone gaming collaboration showcasing device performance in mobile gaming.',
+    title: 'Telkomsel x Genshin',
+    description: 'Telecommunications and gaming collaboration featuring Genshin Impact integration.',
     tags: ['VFX'],
-    links: ['https://youtu.be/SVB2ns7rTf8'],
+    links: ['https://youtu.be/3d0cXCLGAk0'],
     credits: 'Milkyway Studio',
     client: 'Milkyway Studio',
     year: 2021,
   },
   {
-    title: 'Realfood UP',
-    description: 'Food brand campaign highlighting nutritional benefits and energy boosting properties.',
-    tags: ['Liquid'],
-    links: ['https://youtu.be/kN3L3MXCML0'],
+    title: 'J&T Express 6th Anniversary',
+    description: 'Anniversary celebration campaign showcasing company growth and future goals.',
+    tags: ['VFX'],
+    links: ['https://youtu.be/7NfYZJlDkX0'],
     credits: 'Milkyway Studio',
     client: 'Milkyway Studio',
     year: 2021,
-  },
-  {
-    title: 'Telkomsel 5G',
-    description: 'Telecommunications 5G network launch campaign showcasing next-generation connectivity.',
-    tags: ['VFX'],
-    links: ['https://youtu.be/wp0NKJ2acag'],
-    credits: 'Milkyway Studio',
-    client: 'Milkyway Studio',
-    year: 2021,
-  },
-  {
-    title: 'Hemaviton Neuro Forte',
-    description: 'Brain health supplement campaign focusing on cognitive enhancement and mental clarity.',
-    tags: ['VFX'],
-    links: ['https://youtu.be/u8kQbaUx2yY'],
-    credits: 'Milkyway Studio',
-    client: 'Milkyway Studio',
-    year: 2021,
-  },
-  {
-    title: 'BNI Mobile Banking',
-    description: 'Banking application campaign highlighting digital banking convenience and security features.',
-    tags: ['VFX'],
-    links: ['https://youtu.be/kceDIvOJahw'],
-    credits: 'Milkyway Studio',
-    client: 'Milkyway Studio',
-    year: 2021,
-  },
-  {
-    title: 'KulKul World',
-    description: 'Travel and lifestyle platform campaign showcasing cultural experiences and destinations.',
-    tags: ['VFX'],
-    links: ['https://youtu.be/-5IlW21DcwI'],
-    credits: 'Milkyway Studio',
-    client: 'Milkyway Studio',
-    year: 2021,
-  },
-  {
-    title: 'OPPO Reno 5 5G - Car',
-    description: 'Smartphone campaign featuring automotive-themed visuals and 5G connectivity.',
-    tags: ['VFX'],
-    links: ['https://youtu.be/-PrXQeot2lc'],
-    credits: 'Milkyway Studio',
-    client: 'Milkyway Studio',
-    year: 2021,
-  },
-  {
-    title: 'Klop Saluto Coklat',
-    description: 'Chocolate snack brand campaign with indulgent flavors and satisfying moments.',
-    tags: ['VFX'],
-    links: ['https://youtu.be/CEF7_ECg_e0'],
-    credits: 'Milkyway Studio',
-    client: 'Milkyway Studio',
-    year: 2021,
-  },
-  {
-    title: 'Wyeth S26',
-    description: 'Baby formula brand campaign emphasizing nutrition and infant development.',
-    tags: ['VFX'],
-    links: ['https://youtu.be/PrD4Py1SBKI'],
-    credits: 'Milkyway Studio',
-    client: 'Milkyway Studio',
-    year: 2021,
-  },
-  {
-    title: 'Chitato Maxx',
-    description: 'Snack brand campaign featuring bold flavors and maximum satisfaction.',
-    tags: ['VFX'],
-    links: ['https://youtu.be/UQrdaDwY_CU'],
-    credits: 'Milkyway Studio',
-    client: 'Milkyway Studio',
-    year: 2021,
-  },
-  {
-    title: 'Smartfren - Unlimited Daebak',
-    description: 'Telecommunications unlimited data campaign with K-pop inspired messaging.',
-    tags: ['VFX'],
-    links: ['https://youtu.be/M6bXLDcbjYU'],
-    credits: 'Milkyway Studio',
-    client: 'Milkyway Studio',
-    year: 2021,
-  },
-  {
-    title: 'XL Axiata 4.5G',
-    description: 'Telecommunications advanced network campaign showcasing enhanced connectivity speeds.',
-    tags: ['VFX'],
-    links: ['https://youtu.be/_aese95_hpw'],
-    credits: 'Milkyway Studio',
-    client: 'Milkyway Studio',
-    year: 2020,
-  },
-  {
-    title: 'OPPO Reno 4 F - Beatbox',
-    description: 'Smartphone campaign featuring music and beatboxing with device audio capabilities.',
-    tags: ['VFX'],
-    links: ['https://youtu.be/3xj7R7AHAjU'],
-    credits: 'Milkyway Studio',
-    client: 'Milkyway Studio',
-    year: 2020,
-  },
-  {
-    title: 'OPPO Reno 4 F - Basketball',
-    description: 'Smartphone campaign with basketball theme showcasing device durability and performance.',
-    tags: ['VFX'],
-    links: ['https://youtu.be/WU-zGbk1EyY'],
-    credits: 'Milkyway Studio',
-    client: 'Milkyway Studio',
-    year: 2020,
   },
   {
     title: 'Pertamina HUT RI',
-    description: 'National oil company Indonesian Independence Day celebration campaign.',
+    description: 'National oil company campaign celebrating Indonesian Independence Day.',
     tags: ['VFX'],
-    links: ['https://youtu.be/eyDJdfAkPWc'],
+    links: ['https://youtu.be/l2jfJwt8VVA'],
+    credits: 'Milkyway Studio',
+    client: 'Milkyway Studio',
+    year: 2021,
+  },
+  {
+    title: 'Wuling Air EV',
+    description: 'Electric vehicle brand campaign showcasing eco-friendly transportation innovation.',
+    tags: ['VFX'],
+    links: ['https://youtu.be/DkwbcDyAXB8'],
+    credits: 'Milkyway Studio',
+    client: 'Milkyway Studio',
+    year: 2021,
+  },
+  {
+    title: 'Smartfren Oh Indonesia',
+    description: 'Telecommunications campaign celebrating Indonesian culture and connectivity.',
+    tags: ['VFX'],
+    links: ['https://youtu.be/f8NxXwjqm_g'],
+    credits: 'Milkyway Studio',
+    client: 'Milkyway Studio',
+    year: 2021,
+  },
+  {
+    title: 'Wyeth S26 Gold',
+    description: 'Premium infant nutrition campaign highlighting child development and health.',
+    tags: ['Liquid'],
+    links: ['https://youtu.be/Yp9a3NeXExk'],
+    credits: 'Milkyway Studio',
+    client: 'Milkyway Studio',
+    year: 2021,
+  },
+  {
+    title: 'XL Priority',
+    description: 'Premium telecommunications service campaign for exclusive customers.',
+    tags: ['VFX'],
+    links: ['https://youtu.be/5P_xyVxH8LY'],
+    credits: 'Milkyway Studio',
+    client: 'Milkyway Studio',
+    year: 2021,
+  },
+  {
+    title: 'Kanzler Bubur',
+    description: 'Food brand campaign showcasing convenient and delicious porridge products.',
+    tags: ['VFX'],
+    links: ['https://youtu.be/gLfBDIEIQE4'],
+    credits: 'Milkyway Studio',
+    client: 'Milkyway Studio',
+    year: 2021,
+  },
+  {
+    title: 'OPPO Reno 4',
+    description: 'Smartphone brand campaign highlighting camera innovation and design.',
+    tags: ['VFX'],
+    links: ['https://youtu.be/HEJLe_xP9sw'],
     credits: 'Milkyway Studio',
     client: 'Milkyway Studio',
     year: 2020,
   },
   {
-    title: 'Free Fire x Money Heist',
-    description: 'Gaming collaboration with popular Netflix series featuring themed content.',
+    title: 'BNI Mobile Banking',
+    description: 'Banking application campaign showcasing digital banking convenience.',
     tags: ['VFX'],
-    links: ['https://youtu.be/ffKrFeehdu0'],
+    links: ['https://youtu.be/0TyN-UjKqKk'],
     credits: 'Milkyway Studio',
     client: 'Milkyway Studio',
     year: 2020,
   },
   {
-    title: 'J&T Gapai Mimpimu',
-    description: 'Logistics company inspirational campaign about achieving dreams and aspirations.',
+    title: 'BIBIT x Deddy Corbuzier',
+    description: 'Investment platform campaign featuring celebrity endorsement for financial literacy.',
     tags: ['VFX'],
-    links: ['https://youtu.be/N5vH8q4bEho'],
+    links: ['https://youtu.be/fZcWAUr2FrE'],
     credits: 'Milkyway Studio',
     client: 'Milkyway Studio',
     year: 2020,
   },
   {
-    title: 'OPPO Reno 4 Selective',
-    description: 'Smartphone campaign highlighting selective focus photography features.',
+    title: 'Kuku Bima Ener-G',
+    description: 'Energy drink campaign highlighting strength and endurance for active lifestyle.',
     tags: ['VFX'],
-    links: ['https://youtu.be/jcqoo26CtDM'],
+    links: ['https://youtu.be/YUV_c8WbRJY'],
     credits: 'Milkyway Studio',
     client: 'Milkyway Studio',
     year: 2020,
-  },
-  {
-    title: 'Wuling',
-    description: 'Automotive brand showcase featuring innovative design and modern mobility solutions.',
-    tags: ['VFX'],
-    links: [],
-    credits: 'Above Space',
-    client: 'Above Space',
-    year: 2025,
-    fileLink: 'https://drive.google.com/file/d/1Ytd-GYd56XpusWyvyNwz0m67dcD4ya-t/view?usp=drive_link',
-  },
-  {
-    title: 'Ultima II x Mikha Tambayong',
-    description: 'Beauty brand collaboration featuring celebrity endorsement and premium cosmetics showcase.',
-    tags: ['Beauty', 'Character Animation'],
-    links: ['https://drive.google.com/file/d/1T6iYkJ0Dz2BqmRttbT70PfSzJvVD8Svi/view?usp=sharing', 'https://drive.google.com/file/d/1NC2q-dPpiYqq0mzgLj8N77WoggXIIiEJ/view?usp=drive_link', 'https://drive.google.com/file/d/1-Z0eNWi9yRd_AVGgaE7coqpDHId46b5F/view?usp=drive_link'],
-    credits: 'Lieve',
-    client: 'Lieve',
-    year: 2025,
-    fileLink: 'https://drive.google.com/file/d/1NC2q-dPpiYqq0mzgLj8N77WoggXIIiEJ/view?usp=drive_link',
-  },
-  {
-    title: 'Bibit x Deddy Corbuzier',
-    description: 'Investment app campaign featuring celebrity endorsement and financial literacy messaging.',
-    tags: ['Character Animation'],
-    links: ['https://youtu.be/Jvvk3mlmqpc'],
-    credits: 'Adi Victory',
-    client: 'Adi Victory',
-    year: 2024,
   },
   {
     title: 'Miranda',
@@ -718,60 +635,151 @@ const DEFAULT_PROJECTS: Omit<CustomProject, 'id' | 'createdAt'>[] = [
   },
 ];
 
+// Transform database row to CustomProject format
+const transformDbToProject = (row: any): CustomProject => ({
+  id: row.id,
+  title: row.title,
+  description: row.description || '',
+  tags: row.tags || [],
+  links: row.links || [],
+  credits: row.credits || '',
+  thumbnail: row.thumbnail,
+  fileLink: row.file_link,
+  year: row.year ? parseInt(row.year) : undefined,
+  client: row.client,
+  projectStartDate: row.project_start_date,
+  deliveryDate: row.delivery_date,
+  createdAt: row.created_at,
+});
+
+// Transform CustomProject to database format
+const transformProjectToDb = (project: Omit<CustomProject, 'id' | 'createdAt'>) => ({
+  title: project.title,
+  description: project.description,
+  tags: project.tags,
+  links: project.links,
+  credits: project.credits,
+  thumbnail: project.thumbnail || (project.links[0] ? getYouTubeThumbnail(project.links[0]) : null),
+  file_link: project.fileLink,
+  year: project.year?.toString(),
+  client: project.client,
+  project_start_date: project.projectStartDate || null,
+  delivery_date: project.deliveryDate || null,
+});
+
 export const ProjectsProvider = ({ children }: { children: ReactNode }) => {
-  const [customProjects, setCustomProjects] = useState<CustomProject[]>(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : [];
-  });
+  const [customProjects, setCustomProjects] = useState<CustomProject[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(customProjects));
-  }, [customProjects]);
+  const fetchProjects = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('projects')
+      .select('*')
+      .order('created_at', { ascending: false });
 
-  // Initialize default projects on first load
-  useEffect(() => {
-    const isInitialized = localStorage.getItem(INITIALIZED_KEY);
-    if (!isInitialized && customProjects.length === 0) {
-      initializeDefaultProjects();
+    if (error) {
+      console.error('Error fetching projects:', error);
+    } else {
+      setCustomProjects((data || []).map(transformDbToProject));
     }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchProjects();
   }, []);
 
-  const initializeDefaultProjects = () => {
-    const projectsWithIds: CustomProject[] = DEFAULT_PROJECTS.map((project, index) => ({
-      ...project,
-      id: `project-${Date.now()}-${index}`,
-      createdAt: new Date().toISOString(),
-      thumbnail: project.thumbnail || (project.links[0] ? getYouTubeThumbnail(project.links[0]) : undefined),
-    }));
-    setCustomProjects(projectsWithIds);
-    localStorage.setItem(INITIALIZED_KEY, 'true');
+  const initializeDefaultProjects = async () => {
+    setLoading(true);
+    
+    // Check if projects already exist
+    const { count } = await supabase
+      .from('projects')
+      .select('*', { count: 'exact', head: true });
+
+    if (count && count > 0) {
+      setLoading(false);
+      return; // Projects already initialized
+    }
+
+    // Insert all default projects
+    const projectsToInsert = DEFAULT_PROJECTS.map(transformProjectToDb);
+    
+    const { error } = await supabase
+      .from('projects')
+      .insert(projectsToInsert);
+
+    if (error) {
+      console.error('Error initializing default projects:', error);
+    } else {
+      await fetchProjects();
+    }
+    setLoading(false);
   };
 
-  const addProject = (project: Omit<CustomProject, 'id' | 'createdAt'>) => {
-    const newProject: CustomProject = {
-      ...project,
-      id: `custom-${Date.now()}`,
-      createdAt: new Date().toISOString(),
-    };
-    setCustomProjects((prev) => [newProject, ...prev]);
+  const addProject = async (project: Omit<CustomProject, 'id' | 'createdAt'>) => {
+    const { error } = await supabase
+      .from('projects')
+      .insert([transformProjectToDb(project)]);
+
+    if (error) {
+      console.error('Error adding project:', error);
+      throw error;
+    }
+    await fetchProjects();
   };
 
-  const updateProject = (id: string, project: Partial<Omit<CustomProject, 'id' | 'createdAt'>>) => {
-    setCustomProjects((prev) =>
-      prev.map((p) =>
-        p.id === id
-          ? { ...p, ...project }
-          : p
-      )
-    );
+  const updateProject = async (id: string, project: Partial<Omit<CustomProject, 'id' | 'createdAt'>>) => {
+    const updateData: any = {};
+    
+    if (project.title !== undefined) updateData.title = project.title;
+    if (project.description !== undefined) updateData.description = project.description;
+    if (project.tags !== undefined) updateData.tags = project.tags;
+    if (project.links !== undefined) updateData.links = project.links;
+    if (project.credits !== undefined) updateData.credits = project.credits;
+    if (project.thumbnail !== undefined) updateData.thumbnail = project.thumbnail;
+    if (project.fileLink !== undefined) updateData.file_link = project.fileLink;
+    if (project.year !== undefined) updateData.year = project.year?.toString();
+    if (project.client !== undefined) updateData.client = project.client;
+    if (project.projectStartDate !== undefined) updateData.project_start_date = project.projectStartDate;
+    if (project.deliveryDate !== undefined) updateData.delivery_date = project.deliveryDate;
+
+    const { error } = await supabase
+      .from('projects')
+      .update(updateData)
+      .eq('id', id);
+
+    if (error) {
+      console.error('Error updating project:', error);
+      throw error;
+    }
+    await fetchProjects();
   };
 
-  const deleteProject = (id: string) => {
-    setCustomProjects((prev) => prev.filter((p) => p.id !== id));
+  const deleteProject = async (id: string) => {
+    const { error } = await supabase
+      .from('projects')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('Error deleting project:', error);
+      throw error;
+    }
+    await fetchProjects();
   };
 
   return (
-    <ProjectsContext.Provider value={{ customProjects, addProject, updateProject, deleteProject, initializeDefaultProjects }}>
+    <ProjectsContext.Provider value={{ 
+      customProjects, 
+      addProject, 
+      updateProject, 
+      deleteProject, 
+      initializeDefaultProjects,
+      loading,
+      refetch: fetchProjects
+    }}>
       {children}
     </ProjectsContext.Provider>
   );

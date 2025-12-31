@@ -35,9 +35,10 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { useProjects, CustomProject } from '@/contexts/ProjectsContext';
 import { useContacts } from '@/contexts/ContactsContext';
-import { ArrowLeft, Plus, LogOut, X, Trash2, Edit2, Users, AlertCircle, Check, Image, Link2, FolderOpen, RefreshCw, CalendarIcon, FolderKanban, MessageSquare, MapPin, Clock, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Plus, LogOut, X, Trash2, Edit2, Users, AlertCircle, Check, Link2, FolderOpen, RefreshCw, CalendarIcon, FolderKanban, MessageSquare, MapPin, Clock, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import UndoNotification, { UndoNotificationItem } from '@/components/UndoNotification';
+import { ThumbnailUpload } from '@/components/ThumbnailUpload';
 import { cn } from '@/lib/utils';
 
 const TAG_OPTIONS = ['Beauty', 'Liquid', 'VFX', 'Character Animation', 'Non-Character Animation', 'FX', 'AI'];
@@ -532,29 +533,11 @@ const AdminDashboard = () => {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="thumbnail" className="text-white flex items-center gap-2">
-                  <Image className="w-4 h-4" />
-                  Thumbnail URL
-                </Label>
-                <Input
-                  id="thumbnail"
-                  type="text"
-                  value={thumbnailUrl}
-                  onChange={(e) => setThumbnailUrl(e.target.value)}
-                  className={`bg-white/10 border-white/20 text-white placeholder:text-white/40 ${
-                    hasInvalidThumbnail ? 'border-red-500' : ''
-                  }`}
-                  placeholder="https://example.com/image.jpg (optional, auto-generated from YouTube)"
-                />
-                {hasInvalidThumbnail && (
-                  <div className="flex items-start gap-2 text-red-400 text-sm">
-                    <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                    <span>Please enter a valid URL</span>
-                  </div>
-                )}
-                <p className="text-white/50 text-xs">Leave empty to auto-generate from YouTube link</p>
-              </div>
+              <ThumbnailUpload
+                value={thumbnailUrl}
+                onChange={setThumbnailUrl}
+                hasError={hasInvalidThumbnail}
+              />
 
               <div className="space-y-2">
                 <Label htmlFor="links" className="text-white flex items-center gap-2">

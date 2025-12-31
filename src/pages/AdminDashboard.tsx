@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
@@ -98,8 +98,13 @@ const AdminDashboard = () => {
   const [undoNotifications, setUndoNotifications] = useState<UndoNotificationItem[]>([]);
 
   // Redirect if not authenticated
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/admin-login', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
+
   if (!isAuthenticated) {
-    navigate('/admin-login');
     return null;
   }
 

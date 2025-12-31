@@ -2,9 +2,10 @@ import { useState, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Image, Upload, X, Link2, AlertCircle } from 'lucide-react';
+import { Image, Upload, X, Link2, AlertCircle, Crop } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { ImageCropper } from './ImageCropper';
 
 interface ThumbnailUploadProps {
   value: string;
@@ -25,38 +26,21 @@ export const ThumbnailUpload = ({ value, onChange, hasError }: ThumbnailUploadPr
   const [isUploading, setIsUploading] = useState(false);
   const [mode, setMode] = useState<'url' | 'upload'>('url');
   const [dragActive, setDragActive] = useState(false);
+  const [cropperOpen, setCropperOpen] = useState(false);
+  const [imageToCrop, setImageToCrop] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
-  const uploadFile = async (file: File) => {
-    if (!file.type.startsWith('image/')) {
-      toast({
-        title: "Invalid file type",
-        description: "Please upload an image file (JPG, PNG, GIF, WebP)",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      toast({
-        title: "File too large",
-        description: "Please upload an image smaller than 5MB",
-        variant: "destructive",
-      });
-      return;
-    }
-
+  const uploadBlob = async (blob: Blob, extension = 'jpg') => {
     setIsUploading(true);
 
     try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${extension}`;
       const filePath = `thumbnails/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('project-thumbnails')
-        .upload(filePath, file);
+        .upload(filePath, blob);
 
       if (uploadError) throw uploadError;
 
@@ -81,10 +65,44 @@ export const ThumbnailUpload = ({ value, onChange, hasError }: ThumbnailUploadPr
     }
   };
 
+  const processFile = (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload an image file (JPG, PNG, GIF, WebP)",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Please upload an image smaller than 5MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Convert file to data URL for cropper
+    const reader = new FileReader();
+    reader.onload = () => {
+      setImageToCrop(reader.result as string);
+      setCropperOpen(true);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleCropComplete = (croppedBlob: Blob) => {
+    setCropperOpen(false);
+    setImageToCrop(null);
+    uploadBlob(croppedBlob);
+  };
+
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      uploadFile(file);
+      processFile(file);
     }
   };
 
@@ -105,7 +123,7 @@ export const ThumbnailUpload = ({ value, onChange, hasError }: ThumbnailUploadPr
 
     const file = e.dataTransfer.files?.[0];
     if (file) {
-      uploadFile(file);
+      processFile(file);
     }
   }, []);
 
@@ -118,7 +136,7 @@ export const ThumbnailUpload = ({ value, onChange, hasError }: ThumbnailUploadPr
         e.preventDefault();
         const file = item.getAsFile();
         if (file) {
-          uploadFile(file);
+          processFile(file);
         }
         return;
       }
@@ -259,6 +277,20 @@ export const ThumbnailUpload = ({ value, onChange, hasError }: ThumbnailUploadPr
       <p className="text-white/50 text-xs">
         Leave empty to auto-generate from YouTube link
       </p>
+
+      {/* Image Cropper Modal */}
+      {imageToCrop && (
+        <ImageCropper
+          image={imageToCrop}
+          open={cropperOpen}
+          onClose={() => {
+            setCropperOpen(false);
+            setImageToCrop(null);
+          }}
+          onCropComplete={handleCropComplete}
+          aspectRatio={16 / 9}
+        />
+      )}
     </div>
   );
 };

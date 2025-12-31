@@ -11,8 +11,8 @@ import { useProjects, CustomProject } from '@/contexts/ProjectsContext';
 import { ArrowLeft, Plus, LogOut, X, Trash2, Edit2, Users, AlertCircle, Check, Image, Link2, FolderOpen, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
-const TAG_OPTIONS = ['Beauty', 'Liquid', 'VFX', 'Character Animation'];
-const YEAR_OPTIONS = [2025, 2024, 2023, 2022, 2021, 2020];
+const TAG_OPTIONS = ['Beauty', 'Liquid', 'VFX', 'Character Animation', 'Non-Character Animation', 'FX', 'AI'];
+const YEAR_OPTIONS = [2030, 2029, 2028, 2027, 2026, 2025, 2024, 2023, 2022, 2021, 2020];
 
 // Helper function to extract YouTube video ID and generate thumbnail
 const getYouTubeVideoId = (url: string): string => {
@@ -51,6 +51,7 @@ const AdminDashboard = () => {
   const [links, setLinks] = useState('');
   const [description, setDescription] = useState('');
   const [credits, setCredits] = useState('');
+  const [client, setClient] = useState('');
   const [thumbnailUrl, setThumbnailUrl] = useState('');
   const [fileLink, setFileLink] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
@@ -102,6 +103,7 @@ const AdminDashboard = () => {
     setLinks('');
     setDescription('');
     setCredits('');
+    setClient('');
     setThumbnailUrl('');
     setFileLink('');
     setEditingProject(null);
@@ -138,7 +140,7 @@ const AdminDashboard = () => {
       thumbnail: thumbnailTrimmed || undefined,
       fileLink: fileLinkTrimmed || undefined,
       year: selectedYear,
-      client: credits.trim() || 'Neotrix',
+      client: client.trim() || 'Neotrix',
     };
 
     if (editingProject) {
@@ -166,6 +168,7 @@ const AdminDashboard = () => {
     setLinks(project.links.join('\n'));
     setDescription(project.description);
     setCredits(project.credits);
+    setClient(project.client || '');
     setThumbnailUrl(project.thumbnail || '');
     setFileLink(project.fileLink || '');
     setShowForm(true);
@@ -493,14 +496,26 @@ const AdminDashboard = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="credits" className="text-white">Credits / Client</Label>
+                <Label htmlFor="client" className="text-white">Client</Label>
+                <Input
+                  id="client"
+                  type="text"
+                  value={client}
+                  onChange={(e) => setClient(e.target.value)}
+                  className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+                  placeholder="e.g. OPPO, Telkomsel, BNI"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="credits" className="text-white">Credits</Label>
                 <Input
                   id="credits"
                   type="text"
                   value={credits}
                   onChange={(e) => setCredits(e.target.value)}
                   className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
-                  placeholder="e.g. Milkyway Studio, Client Name"
+                  placeholder="e.g. Milkyway Studio, Neotrix CGI Team"
                 />
               </div>
 
@@ -529,86 +544,88 @@ const AdminDashboard = () => {
           </div>
         )}
 
-        {/* Projects List */}
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-white">
-            All Projects ({filteredProjects.length}{searchTerm ? ` of ${customProjects.length}` : ''})
-          </h2>
-          
-          {filteredProjects.length === 0 ? (
-            <p className="text-white/60">
-              {searchTerm ? 'No projects found matching your search.' : 'No projects yet. Click "New Project" to add one.'}
-            </p>
-          ) : (
-            <div className="grid gap-4">
-              {filteredProjects.map((project) => (
-                <div
-                  key={project.id}
-                  className="bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 p-4 flex items-start gap-4"
-                >
-                  {/* Thumbnail */}
-                  <div className="w-24 h-16 md:w-32 md:h-20 flex-shrink-0 rounded-lg overflow-hidden bg-gray-800">
-                    <img
-                      src={getProjectThumbnail(project)}
-                      alt={project.title}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        e.currentTarget.src = 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400';
-                      }}
-                    />
-                  </div>
+        {/* Projects List - Hidden when form is open */}
+        {!showForm && (
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold text-white">
+              All Projects ({filteredProjects.length}{searchTerm ? ` of ${customProjects.length}` : ''})
+            </h2>
+            
+            {filteredProjects.length === 0 ? (
+              <p className="text-white/60">
+                {searchTerm ? 'No projects found matching your search.' : 'No projects yet. Click "New Project" to add one.'}
+              </p>
+            ) : (
+              <div className="grid gap-4">
+                {filteredProjects.map((project) => (
+                  <div
+                    key={project.id}
+                    className="bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 p-4 flex items-start gap-4"
+                  >
+                    {/* Thumbnail */}
+                    <div className="w-24 h-16 md:w-32 md:h-20 flex-shrink-0 rounded-lg overflow-hidden bg-gray-800">
+                      <img
+                        src={getProjectThumbnail(project)}
+                        alt={project.title}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.src = 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400';
+                        }}
+                      />
+                    </div>
 
-                  {/* Project Info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="text-white font-medium truncate">{project.title}</h3>
-                      <span className="text-xs text-white/40">({project.year || 'N/A'})</span>
-                      {project.fileLink && (
-                        <Badge variant="secondary" className="bg-green-500/20 text-green-300 text-xs">
-                          <FolderOpen className="w-3 h-3 mr-1" />
-                          Files
-                        </Badge>
+                    {/* Project Info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="text-white font-medium truncate">{project.title}</h3>
+                        <span className="text-xs text-white/40">({project.year || 'N/A'})</span>
+                        {project.fileLink && (
+                          <Badge variant="secondary" className="bg-green-500/20 text-green-300 text-xs">
+                            <FolderOpen className="w-3 h-3 mr-1" />
+                            Files
+                          </Badge>
+                        )}
+                      </div>
+                      {project.description && (
+                        <p className="text-white/60 text-sm mb-2 line-clamp-1">{project.description}</p>
+                      )}
+                      <div className="flex flex-wrap gap-2">
+                        {project.tags.map((tag, i) => (
+                          <Badge key={i} variant="secondary" className="bg-white/10 text-white/80">
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
+                      {project.client && (
+                        <p className="text-white/50 text-xs mt-2">Client: {project.client}</p>
                       )}
                     </div>
-                    {project.description && (
-                      <p className="text-white/60 text-sm mb-2 line-clamp-1">{project.description}</p>
-                    )}
-                    <div className="flex flex-wrap gap-2">
-                      {project.tags.map((tag, i) => (
-                        <Badge key={i} variant="secondary" className="bg-white/10 text-white/80">
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
-                    {project.credits && (
-                      <p className="text-white/50 text-xs mt-2">Client: {project.credits}</p>
-                    )}
-                  </div>
 
-                  {/* Actions */}
-                  <div className="flex gap-2 flex-shrink-0">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleEdit(project)}
-                      className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/20"
-                    >
-                      <Edit2 className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleDelete(project.id, project.title)}
-                      className="text-red-400 hover:text-red-300 hover:bg-red-500/20"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    {/* Actions */}
+                    <div className="flex gap-2 flex-shrink-0">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleEdit(project)}
+                        className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/20"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDelete(project.id, project.title)}
+                        className="text-red-400 hover:text-red-300 hover:bg-red-500/20"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

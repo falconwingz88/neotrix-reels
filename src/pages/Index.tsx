@@ -164,7 +164,10 @@ const Index = () => {
             onClick={() => navigate('/projects')}
           >
             {/* Scrolling Project Grid */}
-            <div className="animate-scroll-vertical-slow transition-opacity duration-500 group-hover:opacity-40 group-hover:[animation-play-state:paused]">
+            <div
+              className="animate-scroll-vertical-slow transition-opacity duration-500 group-hover:opacity-40 group-hover:[animation-play-state:paused]"
+              style={{ animationDuration: '300s' }}
+            >
               <div className="grid grid-cols-3 gap-1 p-1">
                 {duplicatedProjects.map((project, index) => (
                   <div

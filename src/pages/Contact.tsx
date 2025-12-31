@@ -68,13 +68,23 @@ export const Contact = () => {
 
   const goToNextStep = () => {
     if (currentStep < 5) {
-      setCurrentStep(currentStep + 1);
+      // Skip step 3 (video details) if user selected "not sure" or "discuss first"
+      if (currentStep === 2 && (projectStatus === 'not_sure' || projectStatus === 'discuss')) {
+        setCurrentStep(4); // Skip directly to timeline
+      } else {
+        setCurrentStep(currentStep + 1);
+      }
     }
   };
 
   const goToPreviousStep = () => {
     if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
+      // If on step 4 and user skipped step 3, go back to step 2
+      if (currentStep === 4 && (projectStatus === 'not_sure' || projectStatus === 'discuss')) {
+        setCurrentStep(2);
+      } else {
+        setCurrentStep(currentStep - 1);
+      }
     }
   };
 
@@ -92,9 +102,13 @@ export const Contact = () => {
       }
     }
     
-    message += `\nVideo Details:\n`;
-    message += `- Number of versions: ${videoVersions}\n`;
-    message += `- Duration: ${videoDuration}\n`;
+    // Only include video details if user has a project
+    if (projectStatus === 'have_project') {
+      message += `\nVideo Details:\n`;
+      message += `- Number of versions: ${videoVersions}\n`;
+      message += `- Duration: ${videoDuration}\n`;
+    }
+    
     message += `\nTimeline:\n`;
     message += `- Delivery needed by: ${deliveryDate ? format(deliveryDate, 'PPP') : 'Not specified'}\n`;
     message += `- Can start from: ${startDate ? format(startDate, 'PPP') : 'Not specified'}\n`;
@@ -120,7 +134,14 @@ export const Contact = () => {
     });
     
     const message = generateWhatsAppMessage();
-    window.open(`https://wa.me/6287797681961?text=${message}`, '_blank');
+    const waLink = `https://wa.me/6287797681961?text=${message}`;
+    
+    // Create a temporary anchor to force the exact URL
+    const a = document.createElement('a');
+    a.href = waLink;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.click();
   };
 
   return (

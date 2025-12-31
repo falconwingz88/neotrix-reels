@@ -1,5 +1,5 @@
 
-import { X, Calendar, Users, Clock, Lightbulb } from 'lucide-react';
+import { X, Calendar, Users, Clock, FolderOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import type { Project } from './ProjectsBrowser';
@@ -7,9 +7,10 @@ import type { Project } from './ProjectsBrowser';
 interface ProjectDetailModalProps {
   project: Project;
   onClose: () => void;
+  isAdmin?: boolean;
 }
 
-export const ProjectDetailModal = ({ project, onClose }: ProjectDetailModalProps) => {
+export const ProjectDetailModal = ({ project, onClose, isAdmin = false }: ProjectDetailModalProps) => {
   // Helper function to extract YouTube video ID
   const getYouTubeVideoId = (url: string): string => {
     if (!url) return '';
@@ -61,6 +62,24 @@ export const ProjectDetailModal = ({ project, onClose }: ProjectDetailModalProps
         {/* Content */}
         <div className="p-6 pb-4 overflow-y-auto scrollbar-glassmorphism" style={{ maxHeight: 'calc(80vh - 120px)' }}>
           <div className="space-y-6">
+            {/* Admin File Link - Only visible to admins */}
+            {isAdmin && project.fileLink && (
+              <div className="bg-green-500/20 border border-green-500/30 rounded-lg p-4">
+                <h3 className="text-lg font-semibold text-green-300 mb-2 flex items-center gap-2">
+                  <FolderOpen className="w-5 h-5" />
+                  High-Resolution Files (Admin Only)
+                </h3>
+                <a 
+                  href={project.fileLink} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-green-200 hover:text-green-100 underline break-all"
+                >
+                  {project.fileLink}
+                </a>
+              </div>
+            )}
+
             {/* Project Videos */}
             <div>
               {/* Primary Video */}
@@ -112,11 +131,6 @@ export const ProjectDetailModal = ({ project, onClose }: ProjectDetailModalProps
               <p className="text-white/80 text-lg leading-relaxed mb-4">
                 {project.description}
               </p>
-              <p className="text-white/70 leading-relaxed">
-                This project showcases our expertise in creating compelling visual narratives that resonate with audiences. 
-                Through careful attention to detail and innovative techniques, we delivered a high-quality production that 
-                meets the client's objectives while maintaining our creative standards.
-              </p>
             </div>
 
             {/* Client Information */}
@@ -131,7 +145,7 @@ export const ProjectDetailModal = ({ project, onClose }: ProjectDetailModalProps
                     <span className="text-white/60">Client:</span> {project.client}
                   </div>
                   <div className="text-white/80">
-                    <span className="text-white/60">Brand:</span> {project.tags[0]}
+                    <span className="text-white/60">Category:</span> {project.tags[0]}
                   </div>
                   <div className="text-white/80">
                     <span className="text-white/60">Year:</span> {project.year}
@@ -173,7 +187,6 @@ export const ProjectDetailModal = ({ project, onClose }: ProjectDetailModalProps
               <div className="space-y-2">
                 <div className="text-white/80">Neotrix - Creative Direction & Animation</div>
                 <div className="text-white/80">{project.client} - Client & Production</div>
-                <div className="text-white/80">Brand: {project.tags[0]}</div>
               </div>
             </div>
           </div>

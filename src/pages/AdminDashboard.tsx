@@ -67,12 +67,12 @@ const isValidUrl = (string: string): boolean => {
 };
 
 const AdminDashboard = () => {
-  const { isAuthenticated, logout } = useAuth();
-  const { customProjects, addProject, updateProject, deleteProject, initializeDefaultProjects } = useProjects();
+  const { isAuthenticated, logout, loading: authLoading } = useAuth();
+  const { customProjects, addProject, updateProject, deleteProject, initializeDefaultProjects, loading: projectsLoading } = useProjects();
   const { contacts, deleteContact, clearAllContacts } = useContacts();
   const navigate = useNavigate();
   const { toast } = useToast();
-
+  const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('projects');
 
   const [showForm, setShowForm] = useState(false);
@@ -99,13 +99,17 @@ const AdminDashboard = () => {
 
   // Redirect if not authenticated
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!authLoading && !isAuthenticated) {
       navigate('/admin-login', { replace: true });
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, authLoading, navigate]);
 
-  if (!isAuthenticated) {
-    return null;
+  if (authLoading || !isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-800 to-blue-900 flex items-center justify-center">
+        <div className="text-white">Loading...</div>
+      </div>
+    );
   }
 
   // Parse links and validate
@@ -133,8 +137,8 @@ const AdminDashboard = () => {
   // Check if form is valid for submission
   const isFormValid = projectName.trim() && !hasInvalidLinks && !hasInvalidFileLink && !hasInvalidThumbnail;
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     navigate('/');
     toast({
       title: "Logged out",
@@ -158,7 +162,7 @@ const AdminDashboard = () => {
     setShowForm(false);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!projectName.trim()) {
@@ -179,6 +183,8 @@ const AdminDashboard = () => {
       return;
     }
 
+    setIsSaving(true);
+
     const projectData = {
       title: projectName.trim(),
       description: description.trim(),
@@ -193,21 +199,30 @@ const AdminDashboard = () => {
       deliveryDate: deliveryDate?.toISOString(),
     };
 
-    if (editingProject) {
-      updateProject(editingProject.id, projectData);
+    try {
+      if (editingProject) {
+        await updateProject(editingProject.id, projectData);
+        toast({
+          title: "Project updated!",
+          description: `"${projectName}" has been updated.`,
+        });
+      } else {
+        await addProject(projectData);
+        toast({
+          title: "Project added!",
+          description: `"${projectName}" has been added to the projects page.`,
+        });
+      }
+      resetForm();
+    } catch (error) {
       toast({
-        title: "Project updated!",
-        description: `"${projectName}" has been updated.`,
+        title: "Error",
+        description: "Failed to save project. Please try again.",
+        variant: "destructive",
       });
-    } else {
-      addProject(projectData);
-      toast({
-        title: "Project added!",
-        description: `"${projectName}" has been added to the projects page.`,
-      });
+    } finally {
+      setIsSaving(false);
     }
-
-    resetForm();
   };
 
   const handleEdit = (project: CustomProject) => {
@@ -232,40 +247,48 @@ const AdminDashboard = () => {
     setDeleteDialogOpen(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (!projectToDelete) return;
     
     // Store the project data for undo
     const deletedProject = customProjects.find(p => p.id === projectToDelete.id);
     
     if (deletedProject) {
-      deleteProject(projectToDelete.id);
-      
-      // Add undo notification
-      const notificationId = Date.now().toString();
-      setUndoNotifications(prev => [...prev, {
-        id: notificationId,
-        message: `"${projectToDelete.title}" deleted`,
-        createdAt: Date.now(),
-        onUndo: () => {
-          // Restore the project
-          addProject({
-            title: deletedProject.title,
-            description: deletedProject.description,
-            tags: deletedProject.tags,
-            links: deletedProject.links,
-            credits: deletedProject.credits,
-            thumbnail: deletedProject.thumbnail,
-            fileLink: deletedProject.fileLink,
-            year: deletedProject.year,
-            client: deletedProject.client,
-          });
-          toast({
-            title: "Project restored",
-            description: `"${deletedProject.title}" has been restored.`,
-          });
-        },
-      }]);
+      try {
+        await deleteProject(projectToDelete.id);
+        
+        // Add undo notification
+        const notificationId = Date.now().toString();
+        setUndoNotifications(prev => [...prev, {
+          id: notificationId,
+          message: `"${projectToDelete.title}" deleted`,
+          createdAt: Date.now(),
+          onUndo: async () => {
+            // Restore the project
+            await addProject({
+              title: deletedProject.title,
+              description: deletedProject.description,
+              tags: deletedProject.tags,
+              links: deletedProject.links,
+              credits: deletedProject.credits,
+              thumbnail: deletedProject.thumbnail,
+              fileLink: deletedProject.fileLink,
+              year: deletedProject.year,
+              client: deletedProject.client,
+            });
+            toast({
+              title: "Project restored",
+              description: `"${deletedProject.title}" has been restored.`,
+            });
+          },
+        }]);
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to delete project.",
+          variant: "destructive",
+        });
+      }
     }
     
     setDeleteDialogOpen(false);
@@ -302,11 +325,9 @@ const AdminDashboard = () => {
     project.credits.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleResetProjects = () => {
+  const handleResetProjects = async () => {
     if (window.confirm('This will reset all projects to the default list. Your custom changes will be lost. Continue?')) {
-      localStorage.removeItem('neotrix_projects_initialized');
-      localStorage.removeItem('neotrix_custom_projects');
-      initializeDefaultProjects();
+      await initializeDefaultProjects();
       toast({
         title: "Projects reset",
         description: "All projects have been reset to defaults.",

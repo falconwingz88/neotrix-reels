@@ -4,8 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { ProjectDetailModal } from './ProjectDetailModal';
-import { useProjects, CustomProject } from '@/contexts/ProjectsContext';
-import { useAuth } from '@/contexts/AuthContext';
+import { useProjects } from '@/contexts/ProjectsContext';
 
 export interface Project {
   id: string;
@@ -40,8 +39,7 @@ export const TAG_OPTIONS = ['Beauty', 'Liquid', 'VFX', 'Character Animation', 'N
 const YEAR_OPTIONS = [2030, 2029, 2028, 2027, 2026, 2025, 2024, 2023, 2022, 2021, 2020];
 
 export const ProjectsBrowser = () => {
-  const { customProjects } = useProjects();
-  const { isAuthenticated } = useAuth();
+  const { customProjects, loading } = useProjects();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
@@ -272,7 +270,7 @@ export const ProjectsBrowser = () => {
         <ProjectDetailModal
           project={selectedProject}
           onClose={() => setSelectedProject(null)}
-          isAdmin={isAuthenticated}
+          isAdmin={false}
         />
       )}
     </div>

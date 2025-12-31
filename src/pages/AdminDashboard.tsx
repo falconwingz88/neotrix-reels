@@ -352,14 +352,6 @@ const AdminDashboard = () => {
         <div className="flex items-center gap-2">
           <Button
             variant="ghost"
-            onClick={handleResetProjects}
-            className="text-yellow-300 hover:bg-yellow-500/20 flex items-center gap-2"
-          >
-            <RefreshCw className="w-4 h-4" />
-            Reset Projects
-          </Button>
-          <Button
-            variant="ghost"
             onClick={handleLogout}
             className="text-white hover:bg-white/10 flex items-center gap-2"
           >

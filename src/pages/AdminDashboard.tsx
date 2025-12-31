@@ -8,6 +8,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Calendar } from '@/components/ui/calendar';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import {
   Popover,
   PopoverContent,
@@ -25,7 +34,8 @@ import {
 } from '@/components/ui/alert-dialog';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProjects, CustomProject } from '@/contexts/ProjectsContext';
-import { ArrowLeft, Plus, LogOut, X, Trash2, Edit2, Users, AlertCircle, Check, Image, Link2, FolderOpen, RefreshCw, CalendarIcon } from 'lucide-react';
+import { useContacts } from '@/contexts/ContactsContext';
+import { ArrowLeft, Plus, LogOut, X, Trash2, Edit2, Users, AlertCircle, Check, Image, Link2, FolderOpen, RefreshCw, CalendarIcon, FolderKanban, MessageSquare, MapPin, Clock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import UndoNotification, { UndoNotificationItem } from '@/components/UndoNotification';
 import { cn } from '@/lib/utils';
@@ -59,8 +69,11 @@ const isValidUrl = (string: string): boolean => {
 const AdminDashboard = () => {
   const { isAuthenticated, logout } = useAuth();
   const { customProjects, addProject, updateProject, deleteProject, initializeDefaultProjects } = useProjects();
+  const { contacts, deleteContact, clearAllContacts } = useContacts();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  const [activeTab, setActiveTab] = useState('projects');
 
   const [showForm, setShowForm] = useState(false);
   const [editingProject, setEditingProject] = useState<CustomProject | null>(null);
@@ -330,28 +343,43 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Admin Dashboard</h1>
-        <p className="text-white/60 mb-8">Manage your projects and content ({customProjects.length} projects)</p>
+        <p className="text-white/60 mb-8">Manage your projects and contacts</p>
 
-        {/* Search and New Project */}
-        <div className="flex flex-col md:flex-row gap-4 mb-8">
-          <Input
-            placeholder="Search projects..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="bg-white/10 border-white/20 text-white placeholder:text-white/40 flex-1"
-          />
-          {!showForm && (
-            <Button
-              onClick={() => setShowForm(true)}
-              className="bg-white/20 hover:bg-white/30 text-white border border-white/20"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              New Project
-            </Button>
-          )}
-        </div>
+        {/* Tab Navigation */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="bg-white/10 border border-white/20 mb-6">
+            <TabsTrigger value="projects" className="data-[state=active]:bg-white/20 text-white">
+              <FolderKanban className="w-4 h-4 mr-2" />
+              Projects ({customProjects.length})
+            </TabsTrigger>
+            <TabsTrigger value="contacts" className="data-[state=active]:bg-white/20 text-white">
+              <MessageSquare className="w-4 h-4 mr-2" />
+              Contacted Clients ({contacts.length})
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Projects Tab */}
+          <TabsContent value="projects">
+            {/* Search and New Project */}
+            <div className="flex flex-col md:flex-row gap-4 mb-8">
+              <Input
+                placeholder="Search projects..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="bg-white/10 border-white/20 text-white placeholder:text-white/40 flex-1"
+              />
+              {!showForm && (
+                <Button
+                  onClick={() => setShowForm(true)}
+                  className="bg-white/20 hover:bg-white/30 text-white border border-white/20"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  New Project
+                </Button>
+              )}
+            </div>
 
         {/* New Project Form */}
         {showForm && (
@@ -767,6 +795,149 @@ const AdminDashboard = () => {
             )}
           </div>
         )}
+          </TabsContent>
+
+          {/* Contacts Tab */}
+          <TabsContent value="contacts">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-white">
+                  Contacted Clients ({contacts.length})
+                </h2>
+                {contacts.length > 0 && (
+                  <Button
+                    variant="ghost"
+                    onClick={() => {
+                      if (window.confirm('Are you sure you want to clear all contact submissions?')) {
+                        clearAllContacts();
+                        toast({
+                          title: "Contacts cleared",
+                          description: "All contact submissions have been removed.",
+                        });
+                      }
+                    }}
+                    className="text-red-400 hover:text-red-300 hover:bg-red-500/20"
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Clear All
+                  </Button>
+                )}
+              </div>
+              
+              {contacts.length === 0 ? (
+                <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-8 text-center">
+                  <MessageSquare className="w-12 h-12 text-white/40 mx-auto mb-4" />
+                  <p className="text-white/60">No contact submissions yet.</p>
+                  <p className="text-white/40 text-sm">Clients who fill out the contact form will appear here.</p>
+                </div>
+              ) : (
+                <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="border-white/10 hover:bg-transparent">
+                          <TableHead className="text-white/80">Name</TableHead>
+                          <TableHead className="text-white/80">Role</TableHead>
+                          <TableHead className="text-white/80">Project Status</TableHead>
+                          <TableHead className="text-white/80">Video Details</TableHead>
+                          <TableHead className="text-white/80">
+                            <div className="flex items-center gap-1">
+                              <MapPin className="w-3 h-3" />
+                              Location
+                            </div>
+                          </TableHead>
+                          <TableHead className="text-white/80">
+                            <div className="flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              Submitted
+                            </div>
+                          </TableHead>
+                          <TableHead className="text-white/80 text-right">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {contacts.map((contact) => {
+                          const projectStatusLabel = 
+                            contact.projectStatus === 'have_project' ? 'Has project' :
+                            contact.projectStatus === 'not_sure' ? 'Not sure' :
+                            contact.projectStatus === 'discuss' ? 'Wants to discuss' : contact.projectStatus;
+                          
+                          return (
+                            <TableRow key={contact.id} className="border-white/10">
+                              <TableCell className="text-white font-medium">{contact.name}</TableCell>
+                              <TableCell className="text-white/70">{contact.role}</TableCell>
+                              <TableCell>
+                                <div className="space-y-1">
+                                  <Badge variant="secondary" className="bg-white/10 text-white/80 text-xs">
+                                    {projectStatusLabel}
+                                  </Badge>
+                                  {contact.hasDeck && (
+                                    <div className="text-xs text-green-400">Has deck/storyboard</div>
+                                  )}
+                                  {contact.deckLink && (
+                                    <a 
+                                      href={contact.deckLink} 
+                                      target="_blank" 
+                                      rel="noopener noreferrer"
+                                      className="text-xs text-blue-400 hover:underline block truncate max-w-[120px]"
+                                    >
+                                      {contact.deckLink}
+                                    </a>
+                                  )}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div className="text-white/70 text-sm space-y-1">
+                                  <div>{contact.videoVersions} version(s)</div>
+                                  <div>{contact.videoDuration}</div>
+                                  {contact.deliveryDate && (
+                                    <div className="text-xs text-white/50">
+                                      Delivery: {format(new Date(contact.deliveryDate), 'PP')}
+                                    </div>
+                                  )}
+                                  {contact.startDate && (
+                                    <div className="text-xs text-white/50">
+                                      Start: {format(new Date(contact.startDate), 'PP')}
+                                    </div>
+                                  )}
+                                </div>
+                              </TableCell>
+                              <TableCell className="text-white/70">{contact.location}</TableCell>
+                              <TableCell className="text-white/70">
+                                <div className="text-sm">
+                                  {format(new Date(contact.submittedAt), 'PP')}
+                                </div>
+                                <div className="text-xs text-white/50">
+                                  {format(new Date(contact.submittedAt), 'p')}
+                                </div>
+                              </TableCell>
+                              <TableCell className="text-right">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => {
+                                    deleteContact(contact.id);
+                                    toast({
+                                      title: "Contact removed",
+                                      description: `${contact.name}'s submission has been removed.`,
+                                    });
+                                  }}
+                                  className="text-red-400 hover:text-red-300 hover:bg-red-500/20"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
+              )}
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
 
       {/* Delete Confirmation Dialog */}

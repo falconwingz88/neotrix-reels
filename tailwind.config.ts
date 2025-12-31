@@ -126,7 +126,7 @@ export default {
 				'gradient': 'gradient 8s ease infinite',
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
-				'scroll-vertical-slow': 'scroll-vertical-slow 30s linear infinite',
+				'scroll-vertical-slow': 'scroll-vertical-slow 120s linear infinite',
 				'scroll-horizontal': 'scroll-horizontal 220s linear infinite'
 			}
 		}

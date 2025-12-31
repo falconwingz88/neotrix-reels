@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,10 +6,21 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProjects, CustomProject } from '@/contexts/ProjectsContext';
 import { ArrowLeft, Plus, LogOut, X, Trash2, Edit2, Users, AlertCircle, Check, Image, Link2, FolderOpen, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import UndoNotification, { UndoNotificationItem } from '@/components/UndoNotification';
 
 const TAG_OPTIONS = ['Beauty', 'Liquid', 'VFX', 'Character Animation', 'Non-Character Animation', 'FX', 'AI'];
 const YEAR_OPTIONS = [2030, 2029, 2028, 2027, 2026, 2025, 2024, 2023, 2022, 2021, 2020];
@@ -55,6 +66,13 @@ const AdminDashboard = () => {
   const [thumbnailUrl, setThumbnailUrl] = useState('');
   const [fileLink, setFileLink] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  
+  // Delete confirmation state
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState<{ id: string; title: string } | null>(null);
+  
+  // Undo notifications state
+  const [undoNotifications, setUndoNotifications] = useState<UndoNotificationItem[]>([]);
 
   // Redirect if not authenticated
   if (!isAuthenticated) {
@@ -175,13 +193,54 @@ const AdminDashboard = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleDelete = (id: string, title: string) => {
-    deleteProject(id);
-    toast({
-      title: "Project deleted",
-      description: `"${title}" has been removed.`,
-    });
+  const openDeleteDialog = (id: string, title: string) => {
+    setProjectToDelete({ id, title });
+    setDeleteDialogOpen(true);
   };
+
+  const confirmDelete = () => {
+    if (!projectToDelete) return;
+    
+    // Store the project data for undo
+    const deletedProject = customProjects.find(p => p.id === projectToDelete.id);
+    
+    if (deletedProject) {
+      deleteProject(projectToDelete.id);
+      
+      // Add undo notification
+      const notificationId = Date.now().toString();
+      setUndoNotifications(prev => [...prev, {
+        id: notificationId,
+        message: `"${projectToDelete.title}" deleted`,
+        createdAt: Date.now(),
+        onUndo: () => {
+          // Restore the project
+          addProject({
+            title: deletedProject.title,
+            description: deletedProject.description,
+            tags: deletedProject.tags,
+            links: deletedProject.links,
+            credits: deletedProject.credits,
+            thumbnail: deletedProject.thumbnail,
+            fileLink: deletedProject.fileLink,
+            year: deletedProject.year,
+            client: deletedProject.client,
+          });
+          toast({
+            title: "Project restored",
+            description: `"${deletedProject.title}" has been restored.`,
+          });
+        },
+      }]);
+    }
+    
+    setDeleteDialogOpen(false);
+    setProjectToDelete(null);
+  };
+
+  const dismissUndoNotification = useCallback((id: string) => {
+    setUndoNotifications(prev => prev.filter(n => n.id !== id));
+  }, []);
 
   const toggleTag = (tag: string) => {
     setSelectedTags(prev =>
@@ -614,7 +673,7 @@ const AdminDashboard = () => {
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => handleDelete(project.id, project.title)}
+                        onClick={() => openDeleteDialog(project.id, project.title)}
                         className="text-red-400 hover:text-red-300 hover:bg-red-500/20"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -627,6 +686,35 @@ const AdminDashboard = () => {
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent className="bg-zinc-900 border-white/20">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-white">Delete Project?</AlertDialogTitle>
+            <AlertDialogDescription className="text-white/60">
+              Are you sure you want to delete "{projectToDelete?.title}"? You can undo this action within 10 seconds.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-red-500 text-white hover:bg-red-600"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Undo Notifications */}
+      <UndoNotification 
+        notifications={undoNotifications} 
+        onDismiss={dismissUndoNotification} 
+      />
     </div>
   );
 };

@@ -1,10 +1,10 @@
-import { useState } from 'react';
-import { Search, Filter, X, Users, Calendar, Layers } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { ProjectDetailModal } from './ProjectDetailModal';
-import { useProjects } from '@/contexts/ProjectsContext';
+import { useState } from "react";
+import { Search, Filter, X, Users, Calendar, Layers } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { ProjectDetailModal } from "./ProjectDetailModal";
+import { useProjects } from "@/contexts/ProjectsContext";
 
 export interface Project {
   id: string;
@@ -24,23 +24,23 @@ export interface Project {
 
 // Helper function to extract YouTube video ID and generate thumbnail
 const getYouTubeVideoId = (url: string): string => {
-  if (!url) return '';
+  if (!url) return "";
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|shorts\/)([^#&?]*).*/;
   const match = url.match(regExp);
-  return (match && match[2].length === 11) ? match[2] : '';
+  return match && match[2].length === 11 ? match[2] : "";
 };
 
 const getYouTubeThumbnail = (url: string): string => {
   const videoId = getYouTubeVideoId(url);
-  return videoId ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : '';
+  return videoId ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : "";
 };
 
-export const TAG_OPTIONS = ['Beauty', 'Liquid', 'VFX', 'Character Animation', 'Non-Character Animation', 'FX', 'AI'];
+export const TAG_OPTIONS = ["Beauty", "Liquid", "VFX", "Character Animation", "Non-Character Animation", "FX", "AI"];
 const YEAR_OPTIONS = [2030, 2029, 2028, 2027, 2026, 2025, 2024, 2023, 2022, 2021, 2020];
 
 export const ProjectsBrowser = () => {
   const { customProjects, loading } = useProjects();
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
@@ -48,15 +48,15 @@ export const ProjectsBrowser = () => {
 
   // Convert custom projects to Project format and sort by latest first
   const allProjects: Project[] = customProjects
-    .map(cp => ({
+    .map((cp) => ({
       id: cp.id,
       title: cp.title,
       description: cp.description,
-      thumbnail: cp.thumbnail || (cp.links[0] ? getYouTubeThumbnail(cp.links[0]) : ''),
+      thumbnail: cp.thumbnail || (cp.links[0] ? getYouTubeThumbnail(cp.links[0]) : ""),
       tags: cp.tags,
       year: cp.year || new Date(cp.createdAt).getFullYear(),
-      client: cp.client || cp.credits || 'Neotrix',
-      primaryVideoUrl: cp.links[0] || '',
+      client: cp.client || cp.credits || "Neotrix",
+      primaryVideoUrl: cp.links[0] || "",
       allVideos: cp.links,
       deliveryFiles: [],
       fileLink: cp.fileLink,
@@ -70,40 +70,37 @@ export const ProjectsBrowser = () => {
       return dateB - dateA; // Latest first
     });
 
-  const filteredProjects = allProjects.filter(project => {
-    const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         project.client.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesTags = selectedTags.length === 0 || 
-                       selectedTags.some(tag => project.tags.includes(tag));
-    
+  const filteredProjects = allProjects.filter((project) => {
+    const matchesSearch =
+      project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.client.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesTags = selectedTags.length === 0 || selectedTags.some((tag) => project.tags.includes(tag));
+
     const matchesYear = selectedYear === null || project.year === selectedYear;
-    
+
     return matchesSearch && matchesTags && matchesYear;
   });
 
   const toggleTag = (tag: string) => {
-    setSelectedTags(prev => 
-      prev.includes(tag) 
-        ? prev.filter(t => t !== tag)
-        : [...prev, tag]
-    );
+    setSelectedTags((prev) => (prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]));
   };
 
   const clearFilters = () => {
     setSelectedTags([]);
     setSelectedYear(null);
-    setSearchTerm('');
+    setSearchTerm("");
   };
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="text-center space-y-4">
-        <h1 className="text-4xl font-bold text-white">Our Projects</h1>
+        <h1 className="text-4xl font-bold text-white">Other Projects</h1>
         <p className="text-xl text-white/80 max-w-2xl mx-auto">
-          Explore our portfolio of creative campaigns, visual effects, and brand storytelling across different industries.
+          Explore our portfolio of creative campaigns, visual effects, and brand storytelling across different
+          industries.
         </p>
       </div>
 
@@ -139,14 +136,14 @@ export const ProjectsBrowser = () => {
                 Categories
               </h3>
               <div className="flex flex-wrap gap-2">
-                {TAG_OPTIONS.map(tag => (
+                {TAG_OPTIONS.map((tag) => (
                   <Badge
                     key={tag}
                     variant={selectedTags.includes(tag) ? "default" : "outline"}
                     className={`cursor-pointer transition-colors ${
                       selectedTags.includes(tag)
-                        ? 'bg-white text-black hover:bg-white/90'
-                        : 'border-white/20 text-white hover:bg-white/10'
+                        ? "bg-white text-black hover:bg-white/90"
+                        : "border-white/20 text-white hover:bg-white/10"
                     }`}
                     onClick={() => toggleTag(tag)}
                   >
@@ -163,14 +160,14 @@ export const ProjectsBrowser = () => {
                 Year
               </h3>
               <div className="flex flex-wrap gap-2">
-                {YEAR_OPTIONS.map(year => (
+                {YEAR_OPTIONS.map((year) => (
                   <Badge
                     key={year}
                     variant={selectedYear === year ? "default" : "outline"}
                     className={`cursor-pointer transition-colors ${
                       selectedYear === year
-                        ? 'bg-white text-black hover:bg-white/90'
-                        : 'border-white/20 text-white hover:bg-white/10'
+                        ? "bg-white text-black hover:bg-white/90"
+                        : "border-white/20 text-white hover:bg-white/10"
                     }`}
                     onClick={() => setSelectedYear(selectedYear === year ? null : year)}
                   >
@@ -182,11 +179,7 @@ export const ProjectsBrowser = () => {
 
             {/* Clear Filters */}
             {(selectedTags.length > 0 || selectedYear !== null || searchTerm) && (
-              <Button
-                onClick={clearFilters}
-                variant="ghost"
-                className="text-white hover:bg-white/10"
-              >
+              <Button onClick={clearFilters} variant="ghost" className="text-white hover:bg-white/10">
                 <X className="w-4 h-4 mr-2" />
                 Clear all filters
               </Button>
@@ -210,11 +203,11 @@ export const ProjectsBrowser = () => {
           >
             <div className="aspect-[4/3] md:aspect-video bg-gray-800 overflow-hidden">
               <img
-                src={project.thumbnail || 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400'}
+                src={project.thumbnail || "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400"}
                 alt={project.title}
                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                 onError={(e) => {
-                  e.currentTarget.src = 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400';
+                  e.currentTarget.src = "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400";
                 }}
               />
             </div>
@@ -227,16 +220,18 @@ export const ProjectsBrowser = () => {
                   {project.year}
                 </span>
               </div>
-              <p className="hidden md:block text-sm text-white/70 line-clamp-2">
-                {project.description}
-              </p>
+              <p className="hidden md:block text-sm text-white/70 line-clamp-2">{project.description}</p>
               <div className="hidden md:flex items-center gap-2 text-xs text-white/60">
                 <Users className="w-3 h-3" />
                 <span className="line-clamp-1">{project.client}</span>
               </div>
               <div className="hidden md:flex flex-wrap gap-1">
                 {project.tags.slice(0, 2).map((tag, index) => (
-                  <Badge key={index} variant="secondary" className="text-xs bg-white/10 text-white/80 hover:bg-white/20">
+                  <Badge
+                    key={index}
+                    variant="secondary"
+                    className="text-xs bg-white/10 text-white/80 hover:bg-white/20"
+                  >
                     {tag}
                   </Badge>
                 ))}
@@ -255,11 +250,7 @@ export const ProjectsBrowser = () => {
       {filteredProjects.length === 0 && (
         <div className="text-center py-12">
           <p className="text-white/60">No projects found matching your criteria.</p>
-          <Button
-            onClick={clearFilters}
-            variant="ghost"
-            className="mt-4 text-white hover:bg-white/10"
-          >
+          <Button onClick={clearFilters} variant="ghost" className="mt-4 text-white hover:bg-white/10">
             Clear filters
           </Button>
         </div>
@@ -267,11 +258,7 @@ export const ProjectsBrowser = () => {
 
       {/* Project Detail Modal */}
       {selectedProject && (
-        <ProjectDetailModal
-          project={selectedProject}
-          onClose={() => setSelectedProject(null)}
-          isAdmin={false}
-        />
+        <ProjectDetailModal project={selectedProject} onClose={() => setSelectedProject(null)} isAdmin={false} />
       )}
     </div>
   );

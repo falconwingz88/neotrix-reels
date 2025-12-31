@@ -44,7 +44,7 @@ const Index = () => {
   const navigate = useNavigate();
   const { customProjects } = useProjects();
 
-  // Get latest 6 projects for preview
+  // Get more projects for scrolling preview (12 projects for 4 rows of 3)
   const previewProjects = customProjects
     .map(cp => ({
       id: cp.id,
@@ -61,7 +61,10 @@ const Index = () => {
       const dateB = b.deliveryDate ? new Date(b.deliveryDate).getTime() : new Date(b.createdAt).getTime();
       return dateB - dateA;
     })
-    .slice(0, 6);
+    .slice(0, 12);
+
+  // Duplicate projects for seamless infinite scroll
+  const duplicatedProjects = [...previewProjects, ...previewProjects];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-800 to-blue-900 bg-[length:200%_200%] animate-gradient p-3 md:p-6 relative overflow-auto scrollbar-glassmorphism backdrop-blur-md">
@@ -152,35 +155,41 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Projects Preview Section - One Big Panel */}
+        {/* Projects Preview Section - Scrolling Panel */}
         <div className="max-w-7xl mx-auto w-full mb-8 md:mb-12">
           <h2 className="text-xl md:text-3xl font-bold text-white text-center mb-6 px-2">Our Projects</h2>
           
           <div
-            className="group relative cursor-pointer bg-white/10 backdrop-blur-sm rounded-3xl border border-white/20 overflow-hidden shadow-2xl transition-all duration-500 hover:border-white/30"
+            className="group relative cursor-pointer bg-white/10 backdrop-blur-sm rounded-3xl border border-white/20 overflow-hidden shadow-2xl transition-all duration-500 hover:border-white/30 h-[300px] md:h-[400px]"
             onClick={() => navigate('/projects')}
           >
-            {/* Project Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-1 p-1 transition-opacity duration-500 group-hover:opacity-40">
-              {previewProjects.map((project) => (
-                <div
-                  key={project.id}
-                  className="aspect-[4/3] md:aspect-video overflow-hidden"
-                >
-                  <img
-                    src={project.thumbnail || 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400'}
-                    alt={project.title}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.currentTarget.src = 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400';
-                    }}
-                  />
-                </div>
-              ))}
+            {/* Scrolling Project Grid */}
+            <div className="animate-scroll-vertical-slow transition-opacity duration-500 group-hover:opacity-40 group-hover:[animation-play-state:paused]">
+              <div className="grid grid-cols-3 gap-1 p-1">
+                {duplicatedProjects.map((project, index) => (
+                  <div
+                    key={`${project.id}-${index}`}
+                    className="aspect-video overflow-hidden"
+                  >
+                    <img
+                      src={project.thumbnail || 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400'}
+                      alt={project.title}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.src = 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400';
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
 
+            {/* Gradient Overlays for smooth edges */}
+            <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-black/30 to-transparent pointer-events-none" />
+            <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/30 to-transparent pointer-events-none" />
+
             {/* Hover Overlay with "See More" */}
-            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-black/20">
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-black/30">
               <div className="text-center">
                 <h3 className="text-white text-3xl md:text-5xl font-bold mb-2">See More</h3>
                 <p className="text-white/80 text-sm md:text-lg flex items-center justify-center gap-2">

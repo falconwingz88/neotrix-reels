@@ -111,13 +111,23 @@ export default {
 				'accordion-up': {
 					from: { height: 'var(--radix-accordion-content-height)' },
 					to: { height: '0' }
+				},
+				'scroll-vertical-slow': {
+					'0%': { transform: 'translateY(0)' },
+					'100%': { transform: 'translateY(-50%)' }
+				},
+				'scroll-horizontal': {
+					'0%': { transform: 'translateX(0)' },
+					'100%': { transform: 'translateX(-50%)' }
 				}
 			},
 			animation: {
 				'fade-in': 'fade-in 0.5s ease-out',
 				'gradient': 'gradient 8s ease infinite',
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'scroll-vertical-slow': 'scroll-vertical-slow 30s linear infinite',
+				'scroll-horizontal': 'scroll-horizontal 220s linear infinite'
 			}
 		}
 	},

@@ -64,7 +64,23 @@ export const Contact = () => {
     hasDeck !== null && (hasDeck === false || (hasDeck === true && deckLink.trim() !== ''))
   );
   const canProceedStep3 = videoVersions !== '' && videoDuration !== '';
-  const canProceedStep4 = deliveryDate !== undefined && startDate !== undefined;
+  const canProceedStep4 = deliveryDate !== undefined || startDate !== undefined;
+
+  const saveContactSubmission = () => {
+    const finalRole = role === 'Other' ? otherRole : role;
+    addContact({
+      name,
+      role: finalRole,
+      projectStatus,
+      hasDeck,
+      deckLink,
+      videoVersions,
+      videoDuration,
+      deliveryDate: deliveryDate ? deliveryDate.toISOString() : null,
+      startDate: startDate ? startDate.toISOString() : null,
+      location,
+    });
+  };
 
   const goToNextStep = () => {
     if (currentStep < 5) {
@@ -72,9 +88,18 @@ export const Contact = () => {
       if (currentStep === 2 && (projectStatus === 'not_sure' || projectStatus === 'discuss')) {
         setCurrentStep(4); // Skip directly to timeline
       } else {
+        // Save contact when going to final step
+        if (currentStep === 4) {
+          saveContactSubmission();
+        }
         setCurrentStep(currentStep + 1);
       }
     }
+  };
+
+  const skipTimeline = () => {
+    saveContactSubmission();
+    setCurrentStep(5);
   };
 
   const goToPreviousStep = () => {
@@ -118,21 +143,6 @@ export const Contact = () => {
   };
 
   const openWhatsApp = () => {
-    // Save contact submission before opening WhatsApp
-    const finalRole = role === 'Other' ? otherRole : role;
-    addContact({
-      name,
-      role: finalRole,
-      projectStatus,
-      hasDeck,
-      deckLink,
-      videoVersions,
-      videoDuration,
-      deliveryDate: deliveryDate ? deliveryDate.toISOString() : null,
-      startDate: startDate ? startDate.toISOString() : null,
-      location,
-    });
-    
     const message = generateWhatsAppMessage();
     const waLink = `https://wa.me/6287797681961?text=${message}`;
     
@@ -485,27 +495,36 @@ export const Contact = () => {
                   </Popover>
                 </div>
 
-                <div className="flex justify-between pt-4">
+                <div className="flex flex-col gap-4 pt-4">
+                  <div className="flex justify-between">
+                    <Button
+                      variant="ghost"
+                      onClick={goToPreviousStep}
+                      className="text-white/70 hover:text-white hover:bg-white/10 rounded-full"
+                    >
+                      <ArrowLeft className="mr-2 w-4 h-4" />
+                      Back
+                    </Button>
+                    <Button
+                      onClick={goToNextStep}
+                      disabled={!canProceedStep4}
+                      className={cn(
+                        "rounded-full px-6 transition-all duration-300",
+                        canProceedStep4
+                          ? "bg-green-500 hover:bg-green-600 text-white"
+                          : "bg-white/20 text-white/50 cursor-not-allowed"
+                      )}
+                    >
+                      Next
+                      <ArrowRight className="ml-2 w-4 h-4" />
+                    </Button>
+                  </div>
                   <Button
                     variant="ghost"
-                    onClick={goToPreviousStep}
-                    className="text-white/70 hover:text-white hover:bg-white/10 rounded-full"
+                    onClick={skipTimeline}
+                    className="text-white/50 hover:text-white hover:bg-white/10 rounded-full text-sm"
                   >
-                    <ArrowLeft className="mr-2 w-4 h-4" />
-                    Back
-                  </Button>
-                  <Button
-                    onClick={goToNextStep}
-                    disabled={!canProceedStep4}
-                    className={cn(
-                      "rounded-full px-6 transition-all duration-300",
-                      canProceedStep4
-                        ? "bg-green-500 hover:bg-green-600 text-white"
-                        : "bg-white/20 text-white/50 cursor-not-allowed"
-                    )}
-                  >
-                    Next
-                    <ArrowRight className="ml-2 w-4 h-4" />
+                    No timelines yet
                   </Button>
                 </div>
               </div>

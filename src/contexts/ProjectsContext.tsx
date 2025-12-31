@@ -11,6 +11,8 @@ export interface CustomProject {
   fileLink?: string;
   year?: number;
   client?: string;
+  projectStartDate?: string;
+  deliveryDate?: string;
   createdAt: string;
 }
 

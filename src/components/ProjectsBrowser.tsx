@@ -19,6 +19,8 @@ export interface Project {
   allVideos: string[];
   deliveryFiles: string[];
   fileLink?: string;
+  deliveryDate?: string;
+  createdAt?: string;
 }
 
 // Helper function to extract YouTube video ID and generate thumbnail
@@ -46,20 +48,29 @@ export const ProjectsBrowser = () => {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [showFilters, setShowFilters] = useState(false);
 
-  // Convert custom projects to Project format
-  const allProjects: Project[] = customProjects.map(cp => ({
-    id: cp.id,
-    title: cp.title,
-    description: cp.description,
-    thumbnail: cp.thumbnail || (cp.links[0] ? getYouTubeThumbnail(cp.links[0]) : ''),
-    tags: cp.tags,
-    year: cp.year || new Date(cp.createdAt).getFullYear(),
-    client: cp.client || cp.credits || 'Neotrix',
-    primaryVideoUrl: cp.links[0] || '',
-    allVideos: cp.links,
-    deliveryFiles: [],
-    fileLink: cp.fileLink,
-  }));
+  // Convert custom projects to Project format and sort by latest first
+  const allProjects: Project[] = customProjects
+    .map(cp => ({
+      id: cp.id,
+      title: cp.title,
+      description: cp.description,
+      thumbnail: cp.thumbnail || (cp.links[0] ? getYouTubeThumbnail(cp.links[0]) : ''),
+      tags: cp.tags,
+      year: cp.year || new Date(cp.createdAt).getFullYear(),
+      client: cp.client || cp.credits || 'Neotrix',
+      primaryVideoUrl: cp.links[0] || '',
+      allVideos: cp.links,
+      deliveryFiles: [],
+      fileLink: cp.fileLink,
+      deliveryDate: cp.deliveryDate,
+      createdAt: cp.createdAt,
+    }))
+    .sort((a, b) => {
+      // Sort by delivery date first if available, otherwise by createdAt
+      const dateA = a.deliveryDate ? new Date(a.deliveryDate).getTime() : new Date(a.createdAt).getTime();
+      const dateB = b.deliveryDate ? new Date(b.deliveryDate).getTime() : new Date(b.createdAt).getTime();
+      return dateB - dateA; // Latest first
+    });
 
   const filteredProjects = allProjects.filter(project => {
     const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Calendar } from '@/components/ui/calendar';
@@ -8,6 +8,7 @@ import { Header } from '@/components/Header';
 import { ArrowLeft, ArrowRight, CalendarIcon, Check } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { useContacts } from '@/contexts/ContactsContext';
 
 const ROLES = [
   'Founder / Business Owner',
@@ -28,6 +29,8 @@ const VIDEO_DURATIONS = ['15s', '30s', '45s', '60s', '90s', '120s', 'Others'];
 
 export const Contact = () => {
   const [currentStep, setCurrentStep] = useState(0);
+  const { addContact } = useContacts();
+  const [location, setLocation] = useState('Unknown');
   
   // Form data
   const [name, setName] = useState('');
@@ -40,6 +43,20 @@ export const Contact = () => {
   const [videoDuration, setVideoDuration] = useState('');
   const [deliveryDate, setDeliveryDate] = useState<Date | undefined>();
   const [startDate, setStartDate] = useState<Date | undefined>();
+
+  // Get user location on mount
+  useEffect(() => {
+    fetch('https://ipapi.co/json/')
+      .then(res => res.json())
+      .then(data => {
+        if (data.city && data.country_name) {
+          setLocation(`${data.city}, ${data.country_name}`);
+        } else if (data.country_name) {
+          setLocation(data.country_name);
+        }
+      })
+      .catch(() => setLocation('Unknown'));
+  }, []);
 
   const canProceedStep1 = name.trim() !== '' && role !== '' && (role !== 'Other' || otherRole.trim() !== '');
   const canProceedStep2 = projectStatus !== '' && (
@@ -87,6 +104,21 @@ export const Contact = () => {
   };
 
   const openWhatsApp = () => {
+    // Save contact submission before opening WhatsApp
+    const finalRole = role === 'Other' ? otherRole : role;
+    addContact({
+      name,
+      role: finalRole,
+      projectStatus,
+      hasDeck,
+      deckLink,
+      videoVersions,
+      videoDuration,
+      deliveryDate: deliveryDate ? deliveryDate.toISOString() : null,
+      startDate: startDate ? startDate.toISOString() : null,
+      location,
+    });
+    
     const message = generateWhatsAppMessage();
     window.open(`https://wa.me/6287797681961?text=${message}`, '_blank');
   };

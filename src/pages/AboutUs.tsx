@@ -1,5 +1,7 @@
 import { Header } from "@/components/Header";
-import { Mail, Phone, MapPin, Linkedin } from "lucide-react";
+import { Mail, Phone, MapPin } from "lucide-react";
+import aldyImage from "@/assets/aldy.jpg";
+import elvinaImage from "@/assets/elvina.jpeg";
 
 const CO_FOUNDERS = [
   {
@@ -7,16 +9,14 @@ const CO_FOUNDERS = [
     role: "Co-Founder / Studio Head",
     email: "aldy@neotrix.asia",
     phone: "+62 87797681961",
-    linkedin: "https://linkedin.com/in/fernaldywiranata",
-    image: "/lovable-uploads/f7a3e855-8b55-4227-9244-d89e78a3fc66.png"
+    image: aldyImage
   },
   {
     name: "Elvina Lie",
     role: "Co-Founder / Executive Producer",
     email: "elvina@neotrix.asia",
     phone: "+62 81234567890",
-    linkedin: "https://linkedin.com/in/elvina-lie",
-    image: "/lovable-uploads/f7a3e855-8b55-4227-9244-d89e78a3fc66.png"
+    image: elvinaImage
   }
 ];
 
@@ -54,10 +54,12 @@ export const AboutUs = () => {
                   className="bg-white/10 backdrop-blur-md rounded-3xl border border-white/20 p-8 shadow-2xl hover:bg-white/15 transition-all duration-300"
                 >
                   <div className="flex flex-col items-center text-center">
-                    <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mb-4">
-                      <span className="text-3xl font-bold text-white">
-                        {founder.name.charAt(0)}
-                      </span>
+                    <div className="w-32 h-32 rounded-full overflow-hidden mb-4 border-2 border-white/20">
+                      <img 
+                        src={founder.image} 
+                        alt={founder.name}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                     <h3 className="text-xl font-bold text-white mb-1">{founder.name}</h3>
                     <p className="text-purple-300 text-sm mb-4">{founder.role}</p>

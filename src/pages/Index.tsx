@@ -181,7 +181,7 @@ const Index = () => {
 
         {/* Projects Preview Section - Scrolling Panel */}
         <div className="max-w-7xl mx-auto w-full mb-8 md:mb-12">
-          <h2 className="text-xl md:text-3xl font-bold text-white text-center mb-6 px-2">Our Projects</h2>
+          <h2 className="text-xl md:text-3xl font-bold text-white text-center mb-6 px-2">Other Projects</h2>
 
           <div
             className="group relative cursor-pointer bg-white/10 backdrop-blur-sm rounded-3xl border border-white/20 overflow-hidden shadow-2xl transition-all duration-500 hover:border-white/30 h-[300px] md:h-[400px]"

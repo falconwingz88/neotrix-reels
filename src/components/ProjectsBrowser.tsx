@@ -34,8 +34,8 @@ const getYouTubeThumbnail = (url: string): string => {
   return videoId ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : '';
 };
 
-export const TAG_OPTIONS = ['Beauty', 'Liquid', 'VFX', 'Character Animation'];
-const YEAR_OPTIONS = [2025, 2024, 2023, 2022, 2021, 2020];
+export const TAG_OPTIONS = ['Beauty', 'Liquid', 'VFX', 'Character Animation', 'Non-Character Animation', 'FX', 'AI'];
+const YEAR_OPTIONS = [2030, 2029, 2028, 2027, 2026, 2025, 2024, 2023, 2022, 2021, 2020];
 
 export const ProjectsBrowser = () => {
   const { customProjects } = useProjects();

@@ -24,6 +24,7 @@ interface ProjectsContextType {
   updateProject: (id: string, project: Partial<Omit<CustomProject, 'id' | 'createdAt'>>) => Promise<void>;
   deleteProject: (id: string) => Promise<void>;
   reorderProjects: (projectId: string, direction: 'up' | 'down') => Promise<void>;
+  reorderProjectsByIds: (orderedIds: string[]) => Promise<void>;
   initializeDefaultProjects: () => Promise<void>;
   loading: boolean;
   refetch: () => Promise<void>;
@@ -806,6 +807,26 @@ export const ProjectsProvider = ({ children }: { children: ReactNode }) => {
     await fetchProjects();
   };
 
+  const reorderProjectsByIds = async (orderedIds: string[]) => {
+    // Update sort_order for all projects based on new order
+    const updates = orderedIds.map((id, index) => 
+      supabase
+        .from('projects')
+        .update({ sort_order: index + 1 })
+        .eq('id', id)
+    );
+
+    const results = await Promise.all(updates);
+    const errors = results.filter(r => r.error);
+    
+    if (errors.length > 0) {
+      console.error('Error reordering projects:', errors[0].error);
+      throw errors[0].error;
+    }
+
+    await fetchProjects();
+  };
+
   return (
     <ProjectsContext.Provider value={{ 
       customProjects, 
@@ -813,6 +834,7 @@ export const ProjectsProvider = ({ children }: { children: ReactNode }) => {
       updateProject, 
       deleteProject, 
       reorderProjects,
+      reorderProjectsByIds,
       initializeDefaultProjects,
       loading,
       refetch: fetchProjects

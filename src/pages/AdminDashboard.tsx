@@ -1,6 +1,21 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { format } from 'date-fns';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -35,10 +50,11 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { useProjects, CustomProject } from '@/contexts/ProjectsContext';
 import { useContacts } from '@/contexts/ContactsContext';
-import { ArrowLeft, Plus, LogOut, X, Trash2, Edit2, Users, AlertCircle, Check, Link2, FolderOpen, RefreshCw, CalendarIcon, FolderKanban, MessageSquare, MapPin, Clock, ExternalLink, ChevronUp, ChevronDown } from 'lucide-react';
+import { ArrowLeft, Plus, LogOut, X, Trash2, Edit2, Users, AlertCircle, Check, Link2, FolderOpen, RefreshCw, CalendarIcon, FolderKanban, MessageSquare, MapPin, Clock, ExternalLink, GripVertical } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import UndoNotification, { UndoNotificationItem } from '@/components/UndoNotification';
 import { ThumbnailUpload } from '@/components/ThumbnailUpload';
+import { SortableProjectItem } from '@/components/SortableProjectItem';
 import { cn } from '@/lib/utils';
 
 const TAG_OPTIONS = ['Beauty', 'Liquid', 'VFX', 'Character Animation', 'Non-Character Animation', 'FX', 'AI'];
@@ -69,7 +85,7 @@ const isValidUrl = (string: string): boolean => {
 
 const AdminDashboard = () => {
   const { isAuthenticated, isAdmin, logout, loading: authLoading } = useAuth();
-  const { customProjects, addProject, updateProject, deleteProject, reorderProjects, initializeDefaultProjects, loading: projectsLoading } = useProjects();
+  const { customProjects, addProject, updateProject, deleteProject, reorderProjectsByIds, initializeDefaultProjects, loading: projectsLoading } = useProjects();
   const { contacts, deleteContact, clearAllContacts } = useContacts();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -98,6 +114,19 @@ const AdminDashboard = () => {
   
   // Undo notifications state
   const [undoNotifications, setUndoNotifications] = useState<UndoNotificationItem[]>([]);
+
+  // Drag and drop sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
 
   // Redirect if not authenticated or not admin
   useEffect(() => {
@@ -360,6 +389,35 @@ const AdminDashboard = () => {
     project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
     project.credits.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Handle drag end for reordering
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    
+    if (over && active.id !== over.id) {
+      const oldIndex = filteredProjects.findIndex(p => p.id === active.id);
+      const newIndex = filteredProjects.findIndex(p => p.id === over.id);
+      
+      if (oldIndex !== -1 && newIndex !== -1) {
+        const newOrder = arrayMove(filteredProjects, oldIndex, newIndex);
+        const orderedIds = newOrder.map(p => p.id);
+        
+        try {
+          await reorderProjectsByIds(orderedIds);
+          toast({
+            title: "Order updated",
+            description: "Project order has been saved.",
+          });
+        } catch (error) {
+          toast({
+            title: "Error",
+            description: "Failed to update project order.",
+            variant: "destructive",
+          });
+        }
+      }
+    }
+  };
 
   const handleResetProjects = async () => {
     if (window.confirm('This will reset all projects to the default list. Your custom changes will be lost. Continue?')) {
@@ -760,107 +818,28 @@ const AdminDashboard = () => {
                 {searchTerm ? 'No projects found matching your search.' : 'No projects yet. Click "New Project" to add one.'}
               </p>
             ) : (
-              <div className="grid gap-4">
-                {filteredProjects.map((project) => (
-                  <div
-                    key={project.id}
-                    className="bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 p-3 md:p-4"
-                  >
-                    <div className="flex flex-col sm:flex-row sm:items-start gap-3 md:gap-4">
-                      {/* Thumbnail */}
-                      <div className="w-full sm:w-24 md:w-32 h-24 sm:h-16 md:h-20 flex-shrink-0 rounded-lg overflow-hidden bg-gray-800">
-                        <img
-                          src={getProjectThumbnail(project)}
-                          alt={project.title}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            e.currentTarget.src = 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400';
-                          }}
-                        />
-                      </div>
-
-                      {/* Project Info */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2 mb-1 flex-wrap">
-                              <h3 className="text-white font-medium truncate">{project.title}</h3>
-                              <span className="text-xs text-white/40">({project.year || 'N/A'})</span>
-                              {project.fileLink && (
-                                <Badge variant="secondary" className="bg-green-500/20 text-green-300 text-xs">
-                                  <FolderOpen className="w-3 h-3 mr-1" />
-                                  Files
-                                </Badge>
-                              )}
-                            </div>
-                            {project.description && (
-                              <p className="text-white/60 text-sm mb-2 line-clamp-2 sm:line-clamp-1">{project.description}</p>
-                            )}
-                            <div className="flex flex-wrap gap-1 md:gap-2">
-                              {project.tags.slice(0, 3).map((tag, i) => (
-                                <Badge key={i} variant="secondary" className="bg-white/10 text-white/80 text-xs">
-                                  {tag}
-                                </Badge>
-                              ))}
-                              {project.tags.length > 3 && (
-                                <Badge variant="secondary" className="bg-white/10 text-white/80 text-xs">
-                                  +{project.tags.length - 3}
-                                </Badge>
-                              )}
-                            </div>
-                            {project.client && (
-                              <p className="text-white/50 text-xs mt-2">Client: {project.client}</p>
-                            )}
-                          </div>
-
-                          {/* Actions */}
-                          <div className="flex gap-1 md:gap-2 flex-shrink-0 items-center">
-                            {/* Reorder buttons */}
-                            <div className="flex flex-col gap-0.5 mr-1">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => reorderProjects(project.id, 'up')}
-                                disabled={filteredProjects.indexOf(project) === 0}
-                                className="text-white/60 hover:text-white hover:bg-white/10 w-6 h-6 disabled:opacity-30"
-                                title="Move up"
-                              >
-                                <ChevronUp className="w-4 h-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => reorderProjects(project.id, 'down')}
-                                disabled={filteredProjects.indexOf(project) === filteredProjects.length - 1}
-                                className="text-white/60 hover:text-white hover:bg-white/10 w-6 h-6 disabled:opacity-30"
-                                title="Move down"
-                              >
-                                <ChevronDown className="w-4 h-4" />
-                              </Button>
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleEdit(project)}
-                              className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/20 w-8 h-8"
-                            >
-                              <Edit2 className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => openDeleteDialog(project.id, project.title)}
-                              className="text-red-400 hover:text-red-300 hover:bg-red-500/20 w-8 h-8"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext
+                  items={filteredProjects.map(p => p.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <div className="grid gap-3">
+                    {filteredProjects.map((project) => (
+                      <SortableProjectItem
+                        key={project.id}
+                        project={project}
+                        thumbnail={getProjectThumbnail(project)}
+                        onEdit={handleEdit}
+                        onDelete={openDeleteDialog}
+                      />
+                    ))}
                   </div>
-                ))}
-              </div>
+                </SortableContext>
+              </DndContext>
             )}
           </div>
         )}

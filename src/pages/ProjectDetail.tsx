@@ -74,7 +74,8 @@ const ProjectDetail = () => {
     thumbnail: project.thumbnail,
     tags: project.tags,
     year: project.year || new Date(project.createdAt).getFullYear(),
-    client: project.client || project.credits || "Neotrix",
+    client: project.client || "Neotrix",
+    credits: project.credits || "",
     primaryVideoUrl: project.links[0] || "",
     allVideos: project.links,
     fileLink: project.fileLink,
@@ -219,16 +220,15 @@ const ProjectDetail = () => {
           </div>
 
           {/* Credits */}
-          <div>
-            <h2 className="text-2xl font-semibold text-white mb-4 flex items-center gap-2">
-              <Clock className="w-6 h-6" />
-              Production Credits
-            </h2>
-            <div className="space-y-2">
-              <div className="text-white/80">Neotrix - Creative Direction & Animation</div>
-              <div className="text-white/80">{projectData.client} - Client & Production</div>
+          {projectData.credits && (
+            <div>
+              <h2 className="text-2xl font-semibold text-white mb-4 flex items-center gap-2">
+                <Clock className="w-6 h-6" />
+                Production Credits
+              </h2>
+              <div className="text-white/80 whitespace-pre-line">{projectData.credits}</div>
             </div>
-          </div>
+          )}
         </div>
       </div>
 

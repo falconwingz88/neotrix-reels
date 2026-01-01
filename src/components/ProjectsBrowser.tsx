@@ -46,7 +46,7 @@ export const ProjectsBrowser = () => {
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [showFilters, setShowFilters] = useState(false);
 
-  // Convert custom projects to Project format and sort by latest first
+  // Convert custom projects to Project format (already sorted by sort_order from context)
   const allProjects: Project[] = customProjects
     .map((cp) => ({
       id: cp.id,
@@ -62,13 +62,7 @@ export const ProjectsBrowser = () => {
       fileLink: cp.fileLink,
       deliveryDate: cp.deliveryDate,
       createdAt: cp.createdAt,
-    }))
-    .sort((a, b) => {
-      // Sort by delivery date first if available, otherwise by createdAt
-      const dateA = a.deliveryDate ? new Date(a.deliveryDate).getTime() : new Date(a.createdAt).getTime();
-      const dateB = b.deliveryDate ? new Date(b.deliveryDate).getTime() : new Date(b.createdAt).getTime();
-      return dateB - dateA; // Latest first
-    });
+    }));
 
   const filteredProjects = allProjects.filter((project) => {
     const matchesSearch =

@@ -50,7 +50,8 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { useProjects, CustomProject } from '@/contexts/ProjectsContext';
 import { useContacts } from '@/contexts/ContactsContext';
-import { ArrowLeft, Plus, LogOut, X, Trash2, Edit2, Users, AlertCircle, Check, Link2, FolderOpen, RefreshCw, CalendarIcon, FolderKanban, MessageSquare, MapPin, Clock, ExternalLink, GripVertical } from 'lucide-react';
+import { ArrowLeft, Plus, LogOut, X, Trash2, Edit2, Users, AlertCircle, Check, Link2, FolderOpen, RefreshCw, CalendarIcon, FolderKanban, MessageSquare, MapPin, Clock, ExternalLink, GripVertical, List, LayoutGrid } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import UndoNotification, { UndoNotificationItem } from '@/components/UndoNotification';
 import { ThumbnailUpload } from '@/components/ThumbnailUpload';
@@ -92,6 +93,7 @@ const AdminDashboard = () => {
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('projects');
+  const [isCompactView, setIsCompactView] = useState(true);
 
   const [showForm, setShowForm] = useState(false);
   const [editingProject, setEditingProject] = useState<CustomProject | null>(null);
@@ -809,9 +811,20 @@ const AdminDashboard = () => {
         {/* Projects List - Hidden when form is open */}
         {!showForm && (
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-white">
-              All Projects ({filteredProjects.length}{searchTerm ? ` of ${customProjects.length}` : ''})
-            </h2>
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-semibold text-white">
+                All Projects ({filteredProjects.length}{searchTerm ? ` of ${customProjects.length}` : ''})
+              </h2>
+              <div className="flex items-center gap-2">
+                <List className="w-4 h-4 text-white/60" />
+                <Switch
+                  checked={!isCompactView}
+                  onCheckedChange={(checked) => setIsCompactView(!checked)}
+                  className="data-[state=checked]:bg-white/30"
+                />
+                <LayoutGrid className="w-4 h-4 text-white/60" />
+              </div>
+            </div>
             
             {filteredProjects.length === 0 ? (
               <p className="text-white/60">
@@ -835,6 +848,7 @@ const AdminDashboard = () => {
                         thumbnail={getProjectThumbnail(project)}
                         onEdit={handleEdit}
                         onDelete={openDeleteDialog}
+                        isCompact={isCompactView}
                       />
                     ))}
                   </div>

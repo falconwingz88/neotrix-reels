@@ -84,13 +84,13 @@ const ProjectDetail = () => {
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-800 to-blue-900 bg-[length:200%_200%] animate-gradient">
       <Header />
 
-      <div className="max-w-6xl mx-auto px-4 pt-20 pb-8">
+      <div className="max-w-6xl mx-auto px-4 pt-24 md:pt-20 pb-8">
         {/* Back Button & Share */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-6 relative z-10">
           <Button
             onClick={() => navigate("/projects")}
             variant="ghost"
-            className="text-white hover:bg-white/10"
+            className="text-white hover:bg-white/10 bg-white/5"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Projects
@@ -98,7 +98,7 @@ const ProjectDetail = () => {
           <Button
             onClick={handleShare}
             variant="ghost"
-            className="text-white hover:bg-white/10"
+            className="text-white hover:bg-white/10 bg-white/5"
           >
             <Share2 className="w-4 h-4 mr-2" />
             Share

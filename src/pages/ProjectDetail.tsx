@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Calendar, Users, Clock, FolderOpen, Share2 } from "lucide-react";
+import { ArrowLeft, Calendar, Users, Clock, FolderOpen, Share2, Edit2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Header } from "@/components/Header";
@@ -26,7 +26,7 @@ const ProjectDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { customProjects, loading } = useProjects();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isAdmin } = useAuth();
 
   const project = customProjects.find((p) => p.id === id);
 
@@ -95,14 +95,26 @@ const ProjectDetail = () => {
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Projects
           </Button>
-          <Button
-            onClick={handleShare}
-            variant="ghost"
-            className="text-white hover:bg-white/10 bg-white/5"
-          >
-            <Share2 className="w-4 h-4 mr-2" />
-            Share
-          </Button>
+          <div className="flex items-center gap-2">
+            {isAdmin && (
+              <Button
+                onClick={() => navigate(`/admin?edit=${project.id}`)}
+                variant="ghost"
+                className="text-white hover:bg-white/10 bg-white/5"
+              >
+                <Edit2 className="w-4 h-4 mr-2" />
+                Edit
+              </Button>
+            )}
+            <Button
+              onClick={handleShare}
+              variant="ghost"
+              className="text-white hover:bg-white/10 bg-white/5"
+            >
+              <Share2 className="w-4 h-4 mr-2" />
+              Share
+            </Button>
+          </div>
         </div>
 
         {/* Project Header */}
@@ -198,9 +210,6 @@ const ProjectDetail = () => {
               <div className="space-y-2">
                 <div className="text-white/80">
                   <span className="text-white/60">Client:</span> {projectData.client}
-                </div>
-                <div className="text-white/80">
-                  <span className="text-white/60">Category:</span> {projectData.tags[0]}
                 </div>
                 <div className="text-white/80">
                   <span className="text-white/60">Year:</span> {projectData.year}

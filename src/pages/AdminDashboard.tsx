@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -72,6 +72,7 @@ const AdminDashboard = () => {
   const { customProjects, addProject, updateProject, deleteProject, initializeDefaultProjects, loading: projectsLoading } = useProjects();
   const { contacts, deleteContact, clearAllContacts } = useContacts();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('projects');
@@ -113,6 +114,31 @@ const AdminDashboard = () => {
       }
     }
   }, [isAuthenticated, isAdmin, authLoading, navigate, toast]);
+
+  // Handle edit query parameter from project detail page
+  useEffect(() => {
+    const editId = searchParams.get('edit');
+    if (editId && customProjects.length > 0 && !projectsLoading) {
+      const projectToEdit = customProjects.find(p => p.id === editId);
+      if (projectToEdit) {
+        setEditingProject(projectToEdit);
+        setProjectName(projectToEdit.title);
+        setSelectedTags(projectToEdit.tags);
+        setSelectedYear(projectToEdit.year || new Date().getFullYear());
+        setLinks(projectToEdit.links.join('\n'));
+        setDescription(projectToEdit.description);
+        setCredits(projectToEdit.credits);
+        setClient(projectToEdit.client || '');
+        setThumbnailUrl(projectToEdit.thumbnail || '');
+        setFileLink(projectToEdit.fileLink || '');
+        setProjectStartDate(projectToEdit.projectStartDate ? new Date(projectToEdit.projectStartDate) : undefined);
+        setDeliveryDate(projectToEdit.deliveryDate ? new Date(projectToEdit.deliveryDate) : undefined);
+        setShowForm(true);
+        // Clear the search param after loading
+        setSearchParams({}, { replace: true });
+      }
+    }
+  }, [searchParams, customProjects, projectsLoading, setSearchParams]);
 
   if (authLoading || !isAuthenticated || !isAdmin) {
     return (

@@ -42,18 +42,18 @@ export const SortableProjectItem = ({
         isDragging ? 'shadow-lg shadow-white/10' : ''
       }`}
     >
-      <div className="flex items-center gap-2 md:gap-4 p-2 md:p-4">
+      <div className="flex items-center gap-2 p-2">
         {/* Drag Handle */}
         <div
           {...attributes}
           {...listeners}
-          className="cursor-grab active:cursor-grabbing p-2 hover:bg-white/10 rounded-lg transition-colors touch-none"
+          className="cursor-grab active:cursor-grabbing p-1 hover:bg-white/10 rounded transition-colors touch-none"
         >
-          <GripVertical className="w-5 h-5 text-white/40" />
+          <GripVertical className="w-4 h-4 text-white/40" />
         </div>
 
         {/* Thumbnail */}
-        <div className="w-16 h-12 md:w-24 md:h-16 rounded-lg overflow-hidden bg-white/10 flex-shrink-0">
+        <div className="w-12 h-8 md:w-16 md:h-10 rounded overflow-hidden bg-white/10 flex-shrink-0">
           <img
             src={thumbnail}
             alt={project.title}
@@ -64,51 +64,36 @@ export const SortableProjectItem = ({
           />
         </div>
 
-        {/* Project Info */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start gap-2 flex-wrap">
-            <h3 className="text-white font-medium truncate text-sm md:text-base">{project.title}</h3>
-            {project.year && (
-              <Badge variant="outline" className="border-white/20 text-white/60 text-xs hidden md:inline-flex">
-                {project.year}
-              </Badge>
-            )}
-          </div>
-          <p className="text-white/60 text-xs md:text-sm mt-1 line-clamp-1">{project.description}</p>
-          <div className="flex flex-wrap gap-1 md:gap-2 mt-2">
-            {project.tags.slice(0, 3).map((tag, i) => (
-              <Badge key={i} variant="secondary" className="bg-white/10 text-white/80 text-xs">
+        {/* Project Info - Single line */}
+        <div className="flex-1 min-w-0 flex items-center gap-2">
+          <h3 className="text-white font-medium truncate text-sm">{project.title}</h3>
+          <span className="text-white/40 text-xs hidden sm:inline">({project.year || 'N/A'})</span>
+          <div className="hidden md:flex gap-1">
+            {project.tags.slice(0, 2).map((tag, i) => (
+              <Badge key={i} variant="secondary" className="bg-white/10 text-white/70 text-[10px] px-1.5 py-0">
                 {tag}
               </Badge>
             ))}
-            {project.tags.length > 3 && (
-              <Badge variant="secondary" className="bg-white/10 text-white/80 text-xs">
-                +{project.tags.length - 3}
-              </Badge>
-            )}
           </div>
-          {project.client && (
-            <p className="text-white/50 text-xs mt-2">Client: {project.client}</p>
-          )}
         </div>
 
         {/* Actions */}
-        <div className="flex gap-1 md:gap-2 flex-shrink-0 items-center">
+        <div className="flex gap-1 flex-shrink-0 items-center">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => onEdit(project)}
-            className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/20 w-8 h-8"
+            className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/20 w-7 h-7"
           >
-            <Edit2 className="w-4 h-4" />
+            <Edit2 className="w-3.5 h-3.5" />
           </Button>
           <Button
             variant="ghost"
             size="icon"
             onClick={() => onDelete(project.id, project.title)}
-            className="text-red-400 hover:text-red-300 hover:bg-red-500/20 w-8 h-8"
+            className="text-red-400 hover:text-red-300 hover:bg-red-500/20 w-7 h-7"
           >
-            <Trash2 className="w-4 h-4" />
+            <Trash2 className="w-3.5 h-3.5" />
           </Button>
         </div>
       </div>

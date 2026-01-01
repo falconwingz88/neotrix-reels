@@ -337,7 +337,7 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-800 to-blue-900 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-800 to-blue-900 p-4 md:p-8 overflow-x-hidden">
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
         <div className="flex items-center gap-4">
@@ -730,65 +730,76 @@ const AdminDashboard = () => {
                 {filteredProjects.map((project) => (
                   <div
                     key={project.id}
-                    className="bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 p-4 flex items-start gap-4"
+                    className="bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 p-3 md:p-4"
                   >
-                    {/* Thumbnail */}
-                    <div className="w-24 h-16 md:w-32 md:h-20 flex-shrink-0 rounded-lg overflow-hidden bg-gray-800">
-                      <img
-                        src={getProjectThumbnail(project)}
-                        alt={project.title}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.currentTarget.src = 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400';
-                        }}
-                      />
-                    </div>
-
-                    {/* Project Info */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="text-white font-medium truncate">{project.title}</h3>
-                        <span className="text-xs text-white/40">({project.year || 'N/A'})</span>
-                        {project.fileLink && (
-                          <Badge variant="secondary" className="bg-green-500/20 text-green-300 text-xs">
-                            <FolderOpen className="w-3 h-3 mr-1" />
-                            Files
-                          </Badge>
-                        )}
+                    <div className="flex flex-col sm:flex-row sm:items-start gap-3 md:gap-4">
+                      {/* Thumbnail */}
+                      <div className="w-full sm:w-24 md:w-32 h-24 sm:h-16 md:h-20 flex-shrink-0 rounded-lg overflow-hidden bg-gray-800">
+                        <img
+                          src={getProjectThumbnail(project)}
+                          alt={project.title}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.src = 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400';
+                          }}
+                        />
                       </div>
-                      {project.description && (
-                        <p className="text-white/60 text-sm mb-2 line-clamp-1">{project.description}</p>
-                      )}
-                      <div className="flex flex-wrap gap-2">
-                        {project.tags.map((tag, i) => (
-                          <Badge key={i} variant="secondary" className="bg-white/10 text-white/80">
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
-                      {project.client && (
-                        <p className="text-white/50 text-xs mt-2">Client: {project.client}</p>
-                      )}
-                    </div>
 
-                    {/* Actions */}
-                    <div className="flex gap-2 flex-shrink-0">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleEdit(project)}
-                        className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/20"
-                      >
-                        <Edit2 className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => openDeleteDialog(project.id, project.title)}
-                        className="text-red-400 hover:text-red-300 hover:bg-red-500/20"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                      {/* Project Info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 mb-1 flex-wrap">
+                              <h3 className="text-white font-medium truncate">{project.title}</h3>
+                              <span className="text-xs text-white/40">({project.year || 'N/A'})</span>
+                              {project.fileLink && (
+                                <Badge variant="secondary" className="bg-green-500/20 text-green-300 text-xs">
+                                  <FolderOpen className="w-3 h-3 mr-1" />
+                                  Files
+                                </Badge>
+                              )}
+                            </div>
+                            {project.description && (
+                              <p className="text-white/60 text-sm mb-2 line-clamp-2 sm:line-clamp-1">{project.description}</p>
+                            )}
+                            <div className="flex flex-wrap gap-1 md:gap-2">
+                              {project.tags.slice(0, 3).map((tag, i) => (
+                                <Badge key={i} variant="secondary" className="bg-white/10 text-white/80 text-xs">
+                                  {tag}
+                                </Badge>
+                              ))}
+                              {project.tags.length > 3 && (
+                                <Badge variant="secondary" className="bg-white/10 text-white/80 text-xs">
+                                  +{project.tags.length - 3}
+                                </Badge>
+                              )}
+                            </div>
+                            {project.client && (
+                              <p className="text-white/50 text-xs mt-2">Client: {project.client}</p>
+                            )}
+                          </div>
+
+                          {/* Actions */}
+                          <div className="flex gap-1 md:gap-2 flex-shrink-0">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleEdit(project)}
+                              className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/20 w-8 h-8"
+                            >
+                              <Edit2 className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => openDeleteDialog(project.id, project.title)}
+                              className="text-red-400 hover:text-red-300 hover:bg-red-500/20 w-8 h-8"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 ))}

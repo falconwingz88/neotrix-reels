@@ -714,13 +714,12 @@ const AdminDashboard = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="credits" className="text-white">Credits</Label>
-                <Input
+                <Textarea
                   id="credits"
-                  type="text"
                   value={credits}
                   onChange={(e) => setCredits(e.target.value)}
-                  className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
-                  placeholder="e.g. Milkyway Studio, Neotrix CGI Team"
+                  className="bg-white/10 border-white/20 text-white placeholder:text-white/40 min-h-[80px]"
+                  placeholder="e.g. Milkyway Studio, Neotrix CGI Team&#10;Use Shift+Enter for new lines"
                 />
               </div>
 

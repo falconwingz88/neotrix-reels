@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, Filter, X, Users, Calendar, Layers } from "lucide-react";
+import { Search, Filter, X, Users, Calendar, Layers, FolderOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useProjects } from "@/contexts/ProjectsContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 export interface Project {
   id: string;
@@ -41,6 +42,7 @@ const YEAR_OPTIONS = [2030, 2029, 2028, 2027, 2026, 2025, 2024, 2023, 2022, 2021
 export const ProjectsBrowser = () => {
   const navigate = useNavigate();
   const { customProjects, loading } = useProjects();
+  const { isAdmin } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
@@ -192,7 +194,7 @@ export const ProjectsBrowser = () => {
         {filteredProjects.map((project) => (
           <div
             key={project.id}
-            className="group cursor-pointer bg-white/5 backdrop-blur-sm rounded-lg overflow-hidden border border-white/10 hover:border-white/20 transition-all duration-300 hover:scale-105"
+            className="group cursor-pointer bg-white/5 backdrop-blur-sm rounded-lg overflow-hidden border border-white/10 hover:border-white/20 transition-all duration-300 hover:scale-105 relative"
             onClick={() => navigate(`/projects/${project.id}`)}
           >
             <div className="aspect-[4/3] md:aspect-video bg-gray-800 overflow-hidden">
@@ -245,6 +247,27 @@ export const ProjectsBrowser = () => {
                 )}
               </div>
             </div>
+            
+            {/* Admin File Access Button */}
+            {isAdmin && (
+              project.fileLink ? (
+                <a
+                  href={project.fileLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="absolute bottom-2 right-2 md:bottom-4 md:right-4 flex items-center gap-1 px-2 py-1 md:px-3 md:py-1.5 bg-green-600 hover:bg-green-500 text-white text-xs font-medium rounded-md transition-colors"
+                >
+                  <FolderOpen className="w-3 h-3" />
+                  <span className="hidden md:inline">Access Files</span>
+                </a>
+              ) : (
+                <div className="absolute bottom-2 right-2 md:bottom-4 md:right-4 flex items-center gap-1 px-2 py-1 md:px-3 md:py-1.5 bg-gray-600 text-white/50 text-xs font-medium rounded-md cursor-not-allowed">
+                  <FolderOpen className="w-3 h-3" />
+                  <span className="hidden md:inline">No Files</span>
+                </div>
+              )
+            )}
           </div>
         ))}
       </div>

@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      job_openings: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          requirements: string[] | null
+          responsibilities: string[] | null
+          sort_order: number | null
+          subtitle: string | null
+          title: string
+          traits: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          requirements?: string[] | null
+          responsibilities?: string[] | null
+          sort_order?: number | null
+          subtitle?: string | null
+          title: string
+          traits?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          requirements?: string[] | null
+          responsibilities?: string[] | null
+          sort_order?: number | null
+          subtitle?: string | null
+          title?: string
+          traits?: string[] | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       projects: {
         Row: {
           client: string | null

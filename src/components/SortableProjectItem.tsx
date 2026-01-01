@@ -36,7 +36,7 @@ export const SortableProjectItem = ({
     zIndex: isDragging ? 1000 : 1,
   };
 
-  const hasExternalLink = project.fileLink || project.links.length > 0;
+  const hasFileLink = !!project.fileLink;
 
   if (isCompact) {
     return (
@@ -72,7 +72,7 @@ export const SortableProjectItem = ({
           {/* Project Info - Single line */}
           <div className="flex-1 min-w-0 flex items-center gap-2">
             <h3 className="text-white font-medium truncate text-sm">{project.title}</h3>
-            {hasExternalLink && (
+            {hasFileLink && (
               <ExternalLink className="w-3.5 h-3.5 text-green-400 flex-shrink-0" />
             )}
             <span className="text-white/40 text-xs hidden sm:inline">({project.year || 'N/A'})</span>
@@ -144,7 +144,7 @@ export const SortableProjectItem = ({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <h3 className="text-white font-medium truncate">{project.title}</h3>
-            {hasExternalLink && (
+            {hasFileLink && (
               <ExternalLink className="w-4 h-4 text-green-400 flex-shrink-0" />
             )}
             <span className="text-white/40 text-xs">({project.year || 'N/A'})</span>

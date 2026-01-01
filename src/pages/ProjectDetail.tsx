@@ -79,6 +79,8 @@ const ProjectDetail = () => {
     primaryVideoUrl: project.links[0] || "",
     allVideos: project.links,
     fileLink: project.fileLink,
+    projectStartDate: project.projectStartDate,
+    deliveryDate: project.deliveryDate,
   };
 
   return (
@@ -186,13 +188,35 @@ const ProjectDetail = () => {
             </div>
           )}
 
-          {/* Year */}
-          <div className="flex items-center gap-3 text-white/70">
-            <Calendar className="w-5 h-5 text-emerald-400" />
-            <div>
-              <p className="text-sm text-white/50">Year</p>
-              <p className="text-white">{projectData.year}</p>
-            </div>
+          {/* Project Timeline */}
+          <div className="flex flex-wrap gap-6">
+            {projectData.projectStartDate && (
+              <div className="flex items-center gap-3 text-white/70">
+                <Calendar className="w-5 h-5 text-emerald-400" />
+                <div>
+                  <p className="text-sm text-white/50">Start Date</p>
+                  <p className="text-white">{new Date(projectData.projectStartDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                </div>
+              </div>
+            )}
+            {projectData.deliveryDate && (
+              <div className="flex items-center gap-3 text-white/70">
+                <Clock className="w-5 h-5 text-blue-400" />
+                <div>
+                  <p className="text-sm text-white/50">Delivery Date</p>
+                  <p className="text-white">{new Date(projectData.deliveryDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                </div>
+              </div>
+            )}
+            {!projectData.projectStartDate && !projectData.deliveryDate && (
+              <div className="flex items-center gap-3 text-white/70">
+                <Calendar className="w-5 h-5 text-emerald-400" />
+                <div>
+                  <p className="text-sm text-white/50">Year</p>
+                  <p className="text-white">{projectData.year}</p>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Description */}

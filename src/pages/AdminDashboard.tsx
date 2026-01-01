@@ -68,7 +68,7 @@ const isValidUrl = (string: string): boolean => {
 };
 
 const AdminDashboard = () => {
-  const { isAuthenticated, logout, loading: authLoading } = useAuth();
+  const { isAuthenticated, isAdmin, logout, loading: authLoading } = useAuth();
   const { customProjects, addProject, updateProject, deleteProject, initializeDefaultProjects, loading: projectsLoading } = useProjects();
   const { contacts, deleteContact, clearAllContacts } = useContacts();
   const navigate = useNavigate();
@@ -98,14 +98,23 @@ const AdminDashboard = () => {
   // Undo notifications state
   const [undoNotifications, setUndoNotifications] = useState<UndoNotificationItem[]>([]);
 
-  // Redirect if not authenticated
+  // Redirect if not authenticated or not admin
   useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      navigate('/admin-login', { replace: true });
+    if (!authLoading) {
+      if (!isAuthenticated) {
+        navigate('/admin-login', { replace: true });
+      } else if (!isAdmin) {
+        navigate('/', { replace: true });
+        toast({
+          title: "Access denied",
+          description: "You don't have admin privileges.",
+          variant: "destructive",
+        });
+      }
     }
-  }, [isAuthenticated, authLoading, navigate]);
+  }, [isAuthenticated, isAdmin, authLoading, navigate, toast]);
 
-  if (authLoading || !isAuthenticated) {
+  if (authLoading || !isAuthenticated || !isAdmin) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-800 to-blue-900 flex items-center justify-center">
         <div className="text-white">Loading...</div>

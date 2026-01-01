@@ -339,7 +339,7 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-800 to-blue-900 p-4 md:p-8">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
         <div className="flex items-center gap-4">
           <Button
             variant="ghost"
@@ -347,7 +347,7 @@ const AdminDashboard = () => {
             className="text-white hover:bg-white/10 flex items-center gap-2"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to Home
+            <span className="hidden sm:inline">Back to Home</span>
           </Button>
         </div>
         <div className="flex items-center gap-2">
@@ -357,25 +357,25 @@ const AdminDashboard = () => {
             className="text-white hover:bg-white/10 flex items-center gap-2"
           >
             <LogOut className="w-4 h-4" />
-            Logout
+            <span className="hidden sm:inline">Logout</span>
           </Button>
         </div>
       </div>
 
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Admin Dashboard</h1>
-        <p className="text-white/60 mb-8">Manage your projects and contacts</p>
+        <h1 className="text-2xl md:text-4xl font-bold text-white mb-2">Admin Dashboard</h1>
+        <p className="text-white/60 text-sm md:text-base mb-6 md:mb-8">Manage your projects and contacts</p>
 
         {/* Tab Navigation */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="bg-white/10 border border-white/20 mb-6">
-            <TabsTrigger value="projects" className="data-[state=active]:bg-white/20 text-white">
-              <FolderKanban className="w-4 h-4 mr-2" />
-              Projects ({customProjects.length})
+          <TabsList className="bg-white/10 border border-white/20 mb-6 w-full sm:w-auto flex">
+            <TabsTrigger value="projects" className="data-[state=active]:bg-white/20 text-white flex-1 sm:flex-none text-xs sm:text-sm">
+              <FolderKanban className="w-4 h-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Projects</span> ({customProjects.length})
             </TabsTrigger>
-            <TabsTrigger value="contacts" className="data-[state=active]:bg-white/20 text-white">
-              <MessageSquare className="w-4 h-4 mr-2" />
-              Contacted Clients ({contacts.length})
+            <TabsTrigger value="contacts" className="data-[state=active]:bg-white/20 text-white flex-1 sm:flex-none text-xs sm:text-sm">
+              <MessageSquare className="w-4 h-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Clients</span> ({contacts.length})
             </TabsTrigger>
           </TabsList>
 

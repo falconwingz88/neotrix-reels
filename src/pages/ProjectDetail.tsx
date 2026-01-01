@@ -84,7 +84,7 @@ const ProjectDetail = () => {
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-800 to-blue-900 bg-[length:200%_200%] animate-gradient">
       <Header />
 
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="max-w-6xl mx-auto px-4 pt-20 pb-8">
         {/* Back Button & Share */}
         <div className="flex items-center justify-between mb-6">
           <Button

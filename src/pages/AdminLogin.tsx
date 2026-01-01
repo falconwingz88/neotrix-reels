@@ -8,14 +8,20 @@ import { ArrowLeft, Lock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
 
+// Internal domain for username-to-email conversion
+const ADMIN_EMAIL_DOMAIN = 'admin.local';
+
+// Convert username to internal email format
+const usernameToEmail = (username: string) => `${username.toLowerCase().trim()}@${ADMIN_EMAIL_DOMAIN}`;
+
 // Input validation schema
 const loginSchema = z.object({
-  email: z.string().trim().email({ message: "Please enter a valid email address" }),
+  username: z.string().trim().min(3, { message: "Username must be at least 3 characters" }).max(50, { message: "Username must be less than 50 characters" }).regex(/^[a-zA-Z0-9_]+$/, { message: "Username can only contain letters, numbers, and underscores" }),
   password: z.string().min(6, { message: "Password must be at least 6 characters" }),
 });
 
 const AdminLogin = () => {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
@@ -28,7 +34,6 @@ const AdminLogin = () => {
       if (isAdmin) {
         navigate('/admin', { replace: true });
       } else {
-        // User is authenticated but not admin
         toast({
           title: "Access denied",
           description: "You don't have admin privileges.",
@@ -42,7 +47,7 @@ const AdminLogin = () => {
     e.preventDefault();
     
     // Validate input
-    const validation = loginSchema.safeParse({ email, password });
+    const validation = loginSchema.safeParse({ username, password });
     if (!validation.success) {
       toast({
         title: "Validation error",
@@ -53,6 +58,9 @@ const AdminLogin = () => {
     }
     
     setIsLoading(true);
+    
+    // Convert username to internal email format
+    const email = usernameToEmail(username);
     
     try {
       if (isSignUp) {
@@ -130,14 +138,15 @@ const AdminLogin = () => {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-white">Email</Label>
+              <Label htmlFor="username" className="text-white">Username</Label>
               <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="username"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
-                placeholder="Enter email"
+                placeholder="Enter username"
+                autoComplete="username"
                 required
               />
             </div>
@@ -151,6 +160,7 @@ const AdminLogin = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
                 placeholder="Enter password"
+                autoComplete={isSignUp ? "new-password" : "current-password"}
                 required
               />
             </div>

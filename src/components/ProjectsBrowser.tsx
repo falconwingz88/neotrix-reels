@@ -1,9 +1,9 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Search, Filter, X, Users, Calendar, Layers } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { ProjectDetailModal } from "./ProjectDetailModal";
 import { useProjects } from "@/contexts/ProjectsContext";
 
 export interface Project {
@@ -39,11 +39,11 @@ export const TAG_OPTIONS = ["Beauty", "Liquid", "VFX", "Character Animation", "N
 const YEAR_OPTIONS = [2030, 2029, 2028, 2027, 2026, 2025, 2024, 2023, 2022, 2021, 2020];
 
 export const ProjectsBrowser = () => {
+  const navigate = useNavigate();
   const { customProjects, loading } = useProjects();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [showFilters, setShowFilters] = useState(false);
 
   // Convert custom projects to Project format and sort by latest first
@@ -199,7 +199,7 @@ export const ProjectsBrowser = () => {
           <div
             key={project.id}
             className="group cursor-pointer bg-white/5 backdrop-blur-sm rounded-lg overflow-hidden border border-white/10 hover:border-white/20 transition-all duration-300 hover:scale-105"
-            onClick={() => setSelectedProject(project)}
+            onClick={() => navigate(`/projects/${project.id}`)}
           >
             <div className="aspect-[4/3] md:aspect-video bg-gray-800 overflow-hidden">
               <img
@@ -254,11 +254,6 @@ export const ProjectsBrowser = () => {
             Clear filters
           </Button>
         </div>
-      )}
-
-      {/* Project Detail Modal */}
-      {selectedProject && (
-        <ProjectDetailModal project={selectedProject} onClose={() => setSelectedProject(null)} isAdmin={false} />
       )}
     </div>
   );

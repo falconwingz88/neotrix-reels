@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import Reels from "./pages/Reels";
 import NotFound from "./pages/NotFound";
 import { Projects } from "./pages/Projects";
+import ProjectDetail from "./pages/ProjectDetail";
 import Contact from "./pages/Contact";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -31,6 +32,7 @@ const App = () => (
                 <Route path="/" element={<Index />} />
                 <Route path="/reels" element={<Reels />} />
                 <Route path="/projects" element={<Projects />} />
+                <Route path="/projects/:id" element={<ProjectDetail />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/about-us" element={<AboutUs />} />
                 <Route path="/admin-login" element={<AdminLogin />} />

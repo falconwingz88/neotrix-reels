@@ -15,6 +15,7 @@ export interface CustomProject {
   projectStartDate?: string;
   deliveryDate?: string;
   createdAt: string;
+  sortOrder?: number;
 }
 
 interface ProjectsContextType {
@@ -22,6 +23,7 @@ interface ProjectsContextType {
   addProject: (project: Omit<CustomProject, 'id' | 'createdAt'>) => Promise<void>;
   updateProject: (id: string, project: Partial<Omit<CustomProject, 'id' | 'createdAt'>>) => Promise<void>;
   deleteProject: (id: string) => Promise<void>;
+  reorderProjects: (projectId: string, direction: 'up' | 'down') => Promise<void>;
   initializeDefaultProjects: () => Promise<void>;
   loading: boolean;
   refetch: () => Promise<void>;
@@ -650,6 +652,7 @@ const transformDbToProject = (row: any): CustomProject => ({
   projectStartDate: row.project_start_date,
   deliveryDate: row.delivery_date,
   createdAt: row.created_at,
+  sortOrder: row.sort_order,
 });
 
 // Transform CustomProject to database format
@@ -676,7 +679,7 @@ export const ProjectsProvider = ({ children }: { children: ReactNode }) => {
     const { data, error } = await supabase
       .from('projects')
       .select('*')
-      .order('created_at', { ascending: false });
+      .order('sort_order', { ascending: true });
 
     if (error) {
       console.error('Error fetching projects:', error);
@@ -770,12 +773,46 @@ export const ProjectsProvider = ({ children }: { children: ReactNode }) => {
     await fetchProjects();
   };
 
+  const reorderProjects = async (projectId: string, direction: 'up' | 'down') => {
+    const currentIndex = customProjects.findIndex(p => p.id === projectId);
+    if (currentIndex === -1) return;
+
+    const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+    if (targetIndex < 0 || targetIndex >= customProjects.length) return;
+
+    const currentProject = customProjects[currentIndex];
+    const targetProject = customProjects[targetIndex];
+
+    // Swap sort_order values
+    const currentSortOrder = currentProject.sortOrder ?? currentIndex;
+    const targetSortOrder = targetProject.sortOrder ?? targetIndex;
+
+    // Update both projects in the database
+    const { error: error1 } = await supabase
+      .from('projects')
+      .update({ sort_order: targetSortOrder })
+      .eq('id', currentProject.id);
+
+    const { error: error2 } = await supabase
+      .from('projects')
+      .update({ sort_order: currentSortOrder })
+      .eq('id', targetProject.id);
+
+    if (error1 || error2) {
+      console.error('Error reordering projects:', error1 || error2);
+      throw error1 || error2;
+    }
+
+    await fetchProjects();
+  };
+
   return (
     <ProjectsContext.Provider value={{ 
       customProjects, 
       addProject, 
       updateProject, 
       deleteProject, 
+      reorderProjects,
       initializeDefaultProjects,
       loading,
       refetch: fetchProjects

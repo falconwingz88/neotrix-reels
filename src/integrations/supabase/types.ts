@@ -25,6 +25,7 @@ export type Database = {
           id: string
           links: string[] | null
           project_start_date: string | null
+          sort_order: number | null
           tags: string[] | null
           thumbnail: string | null
           title: string
@@ -41,6 +42,7 @@ export type Database = {
           id?: string
           links?: string[] | null
           project_start_date?: string | null
+          sort_order?: number | null
           tags?: string[] | null
           thumbnail?: string | null
           title: string
@@ -57,6 +59,7 @@ export type Database = {
           id?: string
           links?: string[] | null
           project_start_date?: string | null
+          sort_order?: number | null
           tags?: string[] | null
           thumbnail?: string | null
           title?: string

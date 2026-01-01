@@ -35,7 +35,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { useProjects, CustomProject } from '@/contexts/ProjectsContext';
 import { useContacts } from '@/contexts/ContactsContext';
-import { ArrowLeft, Plus, LogOut, X, Trash2, Edit2, Users, AlertCircle, Check, Link2, FolderOpen, RefreshCw, CalendarIcon, FolderKanban, MessageSquare, MapPin, Clock, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Plus, LogOut, X, Trash2, Edit2, Users, AlertCircle, Check, Link2, FolderOpen, RefreshCw, CalendarIcon, FolderKanban, MessageSquare, MapPin, Clock, ExternalLink, ChevronUp, ChevronDown } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import UndoNotification, { UndoNotificationItem } from '@/components/UndoNotification';
 import { ThumbnailUpload } from '@/components/ThumbnailUpload';
@@ -69,7 +69,7 @@ const isValidUrl = (string: string): boolean => {
 
 const AdminDashboard = () => {
   const { isAuthenticated, isAdmin, logout, loading: authLoading } = useAuth();
-  const { customProjects, addProject, updateProject, deleteProject, initializeDefaultProjects, loading: projectsLoading } = useProjects();
+  const { customProjects, addProject, updateProject, deleteProject, reorderProjects, initializeDefaultProjects, loading: projectsLoading } = useProjects();
   const { contacts, deleteContact, clearAllContacts } = useContacts();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -815,7 +815,30 @@ const AdminDashboard = () => {
                           </div>
 
                           {/* Actions */}
-                          <div className="flex gap-1 md:gap-2 flex-shrink-0">
+                          <div className="flex gap-1 md:gap-2 flex-shrink-0 items-center">
+                            {/* Reorder buttons */}
+                            <div className="flex flex-col gap-0.5 mr-1">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => reorderProjects(project.id, 'up')}
+                                disabled={filteredProjects.indexOf(project) === 0}
+                                className="text-white/60 hover:text-white hover:bg-white/10 w-6 h-6 disabled:opacity-30"
+                                title="Move up"
+                              >
+                                <ChevronUp className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => reorderProjects(project.id, 'down')}
+                                disabled={filteredProjects.indexOf(project) === filteredProjects.length - 1}
+                                className="text-white/60 hover:text-white hover:bg-white/10 w-6 h-6 disabled:opacity-30"
+                                title="Move down"
+                              >
+                                <ChevronDown className="w-4 h-4" />
+                              </Button>
+                            </div>
                             <Button
                               variant="ghost"
                               size="icon"

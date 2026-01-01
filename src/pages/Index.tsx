@@ -185,7 +185,10 @@ const Index = () => {
 
           <div
             className="group relative cursor-pointer bg-white/10 backdrop-blur-sm rounded-3xl border border-white/20 overflow-hidden shadow-2xl transition-all duration-500 hover:border-white/30 h-[300px] md:h-[400px]"
-            onClick={() => navigate("/projects")}
+            onClick={() => {
+              navigate("/projects");
+              window.scrollTo({ top: 0, behavior: "instant" });
+            }}
           >
             {/* Scrolling Project Grid */}
             <div
@@ -212,11 +215,11 @@ const Index = () => {
             <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-black/30 to-transparent pointer-events-none" />
             <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/30 to-transparent pointer-events-none" />
 
-            {/* Hover Overlay with "See More" */}
-            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-black/30">
+            {/* Always visible overlay with subtle transparency and text */}
+            <div className="absolute inset-0 flex items-center justify-center transition-all duration-500 bg-black/15 group-hover:bg-black/40">
               <div className="text-center">
-                <h3 className="text-white text-3xl md:text-5xl font-bold mb-2">See More</h3>
-                <p className="text-white/80 text-sm md:text-lg flex items-center justify-center gap-2">
+                <h3 className="text-white text-3xl md:text-5xl font-bold mb-2 opacity-30 group-hover:opacity-100 transition-opacity duration-500">See More</h3>
+                <p className="text-white/80 text-sm md:text-lg flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                   Explore All Projects
                   <ArrowRight className="w-5 h-5" />
                 </p>

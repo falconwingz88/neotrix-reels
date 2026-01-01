@@ -895,12 +895,12 @@ const AdminDashboard = () => {
                         <Button
                           variant="outline"
                           className={cn(
-                            "w-full justify-start text-left font-normal bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white",
+                            "w-full justify-start text-left font-normal bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white min-w-[180px]",
                             !projectStartDate && "text-white/40"
                           )}
                         >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {projectStartDate ? format(projectStartDate, "PPP") : <span>Pick start date</span>}
+                          <CalendarIcon className="mr-2 h-4 w-4 flex-shrink-0" />
+                          <span className="truncate">{projectStartDate ? format(projectStartDate, "PPP") : "Pick start date"}</span>
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0 bg-zinc-900 border-white/20" align="start">
@@ -909,7 +909,6 @@ const AdminDashboard = () => {
                           selected={projectStartDate}
                           onSelect={setProjectStartDate}
                           initialFocus
-                          className={cn("p-3 pointer-events-auto")}
                         />
                       </PopoverContent>
                     </Popover>
@@ -923,12 +922,12 @@ const AdminDashboard = () => {
                         <Button
                           variant="outline"
                           className={cn(
-                            "w-full justify-start text-left font-normal bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white",
+                            "w-full justify-start text-left font-normal bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white min-w-[180px]",
                             !deliveryDate && "text-white/40"
                           )}
                         >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {deliveryDate ? format(deliveryDate, "PPP") : <span>Pick delivery date</span>}
+                          <CalendarIcon className="mr-2 h-4 w-4 flex-shrink-0" />
+                          <span className="truncate">{deliveryDate ? format(deliveryDate, "PPP") : "Pick delivery date"}</span>
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0 bg-zinc-900 border-white/20" align="start">
@@ -937,7 +936,6 @@ const AdminDashboard = () => {
                           selected={deliveryDate}
                           onSelect={setDeliveryDate}
                           initialFocus
-                          className={cn("p-3 pointer-events-auto")}
                         />
                       </PopoverContent>
                     </Popover>

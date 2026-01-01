@@ -229,17 +229,10 @@ const ProjectDetail = () => {
           <div>
             <h2 className="text-2xl font-semibold text-white mb-4 flex items-center gap-2">
               <Users className="w-6 h-6" />
-              Client & Production
+              Client
             </h2>
             <div className="bg-white/5 rounded-lg p-4 border border-white/10">
-              <div className="space-y-2">
-                <div className="text-white/80">
-                  <span className="text-white/60">Client:</span> {projectData.client}
-                </div>
-                <div className="text-white/80">
-                  <span className="text-white/60">Year:</span> {projectData.year}
-                </div>
-              </div>
+              <div className="text-white/80">{projectData.client}</div>
             </div>
           </div>
 

@@ -17,6 +17,7 @@ import { ProjectsProvider } from "./contexts/ProjectsContext";
 import { ContactsProvider } from "./contexts/ContactsContext";
 import AboutUs from "./pages/AboutUs";
 import JoinUs from "./pages/JoinUs";
+import Hiring from "./pages/Hiring";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,7 @@ const App = () => (
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/about-us" element={<AboutUs />} />
                 <Route path="/join-us" element={<JoinUs />} />
+                <Route path="/hiring" element={<Hiring />} />
                 <Route path="/admin-login" element={<AdminLogin />} />
                 <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/client/:id" element={<ClientDetail />} />

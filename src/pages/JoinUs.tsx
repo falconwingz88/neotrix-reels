@@ -104,12 +104,12 @@ const JoinUs = () => {
               <h2 className="text-2xl md:text-3xl font-bold text-white">
                 Job Openings
               </h2>
-              {isAdmin && (
+{isAdmin && (
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => navigate('/admin?tab=jobs')}
-                  className="border-white/20 text-white hover:bg-white/10"
+                  className="bg-white/10 border-white/30 text-white hover:bg-white/20"
                 >
                   <Edit2 className="w-4 h-4 mr-2" />
                   Manage Jobs
@@ -194,11 +194,11 @@ const JoinUs = () => {
                           </div>
                         )}
 
-                        {/* Apply Button */}
+{/* Apply Button */}
                         <div className="pt-4">
                           <Button
-                            onClick={() => navigate('/contact')}
-                            className="bg-white/20 hover:bg-white/30 text-white border border-white/20"
+                            onClick={() => navigate('/hiring')}
+                            className="bg-white text-black hover:bg-white/90"
                           >
                             Apply for this position
                           </Button>

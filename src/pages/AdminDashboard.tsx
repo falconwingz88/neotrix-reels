@@ -50,13 +50,26 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { useProjects, CustomProject } from '@/contexts/ProjectsContext';
 import { useContacts } from '@/contexts/ContactsContext';
-import { ArrowLeft, Plus, LogOut, X, Trash2, Edit2, Users, AlertCircle, Check, Link2, FolderOpen, RefreshCw, CalendarIcon, FolderKanban, MessageSquare, MapPin, Clock, ExternalLink, GripVertical, List, LayoutGrid } from 'lucide-react';
+import { ArrowLeft, Plus, LogOut, X, Trash2, Edit2, Users, AlertCircle, Check, Link2, FolderOpen, RefreshCw, CalendarIcon, FolderKanban, MessageSquare, MapPin, Clock, ExternalLink, GripVertical, List, LayoutGrid, Briefcase } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import UndoNotification, { UndoNotificationItem } from '@/components/UndoNotification';
 import { ThumbnailUpload } from '@/components/ThumbnailUpload';
 import { SortableProjectItem } from '@/components/SortableProjectItem';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
+
+interface JobOpening {
+  id: string;
+  title: string;
+  subtitle: string | null;
+  description: string | null;
+  responsibilities: string[];
+  requirements: string[];
+  traits: string[];
+  sort_order: number | null;
+  is_active: boolean;
+}
 
 const TAG_OPTIONS = ['Beauty', 'Liquid', 'VFX', 'Character Animation', 'Non-Character Animation', 'FX', 'AI'];
 const YEAR_OPTIONS = [2030, 2029, 2028, 2027, 2026, 2025, 2024, 2023, 2022, 2021, 2020];
@@ -114,6 +127,19 @@ const AdminDashboard = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [projectToDelete, setProjectToDelete] = useState<{ id: string; title: string } | null>(null);
   
+  // Job openings state
+  const [jobOpenings, setJobOpenings] = useState<JobOpening[]>([]);
+  const [jobsLoading, setJobsLoading] = useState(true);
+  const [showJobForm, setShowJobForm] = useState(false);
+  const [editingJob, setEditingJob] = useState<JobOpening | null>(null);
+  const [jobTitle, setJobTitle] = useState('');
+  const [jobSubtitle, setJobSubtitle] = useState('');
+  const [jobDescription, setJobDescription] = useState('');
+  const [jobResponsibilities, setJobResponsibilities] = useState('');
+  const [jobRequirements, setJobRequirements] = useState('');
+  const [jobTraits, setJobTraits] = useState('');
+  const [jobIsActive, setJobIsActive] = useState(true);
+  
   // Undo notifications state
   const [undoNotifications, setUndoNotifications] = useState<UndoNotificationItem[]>([]);
 
@@ -149,6 +175,14 @@ const AdminDashboard = () => {
   // Handle edit query parameter from project detail page
   useEffect(() => {
     const editId = searchParams.get('edit');
+    const tabParam = searchParams.get('tab');
+    
+    // Handle tab parameter from Join Us page
+    if (tabParam === 'jobs') {
+      setActiveTab('jobs');
+      setSearchParams({}, { replace: true });
+    }
+    
     if (editId && customProjects.length > 0 && !projectsLoading) {
       const projectToEdit = customProjects.find(p => p.id === editId);
       if (projectToEdit) {
@@ -170,6 +204,26 @@ const AdminDashboard = () => {
       }
     }
   }, [searchParams, customProjects, projectsLoading, setSearchParams]);
+
+  // Fetch job openings
+  const fetchJobOpenings = async () => {
+    setJobsLoading(true);
+    const { data, error } = await supabase
+      .from('job_openings')
+      .select('*')
+      .order('sort_order', { ascending: true });
+    
+    if (!error && data) {
+      setJobOpenings(data as JobOpening[]);
+    }
+    setJobsLoading(false);
+  };
+
+  useEffect(() => {
+    if (isAdmin) {
+      fetchJobOpenings();
+    }
+  }, [isAdmin]);
 
   if (authLoading || !isAuthenticated || !isAdmin) {
     return (
@@ -431,6 +485,145 @@ const AdminDashboard = () => {
     }
   };
 
+  // Job form handlers
+  const resetJobForm = () => {
+    setJobTitle('');
+    setJobSubtitle('');
+    setJobDescription('');
+    setJobResponsibilities('');
+    setJobRequirements('');
+    setJobTraits('');
+    setJobIsActive(true);
+    setEditingJob(null);
+    setShowJobForm(false);
+  };
+
+  const handleEditJob = (job: JobOpening) => {
+    setEditingJob(job);
+    setJobTitle(job.title);
+    setJobSubtitle(job.subtitle || '');
+    setJobDescription(job.description || '');
+    setJobResponsibilities(job.responsibilities.join('\n'));
+    setJobRequirements(job.requirements.join('\n'));
+    setJobTraits(job.traits.join('\n'));
+    setJobIsActive(job.is_active);
+    setShowJobForm(true);
+  };
+
+  const handleJobSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!jobTitle.trim()) {
+      toast({
+        title: "Error",
+        description: "Job title is required.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSaving(true);
+
+    const jobData = {
+      title: jobTitle.trim(),
+      subtitle: jobSubtitle.trim() || null,
+      description: jobDescription.trim() || null,
+      responsibilities: jobResponsibilities.split('\n').map(l => l.trim()).filter(l => l),
+      requirements: jobRequirements.split('\n').map(l => l.trim()).filter(l => l),
+      traits: jobTraits.split('\n').map(l => l.trim()).filter(l => l),
+      is_active: jobIsActive,
+    };
+
+    try {
+      if (editingJob) {
+        const { error } = await supabase
+          .from('job_openings')
+          .update(jobData)
+          .eq('id', editingJob.id);
+        
+        if (error) throw error;
+        
+        toast({
+          title: "Job updated!",
+          description: `"${jobTitle}" has been updated.`,
+        });
+      } else {
+        const maxOrder = jobOpenings.reduce((max, j) => Math.max(max, j.sort_order || 0), 0);
+        const { error } = await supabase
+          .from('job_openings')
+          .insert({ ...jobData, sort_order: maxOrder + 1 });
+        
+        if (error) throw error;
+        
+        toast({
+          title: "Job added!",
+          description: `"${jobTitle}" has been added.`,
+        });
+      }
+      
+      resetJobForm();
+      fetchJobOpenings();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save job. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDeleteJob = async (jobId: string, jobTitle: string) => {
+    if (!window.confirm(`Are you sure you want to delete "${jobTitle}"?`)) return;
+    
+    try {
+      const { error } = await supabase
+        .from('job_openings')
+        .delete()
+        .eq('id', jobId);
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Job deleted",
+        description: `"${jobTitle}" has been removed.`,
+      });
+      
+      fetchJobOpenings();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete job.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const toggleJobActive = async (job: JobOpening) => {
+    try {
+      const { error } = await supabase
+        .from('job_openings')
+        .update({ is_active: !job.is_active })
+        .eq('id', job.id);
+      
+      if (error) throw error;
+      
+      toast({
+        title: job.is_active ? "Job hidden" : "Job published",
+        description: `"${job.title}" is now ${job.is_active ? 'hidden from' : 'visible on'} the Join Us page.`,
+      });
+      
+      fetchJobOpenings();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update job status.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-800 to-blue-900 p-4 md:p-8 overflow-x-hidden">
       {/* Header */}
@@ -471,6 +664,10 @@ const AdminDashboard = () => {
             <TabsTrigger value="contacts" className="data-[state=active]:bg-white/20 text-white flex-1 sm:flex-none text-xs sm:text-sm">
               <MessageSquare className="w-4 h-4 mr-1 sm:mr-2" />
               <span className="hidden sm:inline">Clients</span> ({contacts.length})
+            </TabsTrigger>
+            <TabsTrigger value="jobs" className="data-[state=active]:bg-white/20 text-white flex-1 sm:flex-none text-xs sm:text-sm">
+              <Briefcase className="w-4 h-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Jobs</span> ({jobOpenings.length})
             </TabsTrigger>
           </TabsList>
 
@@ -1007,6 +1204,210 @@ const AdminDashboard = () => {
                       </TableBody>
                     </Table>
                   </div>
+                </div>
+              )}
+            </div>
+          </TabsContent>
+
+          {/* Jobs Tab */}
+          <TabsContent value="jobs">
+            <div className="space-y-6">
+              {/* Add/Edit Job Form */}
+              {showJobForm ? (
+                <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-xl font-semibold text-white">
+                      {editingJob ? 'Edit Job Opening' : 'Add New Job Opening'}
+                    </h2>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={resetJobForm}
+                      className="text-white hover:bg-white/10"
+                    >
+                      <X className="w-5 h-5" />
+                    </Button>
+                  </div>
+
+                  <form onSubmit={handleJobSubmit} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="jobTitle" className="text-white">Job Title *</Label>
+                      <Input
+                        id="jobTitle"
+                        value={jobTitle}
+                        onChange={(e) => setJobTitle(e.target.value)}
+                        className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+                        placeholder="e.g. Project Manager (3D / Production)"
+                        required
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="jobSubtitle" className="text-white">Subtitle</Label>
+                      <Input
+                        id="jobSubtitle"
+                        value={jobSubtitle}
+                        onChange={(e) => setJobSubtitle(e.target.value)}
+                        className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+                        placeholder="e.g. What This Role Really Is"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="jobDescription" className="text-white">Description</Label>
+                      <Textarea
+                        id="jobDescription"
+                        value={jobDescription}
+                        onChange={(e) => setJobDescription(e.target.value)}
+                        className="bg-white/10 border-white/20 text-white placeholder:text-white/40 min-h-[100px]"
+                        placeholder="Brief description of the role..."
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="jobResponsibilities" className="text-white">What You'll Do (one per line)</Label>
+                      <Textarea
+                        id="jobResponsibilities"
+                        value={jobResponsibilities}
+                        onChange={(e) => setJobResponsibilities(e.target.value)}
+                        className="bg-white/10 border-white/20 text-white placeholder:text-white/40 min-h-[120px]"
+                        placeholder="Translate creative briefs into clear production plans&#10;Build realistic timelines&#10;Coordinate artists and teams"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="jobRequirements" className="text-white">What You Must Understand (one per line)</Label>
+                      <Textarea
+                        id="jobRequirements"
+                        value={jobRequirements}
+                        onChange={(e) => setJobRequirements(e.target.value)}
+                        className="bg-white/10 border-white/20 text-white placeholder:text-white/40 min-h-[120px]"
+                        placeholder="3D production stages&#10;How revisions affect time and cost&#10;The difference between offline and real-time workflows"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="jobTraits" className="text-white">Who You Are (one per line)</Label>
+                      <Textarea
+                        id="jobTraits"
+                        value={jobTraits}
+                        onChange={(e) => setJobTraits(e.target.value)}
+                        className="bg-white/10 border-white/20 text-white placeholder:text-white/40 min-h-[120px]"
+                        placeholder="You think in cause–effect, not panic mode&#10;You enjoy making messy systems clean&#10;You're calm under pressure"
+                      />
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        id="jobIsActive"
+                        checked={jobIsActive}
+                        onCheckedChange={setJobIsActive}
+                      />
+                      <Label htmlFor="jobIsActive" className="text-white">
+                        Published (visible on Join Us page)
+                      </Label>
+                    </div>
+
+                    <div className="flex gap-2 pt-4">
+                      <Button
+                        type="submit"
+                        disabled={isSaving || !jobTitle.trim()}
+                        className="bg-white/20 hover:bg-white/30 text-white border border-white/20"
+                      >
+                        {isSaving ? 'Saving...' : editingJob ? 'Update Job' : 'Add Job'}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        onClick={resetJobForm}
+                        className="text-white hover:bg-white/10"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </form>
+                </div>
+              ) : (
+                <Button
+                  onClick={() => setShowJobForm(true)}
+                  className="bg-white/20 hover:bg-white/30 text-white border border-white/20"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  New Job Opening
+                </Button>
+              )}
+
+              {/* Job Listings */}
+              {jobsLoading ? (
+                <div className="text-white/60 text-center py-8">Loading jobs...</div>
+              ) : jobOpenings.length === 0 ? (
+                <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-8 text-center">
+                  <Briefcase className="w-12 h-12 text-white/40 mx-auto mb-4" />
+                  <p className="text-white/60">No job openings yet.</p>
+                  <p className="text-white/40 text-sm">Add your first job opening above.</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {jobOpenings.map((job) => (
+                    <div
+                      key={job.id}
+                      className={cn(
+                        "bg-white/10 backdrop-blur-md rounded-xl border border-white/20 p-4",
+                        !job.is_active && "opacity-60"
+                      )}
+                    >
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <Briefcase className="w-4 h-4 text-white/60 flex-shrink-0" />
+                            <h3 className="text-white font-medium truncate">{job.title}</h3>
+                            {!job.is_active && (
+                              <Badge variant="secondary" className="bg-white/10 text-white/60 text-xs">
+                                Hidden
+                              </Badge>
+                            )}
+                          </div>
+                          {job.subtitle && (
+                            <p className="text-white/50 text-sm mt-1 truncate">{job.subtitle}</p>
+                          )}
+                          <div className="flex items-center gap-4 mt-2 text-xs text-white/40">
+                            <span>{job.responsibilities.length} responsibilities</span>
+                            <span>{job.requirements.length} requirements</span>
+                            <span>{job.traits.length} traits</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => toggleJobActive(job)}
+                            className={cn(
+                              "text-white hover:bg-white/10",
+                              job.is_active ? "text-green-400" : "text-white/40"
+                            )}
+                          >
+                            {job.is_active ? 'Published' : 'Hidden'}
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleEditJob(job)}
+                            className="text-white hover:bg-white/10"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDeleteJob(job.id, job.title)}
+                            className="text-red-400 hover:text-red-300 hover:bg-red-500/20"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>

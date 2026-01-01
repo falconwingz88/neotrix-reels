@@ -220,7 +220,16 @@ export const ProjectsBrowser = () => {
                   {project.year}
                 </span>
               </div>
-              <p className="hidden md:block text-sm text-white/70 line-clamp-2">{project.description}</p>
+              <p className="hidden md:block text-sm text-white/70 line-clamp-2">
+                {project.description.length > 100 ? (
+                  <>
+                    {project.description.slice(0, 100)}...
+                    <span className="text-blue-300 hover:underline ml-1">see more</span>
+                  </>
+                ) : (
+                  project.description
+                )}
+              </p>
               <div className="hidden md:flex items-center gap-2 text-xs text-white/60">
                 <Users className="w-3 h-3" />
                 <span className="line-clamp-1">{project.client}</span>

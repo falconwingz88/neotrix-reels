@@ -202,7 +202,7 @@ export const ProjectsBrowser = () => {
       {/* Projects Grid with animations */}
       <motion.div 
         layout
-        className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-6"
       >
         <AnimatePresence mode="popLayout">
           {filteredProjects.map((project) => (
@@ -217,7 +217,7 @@ export const ProjectsBrowser = () => {
                 ease: [0.4, 0, 0.2, 1],
                 layout: { duration: 0.4 }
               }}
-              className="group cursor-pointer bg-white/5 backdrop-blur-sm rounded-lg overflow-hidden border border-white/10 hover:border-white/20 relative"
+              className="group cursor-pointer bg-white/5 backdrop-blur-sm rounded-md md:rounded-lg overflow-hidden border border-white/10 hover:border-white/20 relative"
               whileHover={{ scale: 1.03 }}
               onClick={() => navigate(`/projects/${project.id}`)}
             >
@@ -231,20 +231,29 @@ export const ProjectsBrowser = () => {
                   }}
                 />
               </div>
-              <div className="p-2 md:p-4 space-y-1 md:space-y-3">
-                <div className="flex items-start justify-between gap-2">
-                  <h3 className="font-semibold text-white group-hover:text-blue-300 transition-colors line-clamp-1">
+              <div className="p-1.5 md:p-4 space-y-0.5 md:space-y-3">
+                <div className="flex items-start justify-between gap-1">
+                  <h3 className="font-semibold text-white group-hover:text-blue-300 transition-colors line-clamp-1 text-xs md:text-base">
                     {project.title}
                   </h3>
                   <span className="hidden md:block text-xs text-white/60 bg-white/10 px-2 py-1 rounded-full whitespace-nowrap">
                     {project.year}
                   </span>
                 </div>
-                <p className="hidden md:block text-sm text-white/70 line-clamp-2">
-                  {project.description.length > 100 ? (
+                <p className="text-[10px] md:text-sm text-white/70 line-clamp-2">
+                  {project.description.length > 50 ? (
                     <>
-                      {project.description.slice(0, 100)}...
-                      <span className="text-blue-300 hover:underline ml-1">see more</span>
+                      <span className="md:hidden">{project.description.slice(0, 50)}...</span>
+                      <span className="hidden md:inline">
+                        {project.description.length > 100 ? (
+                          <>
+                            {project.description.slice(0, 100)}...
+                            <span className="text-blue-300 hover:underline ml-1">see more</span>
+                          </>
+                        ) : (
+                          project.description
+                        )}
+                      </span>
                     </>
                   ) : (
                     project.description
@@ -254,18 +263,18 @@ export const ProjectsBrowser = () => {
                   <Users className="w-3 h-3" />
                   <span className="line-clamp-1">{project.client}</span>
                 </div>
-                <div className="hidden md:flex flex-wrap gap-1">
+                <div className="flex flex-wrap gap-0.5 md:gap-1">
                   {project.tags.slice(0, 2).map((tag, index) => (
                     <Badge
                       key={index}
                       variant="secondary"
-                      className="text-xs bg-white/10 text-white/80 hover:bg-white/20"
+                      className="text-[8px] md:text-xs bg-white/10 text-white/80 hover:bg-white/20 px-1 py-0 md:px-2 md:py-0.5"
                     >
                       {tag}
                     </Badge>
                   ))}
                   {project.tags.length > 2 && (
-                    <Badge variant="secondary" className="text-xs bg-white/10 text-white/80">
+                    <Badge variant="secondary" className="text-[8px] md:text-xs bg-white/10 text-white/80 px-1 py-0 md:px-2 md:py-0.5">
                       +{project.tags.length - 2}
                     </Badge>
                   )}

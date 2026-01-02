@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, Filter, X, Users, Calendar, Layers, FolderOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -66,18 +66,27 @@ export const ProjectsBrowser = () => {
       createdAt: cp.createdAt,
     }));
 
-  const filteredProjects = allProjects.filter((project) => {
-    const matchesSearch =
-      project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      project.client.toLowerCase().includes(searchTerm.toLowerCase());
+  // Create a Set of filtered project IDs for quick lookup
+  const filteredProjectIds = useMemo(() => {
+    const ids = new Set<string>();
+    allProjects.forEach((project) => {
+      const matchesSearch =
+        project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        project.client.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesTags = selectedTags.length === 0 || selectedTags.some((tag) => project.tags.includes(tag));
+      const matchesTags = selectedTags.length === 0 || selectedTags.some((tag) => project.tags.includes(tag));
 
-    const matchesYear = selectedYear === null || project.year === selectedYear;
+      const matchesYear = selectedYear === null || project.year === selectedYear;
 
-    return matchesSearch && matchesTags && matchesYear;
-  });
+      if (matchesSearch && matchesTags && matchesYear) {
+        ids.add(project.id);
+      }
+    });
+    return ids;
+  }, [allProjects, searchTerm, selectedTags, selectedYear]);
+
+  const filteredProjects = allProjects.filter((project) => filteredProjectIds.has(project.id));
 
   const toggleTag = (tag: string) => {
     setSelectedTags((prev) => (prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]));
@@ -189,87 +198,94 @@ export const ProjectsBrowser = () => {
         Showing {filteredProjects.length} of {allProjects.length} projects
       </div>
 
-      {/* Projects Grid */}
+      {/* Projects Grid - Show all projects but animate visibility */}
       <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredProjects.map((project) => (
-          <div
-            key={project.id}
-            className="group cursor-pointer bg-white/5 backdrop-blur-sm rounded-lg overflow-hidden border border-white/10 hover:border-white/20 transition-all duration-300 hover:scale-105 relative"
-            onClick={() => navigate(`/projects/${project.id}`)}
-          >
-            <div className="aspect-[4/3] md:aspect-video bg-gray-800 overflow-hidden">
-              <img
-                src={project.thumbnail || "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400"}
-                alt={project.title}
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                onError={(e) => {
-                  e.currentTarget.src = "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400";
-                }}
-              />
-            </div>
-            <div className="p-2 md:p-4 space-y-1 md:space-y-3">
-              <div className="flex items-start justify-between gap-2">
-                <h3 className="font-semibold text-white group-hover:text-blue-300 transition-colors line-clamp-1">
-                  {project.title}
-                </h3>
-                <span className="hidden md:block text-xs text-white/60 bg-white/10 px-2 py-1 rounded-full whitespace-nowrap">
-                  {project.year}
-                </span>
+        {allProjects.map((project) => {
+          const isVisible = filteredProjectIds.has(project.id);
+          return (
+            <div
+              key={project.id}
+              className={`group cursor-pointer bg-white/5 backdrop-blur-sm rounded-lg overflow-hidden border border-white/10 hover:border-white/20 relative transition-all duration-500 ease-out ${
+                isVisible 
+                  ? "opacity-100 scale-100 translate-y-0 hover:scale-105" 
+                  : "opacity-0 scale-95 translate-y-4 pointer-events-none hidden"
+              }`}
+              onClick={() => isVisible && navigate(`/projects/${project.id}`)}
+            >
+              <div className="aspect-[4/3] md:aspect-video bg-gray-800 overflow-hidden">
+                <img
+                  src={project.thumbnail || "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400"}
+                  alt={project.title}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  onError={(e) => {
+                    e.currentTarget.src = "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400";
+                  }}
+                />
               </div>
-              <p className="hidden md:block text-sm text-white/70 line-clamp-2">
-                {project.description.length > 100 ? (
-                  <>
-                    {project.description.slice(0, 100)}...
-                    <span className="text-blue-300 hover:underline ml-1">see more</span>
-                  </>
-                ) : (
-                  project.description
-                )}
-              </p>
-              <div className="hidden md:flex items-center gap-2 text-xs text-white/60">
-                <Users className="w-3 h-3" />
-                <span className="line-clamp-1">{project.client}</span>
-              </div>
-              <div className="hidden md:flex flex-wrap gap-1">
-                {project.tags.slice(0, 2).map((tag, index) => (
-                  <Badge
-                    key={index}
-                    variant="secondary"
-                    className="text-xs bg-white/10 text-white/80 hover:bg-white/20"
-                  >
-                    {tag}
-                  </Badge>
-                ))}
-                {project.tags.length > 2 && (
-                  <Badge variant="secondary" className="text-xs bg-white/10 text-white/80">
-                    +{project.tags.length - 2}
-                  </Badge>
-                )}
-              </div>
-            </div>
-            
-            {/* Admin File Access Button */}
-            {isAdmin && (
-              project.fileLink ? (
-                <a
-                  href={project.fileLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                  className="absolute bottom-2 right-2 md:bottom-4 md:right-4 flex items-center gap-1 px-2 py-1 md:px-3 md:py-1.5 bg-green-600 hover:bg-green-500 text-white text-xs font-medium rounded-md transition-colors"
-                >
-                  <FolderOpen className="w-3 h-3" />
-                  <span className="hidden md:inline">Access Files</span>
-                </a>
-              ) : (
-                <div className="absolute bottom-2 right-2 md:bottom-4 md:right-4 flex items-center gap-1 px-2 py-1 md:px-3 md:py-1.5 bg-gray-600 text-white/50 text-xs font-medium rounded-md cursor-not-allowed">
-                  <FolderOpen className="w-3 h-3" />
-                  <span className="hidden md:inline">No Files</span>
+              <div className="p-2 md:p-4 space-y-1 md:space-y-3">
+                <div className="flex items-start justify-between gap-2">
+                  <h3 className="font-semibold text-white group-hover:text-blue-300 transition-colors line-clamp-1">
+                    {project.title}
+                  </h3>
+                  <span className="hidden md:block text-xs text-white/60 bg-white/10 px-2 py-1 rounded-full whitespace-nowrap">
+                    {project.year}
+                  </span>
                 </div>
-              )
-            )}
-          </div>
-        ))}
+                <p className="hidden md:block text-sm text-white/70 line-clamp-2">
+                  {project.description.length > 100 ? (
+                    <>
+                      {project.description.slice(0, 100)}...
+                      <span className="text-blue-300 hover:underline ml-1">see more</span>
+                    </>
+                  ) : (
+                    project.description
+                  )}
+                </p>
+                <div className="hidden md:flex items-center gap-2 text-xs text-white/60">
+                  <Users className="w-3 h-3" />
+                  <span className="line-clamp-1">{project.client}</span>
+                </div>
+                <div className="hidden md:flex flex-wrap gap-1">
+                  {project.tags.slice(0, 2).map((tag, index) => (
+                    <Badge
+                      key={index}
+                      variant="secondary"
+                      className="text-xs bg-white/10 text-white/80 hover:bg-white/20"
+                    >
+                      {tag}
+                    </Badge>
+                  ))}
+                  {project.tags.length > 2 && (
+                    <Badge variant="secondary" className="text-xs bg-white/10 text-white/80">
+                      +{project.tags.length - 2}
+                    </Badge>
+                  )}
+                </div>
+              </div>
+              
+              {/* Admin File Access Button */}
+              {isAdmin && (
+                project.fileLink ? (
+                  <a
+                    href={project.fileLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="absolute bottom-2 right-2 md:bottom-4 md:right-4 flex items-center gap-1 px-2 py-1 md:px-3 md:py-1.5 bg-green-600 hover:bg-green-500 text-white text-xs font-medium rounded-md transition-colors"
+                  >
+                    <FolderOpen className="w-3 h-3" />
+                    <span className="hidden md:inline">Access Files</span>
+                  </a>
+                ) : (
+                  <div className="absolute bottom-2 right-2 md:bottom-4 md:right-4 flex items-center gap-1 px-2 py-1 md:px-3 md:py-1.5 bg-gray-600 text-white/50 text-xs font-medium rounded-md cursor-not-allowed">
+                    <FolderOpen className="w-3 h-3" />
+                    <span className="hidden md:inline">No Files</span>
+                  </div>
+                )
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* No Results */}

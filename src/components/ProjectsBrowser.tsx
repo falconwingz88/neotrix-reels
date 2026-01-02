@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useProjects } from "@/contexts/ProjectsContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { motion, AnimatePresence } from "framer-motion";
 
 export interface Project {
   id: string;
@@ -198,19 +199,27 @@ export const ProjectsBrowser = () => {
         Showing {filteredProjects.length} of {allProjects.length} projects
       </div>
 
-      {/* Projects Grid - Show all projects but animate visibility */}
-      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {allProjects.map((project) => {
-          const isVisible = filteredProjectIds.has(project.id);
-          return (
-            <div
+      {/* Projects Grid with animations */}
+      <motion.div 
+        layout
+        className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6"
+      >
+        <AnimatePresence mode="popLayout">
+          {filteredProjects.map((project) => (
+            <motion.div
               key={project.id}
-              className={`group cursor-pointer bg-white/5 backdrop-blur-sm rounded-lg overflow-hidden border border-white/10 hover:border-white/20 relative transition-all duration-500 ease-out ${
-                isVisible 
-                  ? "opacity-100 scale-100 translate-y-0 hover:scale-105" 
-                  : "opacity-0 scale-95 translate-y-4 pointer-events-none hidden"
-              }`}
-              onClick={() => isVisible && navigate(`/projects/${project.id}`)}
+              layout
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ 
+                duration: 0.3, 
+                ease: [0.4, 0, 0.2, 1],
+                layout: { duration: 0.4 }
+              }}
+              className="group cursor-pointer bg-white/5 backdrop-blur-sm rounded-lg overflow-hidden border border-white/10 hover:border-white/20 relative"
+              whileHover={{ scale: 1.03 }}
+              onClick={() => navigate(`/projects/${project.id}`)}
             >
               <div className="aspect-[4/3] md:aspect-video bg-gray-800 overflow-hidden">
                 <img
@@ -283,10 +292,10 @@ export const ProjectsBrowser = () => {
                   </div>
                 )
               )}
-            </div>
-          );
-        })}
-      </div>
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </motion.div>
 
       {/* No Results */}
       {filteredProjects.length === 0 && (

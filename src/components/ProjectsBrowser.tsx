@@ -202,7 +202,7 @@ export const ProjectsBrowser = () => {
       {/* Projects Grid with animations */}
       <motion.div 
         layout
-        className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-6"
+        className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-1 md:gap-6"
       >
         <AnimatePresence mode="popLayout">
           {filteredProjects.map((project) => (
@@ -231,7 +231,7 @@ export const ProjectsBrowser = () => {
                   }}
                 />
               </div>
-              <div className="p-1.5 md:p-4 space-y-0.5 md:space-y-3">
+              <div className="p-1 md:p-4 space-y-0.5 md:space-y-3">
                 <div className="flex items-start justify-between gap-1">
                   <h3 className="font-semibold text-white group-hover:text-blue-300 transition-colors line-clamp-1 text-xs md:text-base">
                     {project.title}

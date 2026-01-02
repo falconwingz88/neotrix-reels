@@ -52,10 +52,11 @@ export const Contact = () => {
       }
     }).catch(() => setLocation("Unknown"));
   }, []);
-  const canProceedStep1 = name.trim() !== "" && role !== "" && (role !== "Other" || otherRole.trim() !== "");
+  const canProceedStep1 = role !== "" && (role !== "Other" || otherRole.trim() !== "");
   const canProceedStep2 = projectStatus !== "" && (projectStatus !== "have_project" || hasDeck !== null && (hasDeck === false || hasDeck === true && deckLink.trim() !== ""));
   const canProceedStep3 = videoVersions !== "" && videoDuration !== "";
   const canProceedStep4 = deliveryDate !== undefined || startDate !== undefined;
+  const canProceedStep5 = name.trim() !== "";
   const saveContactSubmission = (): string => {
     const finalRole = role === "Other" ? otherRole : role;
     const contactId = Date.now().toString();
@@ -75,13 +76,13 @@ export const Contact = () => {
     return contactId;
   };
   const goToNextStep = () => {
-    if (currentStep < 5) {
+    if (currentStep < 6) {
       // Skip step 3 (video details) if user selected "not sure" or "discuss first"
       if (currentStep === 2 && (projectStatus === "not_sure" || projectStatus === "discuss")) {
         setCurrentStep(4); // Skip directly to timeline
       } else {
-        // Save contact when going to final step
-        if (currentStep === 4) {
+        // Save contact when going to final step (after name input - step 5)
+        if (currentStep === 5) {
           saveContactSubmission();
         }
         setCurrentStep(currentStep + 1);
@@ -89,7 +90,7 @@ export const Contact = () => {
     }
   };
   const skipTimeline = () => {
-    saveContactSubmission();
+    // Go to name step instead of thank you
     setCurrentStep(5);
   };
   const goToPreviousStep = () => {
@@ -97,6 +98,9 @@ export const Contact = () => {
       // If on step 4 and user skipped step 3, go back to step 2
       if (currentStep === 4 && (projectStatus === "not_sure" || projectStatus === "discuss")) {
         setCurrentStep(2);
+      } else if (currentStep === 5 && (projectStatus === "not_sure" || projectStatus === "discuss")) {
+        // If on name step and user skipped video details, check if they also skipped timeline
+        setCurrentStep(4);
       } else {
         setCurrentStep(currentStep - 1);
       }
@@ -137,7 +141,7 @@ export const Contact = () => {
         <div className="w-full max-w-xl">
           {/* Progress Indicator */}
           <div className="flex justify-center gap-2 mb-8">
-            {[0, 1, 2, 3, 4, 5].map(step => <div key={step} className={cn("w-2 h-2 rounded-full transition-all duration-300", currentStep >= step ? "bg-white w-8" : "bg-white/30")} />)}
+            {[0, 1, 2, 3, 4, 5, 6].map(step => <div key={step} className={cn("w-2 h-2 rounded-full transition-all duration-300", currentStep >= step ? "bg-white w-8" : "bg-white/30")} />)}
           </div>
 
           {/* Form Card */}
@@ -152,15 +156,10 @@ export const Contact = () => {
                 </Button>
               </div>}
 
-            {/* Step 1 - Name & Role */}
+            {/* Step 1 - Role Selection */}
             {currentStep === 1 && <div className="space-y-6 animate-fade-in">
                 <div className="space-y-2">
-                  <label className="text-white font-medium">Who should we call you?</label>
-                  <Input value={name} onChange={e => setName(e.target.value)} placeholder="Your name" className="bg-white/10 border-white/20 text-white placeholder:text-white/50 rounded-xl h-12" />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-white font-medium">Which best describes you?</label>
+                  <label className="text-white font-medium text-lg">Which best describes you?</label>
                   <div className="grid grid-cols-1 gap-2">
                     {ROLES.map(r => <Button key={r} variant="outline" onClick={() => setRole(r)} className={cn("justify-start text-left h-auto py-3 px-4 rounded-xl transition-all duration-300", role === r ? "bg-white/20 border-white/40 text-white" : "bg-white/5 border-white/20 text-white/70 hover:bg-white/10 hover:text-white")}>
                         {role === r && <Check className="w-4 h-4 mr-2 flex-shrink-0" />}
@@ -325,16 +324,35 @@ export const Contact = () => {
                 </div>
               </div>}
 
-            {/* Step 5 - Thank You */}
-            {currentStep === 5 && <div className="text-center space-y-6 animate-fade-in">
+            {/* Step 5 - Name (Last step before thank you) */}
+            {currentStep === 5 && <div className="space-y-6 animate-fade-in">
+                <div className="space-y-2">
+                  <label className="text-white font-medium text-lg">Almost there! Who should we call you?</label>
+                  <Input value={name} onChange={e => setName(e.target.value)} placeholder="Your name" className="bg-white/10 border-white/20 text-white placeholder:text-white/50 rounded-xl h-12" />
+                </div>
+
+                <div className="flex justify-between pt-4">
+                  <Button variant="ghost" onClick={goToPreviousStep} className="text-white/70 hover:text-white hover:bg-white/10 rounded-full">
+                    <ArrowLeft className="mr-2 w-4 h-4" />
+                    Back
+                  </Button>
+                  <Button onClick={goToNextStep} disabled={!canProceedStep5} className={cn("rounded-full px-6 transition-all duration-300", canProceedStep5 ? "bg-green-500 hover:bg-green-600 text-white" : "bg-white/20 text-white/50 cursor-not-allowed")}>
+                    Submit
+                    <ArrowRight className="ml-2 w-4 h-4" />
+                  </Button>
+                </div>
+              </div>}
+
+            {/* Step 6 - Thank You */}
+            {currentStep === 6 && <div className="text-center space-y-6 animate-fade-in">
                 <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto">
                   <Check className="w-8 h-8 text-green-400" />
                 </div>
-                <h1 className="text-2xl md:text-3xl font-bold text-white">Thank you for the details!</h1>
+                <h1 className="text-2xl md:text-3xl font-bold text-white">Thank you, {name}!</h1>
                 <p className="text-white/70 text-lg">Click the button below to contact our producer right now.</p>
-                <Button onClick={openWhatsApp} className="mt-4 bg-green-500 hover:bg-green-600 text-white font-semibold px-8 py-6 text-lg rounded-full transition-all duration-300 hover:scale-105">
-                  Contact Producer on WhatsApp
-                  <ArrowRight className="ml-2 w-5 h-5" />
+                <Button onClick={openWhatsApp} className="mt-4 bg-green-500 hover:bg-green-600 text-white font-semibold px-4 md:px-8 py-6 text-sm md:text-lg rounded-full transition-all duration-300 hover:scale-105 w-full md:w-auto">
+                  <span className="truncate">Contact Producer on WhatsApp</span>
+                  <ArrowRight className="ml-2 w-5 h-5 flex-shrink-0" />
                 </Button>
                 <Button variant="ghost" onClick={() => setCurrentStep(0)} className="text-white/50 hover:text-white hover:bg-white/10 rounded-full">
                   Start Over

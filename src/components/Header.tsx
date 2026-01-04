@@ -1,9 +1,8 @@
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { Home, User, Menu } from 'lucide-react';
+import { Home, Menu } from 'lucide-react';
 import { useState } from 'react';
-
-const neotrixLogo = '/lovable-uploads/e25231ff-24d7-47d0-b8da-ebd1979c96de.png';
+import neotrixLogo from '@/assets/neotrix-logo-white.png';
 
 export const Header = () => {
   const navigate = useNavigate();
@@ -26,16 +25,18 @@ export const Header = () => {
             </span>
           </Button>
 
+          {/* Center - Logo */}
+          <div className="absolute left-1/2 transform -translate-x-1/2">
+            <img 
+              src={neotrixLogo} 
+              alt="Neotrix Logo" 
+              className="h-6 w-auto object-contain cursor-pointer"
+              onClick={() => navigate('/')}
+            />
+          </div>
+
           {/* Right side - Navigation buttons */}
           <div className="flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="w-8 h-8 rounded-full hover:bg-white/20 transition-all duration-300"
-              onClick={() => navigate('/admin-login')}
-            >
-              <User className="w-4 h-4 text-white/60" />
-            </Button>
             <Button
               variant="ghost"
               className="rounded-full hover:bg-white/20 transition-all duration-300 px-4 py-2 text-white font-medium"
@@ -46,9 +47,9 @@ export const Header = () => {
             <Button
               variant="ghost"
               className="rounded-full hover:bg-white/20 transition-all duration-300 px-4 py-2 text-white font-medium"
-              onClick={() => navigate('/about-us')}
+              onClick={() => navigate('/contact')}
             >
-              Contact Us
+              Book Now
             </Button>
             <Button
               variant="ghost"
@@ -60,9 +61,16 @@ export const Header = () => {
             <Button
               variant="ghost"
               className="rounded-full hover:bg-white/20 transition-all duration-300 px-4 py-2 text-white font-medium"
-              onClick={() => navigate('/contact')}
+              onClick={() => navigate('/about-us')}
             >
-              Book Now
+              Contact Us
+            </Button>
+            <Button
+              variant="ghost"
+              className="rounded-full hover:bg-white/20 transition-all duration-300 px-4 py-2 text-white/60 font-medium"
+              onClick={() => navigate('/admin-login')}
+            >
+              Login
             </Button>
           </div>
         </nav>
@@ -105,11 +113,11 @@ export const Header = () => {
               variant="ghost"
               className="w-full justify-start rounded-lg bg-white/5 hover:bg-white/10 text-white font-medium"
               onClick={() => {
-                navigate('/about-us');
+                navigate('/contact');
                 setMobileMenuOpen(false);
               }}
             >
-              Contact Us
+              Book Now
             </Button>
             <Button
               variant="ghost"
@@ -125,11 +133,11 @@ export const Header = () => {
               variant="ghost"
               className="w-full justify-start rounded-lg bg-white/5 hover:bg-white/10 text-white font-medium"
               onClick={() => {
-                navigate('/contact');
+                navigate('/about-us');
                 setMobileMenuOpen(false);
               }}
             >
-              Book Now
+              Contact Us
             </Button>
             <Button
               variant="ghost"
@@ -139,8 +147,7 @@ export const Header = () => {
                 setMobileMenuOpen(false);
               }}
             >
-              <User className="w-4 h-4 mr-2" />
-              Admin
+              Login
             </Button>
           </div>
         </div>

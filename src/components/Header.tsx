@@ -12,7 +12,7 @@ export const Header = () => {
     <header className="absolute top-0 left-0 right-0 z-50 px-4 py-4">
       <div className="max-w-7xl mx-auto">
         {/* Desktop - Pill-shaped navigation bar */}
-        <nav className="hidden md:flex items-center justify-between bg-white/10 backdrop-blur-md rounded-full border border-white/20 px-2 py-2">
+        <nav className="hidden lg:flex items-center justify-between bg-white/10 backdrop-blur-md rounded-full border border-white/20 px-2 py-2">
           {/* Left side - Home */}
           <Button
             variant="ghost"
@@ -75,8 +75,8 @@ export const Header = () => {
           </div>
         </nav>
 
-        {/* Mobile Navigation */}
-        <div className="flex md:hidden items-center justify-between bg-white/10 backdrop-blur-md rounded-full border border-white/20 px-2 py-2 relative">
+        {/* Mobile & Tablet Navigation */}
+        <div className="flex lg:hidden items-center justify-between bg-white/10 backdrop-blur-md rounded-full border border-white/20 px-2 py-2 relative">
           <Button
             variant="ghost"
             className="rounded-full hover:bg-white/20 transition-all duration-300 px-3 py-2 h-auto z-10"
@@ -106,9 +106,9 @@ export const Header = () => {
         </div>
       </div>
 
-      {/* Mobile Menu Dropdown */}
+      {/* Mobile & Tablet Menu Dropdown */}
       {mobileMenuOpen && (
-        <div className="md:hidden mt-2 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-4 mx-2">
+        <div className="lg:hidden mt-2 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-4 mx-2">
           <div className="flex flex-col gap-2">
             <Button
               variant="ghost"

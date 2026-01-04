@@ -173,7 +173,7 @@ const Index = () => {
           >
             {/* Scrolling Project Grid */}
             <div
-              className="animate-scroll-vertical-slow transition-opacity duration-500 group-hover:opacity-40 group-hover:[animation-play-state:paused]"
+              className="animate-scroll-vertical-slow transition-opacity duration-500 group-hover:opacity-40"
               style={{ animationDuration: "100s" }}
             >
               <div className="grid grid-cols-3 gap-1 p-1">

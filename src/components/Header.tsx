@@ -76,18 +76,29 @@ export const Header = () => {
         </nav>
 
         {/* Mobile Navigation */}
-        <div className="flex md:hidden items-center justify-between bg-white/10 backdrop-blur-md rounded-full border border-white/20 px-2 py-2">
+        <div className="flex md:hidden items-center justify-between bg-white/10 backdrop-blur-md rounded-full border border-white/20 px-2 py-2 relative">
           <Button
             variant="ghost"
-            className="rounded-full hover:bg-white/20 transition-all duration-300 px-3 py-2 h-auto"
+            className="rounded-full hover:bg-white/20 transition-all duration-300 px-3 py-2 h-auto z-10"
             onClick={() => navigate('/')}
           >
             <Home className="w-5 h-5 text-white" />
           </Button>
+          
+          {/* Center - Logo */}
+          <div className="absolute left-1/2 transform -translate-x-1/2">
+            <img 
+              src={neotrixLogo} 
+              alt="Neotrix Logo" 
+              className="h-5 w-auto object-contain cursor-pointer"
+              onClick={() => navigate('/')}
+            />
+          </div>
+          
           <Button
             variant="ghost"
             size="icon"
-            className="w-10 h-10 rounded-full hover:bg-white/20 transition-all duration-300"
+            className="w-10 h-10 rounded-full hover:bg-white/20 transition-all duration-300 z-10"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             <Menu className="w-5 h-5 text-white" />

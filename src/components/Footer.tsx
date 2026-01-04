@@ -10,9 +10,9 @@ export const Footer = () => {
             <p className="text-white/70 leading-relaxed">
               3D animation Studio, uniquely blending artistry with cutting-edge Technology and AI.
             </p>
-            <p className="text-white/60 italic text-sm mt-2">
-              "Technology inspires creativity, Creativity challenges technology"
-            </p>
+            <p className="text-white/60 italic text-sm mt-2">"Technology inspires creativity, Creativity challenges technology" - John Lasseter (Pixar)
+
+          </p>
           </div>
 
           {/* Contact Info */}
@@ -65,7 +65,7 @@ export const Footer = () => {
 
           {/* Social & Follow */}
           <div className="space-y-4">
-            <h4 className="text-lg font-semibold text-white">Follow Us</h4>
+            <h4 className="text-lg font-semibold text-white">Socials</h4>
             <Button variant="outline" size="lg" className="bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 hover:border-white/30 transition-all duration-300 rounded-full px-6 py-3 w-full" onClick={() => window.open('https://instagram.com/neotrix.asia', '_blank')}>
               <Instagram className="w-5 h-5 mr-2" />
               @neotrix.asia

@@ -828,17 +828,17 @@ const AdminDashboard = () => {
               <FolderKanban className="w-4 h-4 mr-1 sm:mr-2" />
               <span className="hidden sm:inline">Projects</span> ({customProjects.length})
             </TabsTrigger>
-            <TabsTrigger value="contacts" className="data-[state=active]:bg-white/20 text-white flex-1 sm:flex-none text-xs sm:text-sm">
-              <MessageSquare className="w-4 h-4 mr-1 sm:mr-2" />
-              <span className="hidden sm:inline">Clients</span> ({contacts.length})
+            <TabsTrigger value="logos" className="data-[state=active]:bg-white/20 text-white flex-1 sm:flex-none text-xs sm:text-sm">
+              <Image className="w-4 h-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Client Logos</span> ({clientLogos.length})
             </TabsTrigger>
             <TabsTrigger value="jobs" className="data-[state=active]:bg-white/20 text-white flex-1 sm:flex-none text-xs sm:text-sm">
               <Briefcase className="w-4 h-4 mr-1 sm:mr-2" />
-              <span className="hidden sm:inline">Jobs</span> ({jobOpenings.length})
+              <span className="hidden sm:inline">Job Opening</span> ({jobOpenings.length})
             </TabsTrigger>
-            <TabsTrigger value="logos" className="data-[state=active]:bg-white/20 text-white flex-1 sm:flex-none text-xs sm:text-sm">
-              <Image className="w-4 h-4 mr-1 sm:mr-2" />
-              <span className="hidden sm:inline">Logos</span> ({clientLogos.length})
+            <TabsTrigger value="contacts" className="data-[state=active]:bg-white/20 text-white flex-1 sm:flex-none text-xs sm:text-sm">
+              <MessageSquare className="w-4 h-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Interested Form</span> ({contacts.length})
             </TabsTrigger>
           </TabsList>
 

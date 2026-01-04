@@ -11,12 +11,13 @@ export const Header = () => {
 
   return (
     <header className="absolute top-0 left-0 right-0 z-50 px-4 py-4">
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
-        {/* Left side - Home only */}
-        <div className="flex items-center">
+      <div className="max-w-7xl mx-auto">
+        {/* Desktop - Pill-shaped navigation bar */}
+        <nav className="hidden md:flex items-center justify-between bg-white/10 backdrop-blur-md rounded-full border border-white/20 px-2 py-2">
+          {/* Left side - Home */}
           <Button
             variant="ghost"
-            className="group flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300 hover:scale-110 px-3 py-2 h-auto min-w-10"
+            className="group flex items-center gap-2 rounded-full hover:bg-white/20 transition-all duration-300 px-3 py-2 h-auto min-w-10"
             onClick={() => navigate('/')}
           >
             <Home className="w-5 h-5 text-white flex-shrink-0" />
@@ -24,63 +25,64 @@ export const Header = () => {
               Home
             </span>
           </Button>
-        </div>
 
-        {/* Center - Logo (optional, can be shown on scroll) */}
-        <div className="hidden md:flex items-center">
-          <img src={neotrixLogo} alt="Neotrix Logo" className="h-8 w-auto object-contain opacity-0" />
-        </div>
-
-        {/* Right side - Navigation */}
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="w-8 h-8 rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300"
-            onClick={() => navigate('/admin-login')}
-          >
-            <User className="w-4 h-4 text-white/60" />
-          </Button>
-          <Button
-            variant="ghost"
-            className="rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300 px-4 py-2 text-white font-medium"
-            onClick={() => navigate('/projects')}
-          >
-            Works
-          </Button>
-          <Button
-            variant="ghost"
-            className="rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300 px-4 py-2 text-white font-medium"
-            onClick={() => navigate('/about-us')}
-          >
-            Contact Us
-          </Button>
-          <Button
-            variant="ghost"
-            className="rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300 px-4 py-2 text-white font-medium"
-            onClick={() => navigate('/join-us')}
-          >
-            Join Us
-          </Button>
-          <Button
-            variant="ghost"
-            className="rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300 px-4 py-2 text-white font-medium"
-            onClick={() => navigate('/contact')}
-          >
-            Book Now
-          </Button>
+          {/* Right side - Navigation buttons */}
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="w-8 h-8 rounded-full hover:bg-white/20 transition-all duration-300"
+              onClick={() => navigate('/admin-login')}
+            >
+              <User className="w-4 h-4 text-white/60" />
+            </Button>
+            <Button
+              variant="ghost"
+              className="rounded-full hover:bg-white/20 transition-all duration-300 px-4 py-2 text-white font-medium"
+              onClick={() => navigate('/projects')}
+            >
+              Works
+            </Button>
+            <Button
+              variant="ghost"
+              className="rounded-full hover:bg-white/20 transition-all duration-300 px-4 py-2 text-white font-medium"
+              onClick={() => navigate('/about-us')}
+            >
+              Contact Us
+            </Button>
+            <Button
+              variant="ghost"
+              className="rounded-full hover:bg-white/20 transition-all duration-300 px-4 py-2 text-white font-medium"
+              onClick={() => navigate('/join-us')}
+            >
+              Join Us
+            </Button>
+            <Button
+              variant="ghost"
+              className="rounded-full hover:bg-white/20 transition-all duration-300 px-4 py-2 text-white font-medium"
+              onClick={() => navigate('/contact')}
+            >
+              Book Now
+            </Button>
+          </div>
         </nav>
 
         {/* Mobile Navigation */}
-        <div className="flex md:hidden items-center gap-2">
+        <div className="flex md:hidden items-center justify-between bg-white/10 backdrop-blur-md rounded-full border border-white/20 px-2 py-2">
+          <Button
+            variant="ghost"
+            className="rounded-full hover:bg-white/20 transition-all duration-300 px-3 py-2 h-auto"
+            onClick={() => navigate('/')}
+          >
+            <Home className="w-5 h-5 text-white" />
+          </Button>
           <Button
             variant="ghost"
             size="icon"
-            className="w-8 h-8 rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300"
+            className="w-10 h-10 rounded-full hover:bg-white/20 transition-all duration-300"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
-            <Menu className="w-4 h-4 text-white" />
+            <Menu className="w-5 h-5 text-white" />
           </Button>
         </div>
       </div>

@@ -139,7 +139,7 @@ const Index = () => {
       `}</style>
 
       {/* Content Container */}
-      <div className="relative z-10 min-h-screen flex flex-col py-4 md:py-8">
+      <div className="relative z-10 min-h-screen flex flex-col pt-20 md:pt-24 pb-4 md:pb-8">
         {/* Main Hero Video - Neotrix Reels 2024 */}
         <div className="max-w-7xl mx-auto w-full mb-8 md:mb-12">
           <div className="text-center mb-6 md:mb-8">

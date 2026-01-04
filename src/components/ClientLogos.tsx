@@ -1,58 +1,61 @@
 import { useRef, useEffect, useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+
+interface ClientLogo {
+  id: string;
+  name: string;
+  url: string;
+  scale: string;
+  sort_order: number;
+}
 
 export const ClientLogos = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [logos, setLogos] = useState<ClientLogo[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const logos = [
-    { name: 'BCA_white.png', url: '/client-logos/BCA_white.png' },
-    { name: 'BNI-MOBILE_white.png', url: '/client-logos/BNI-MOBILE_white.png' },
-    { name: 'BNI_white.png', url: '/client-logos/BNI_white.png' },
-    { name: 'JT-Express_logo_white.png', url: '/client-logos/JT-Express_logo_white.png' },
-    { name: 'Logo_fatigon_spirit_white.png', url: '/client-logos/Logo_fatigon_spirit_white.png' },
-    { name: 'RWS-Sentosa_white.png', url: '/client-logos/RWS-Sentosa_white.png' },
-    { name: 'Smartfren_white.png', url: '/client-logos/Smartfren_white.png' },
-    { name: 'bbl_white.png', url: '/client-logos/bbl_white.png' },
-    { name: 'bibit-logo_brandlogos.net_mdpay_white.png', url: '/client-logos/bibit-logo_brandlogos.net_mdpay_white.png' },
-    { name: 'caplang_white.png', url: '/client-logos/caplang_white.png' },
-    { name: 'fibe-mini_white.png', url: '/client-logos/fibe-mini_white.png' },
-    { name: 'flimty_white.png', url: '/client-logos/flimty_white.png' },
-    { name: 'freefire_white.png', url: '/client-logos/freefire_white.png' },
-    { name: 'garuda_white.png', url: '/client-logos/garuda_white.png' },
-    { name: 'indofood-kulkuil_white.png', url: '/client-logos/indofood-kulkuil_white.png' },
-    { name: 'indomilk_white.png', url: '/client-logos/indomilk_white.png' },
-    { name: 'kelaya_white.png', url: '/client-logos/kelaya_white.png' },
-    { name: 'livin-by-mandiri_white.png', url: '/client-logos/livin-by-mandiri_white.png' },
-    { name: 'luvky-strikes_white.png', url: '/client-logos/luvky-strikes_white.png' },
-    { name: 'miranda_white.png', url: '/client-logos/miranda_white.png' },
-    { name: 'mobile-legends_white.png', url: '/client-logos/mobile-legends_white.png' },
-    { name: 'nature-e_white.png', url: '/client-logos/nature-e_white.png' },
-    { name: 'oppo_white.png', url: '/client-logos/oppo_white.png' },
-    { name: 'paddle-pop_white.png', url: '/client-logos/paddle-pop_white.png' },
-    { name: 'permata-bank_white.png', url: '/client-logos/permata-bank_white.png' },
-    { name: 'pertamina_white.png', url: '/client-logos/pertamina_white.png' },
-    { name: 'procold_white.png', url: '/client-logos/procold_white.png' },
-    { name: 'rejoice_white.png', url: '/client-logos/rejoice_white.png' },
-    { name: 'siladex_white.png', url: '/client-logos/siladex_white.png' },
-    { name: 'siloam-hospital_white.png', url: '/client-logos/siloam-hospital_white.png' },
-    { name: 'skinmology_white.png', url: '/client-logos/skinmology_white.png' },
-    { name: 'skintific_white.png', url: '/client-logos/skintific_white.png' },
-    { name: 'softex_white.png', url: '/client-logos/softex_white.png' },
-    { name: 'telkomsel_white.png', url: '/client-logos/telkomsel_white.png' },
-    { name: 'tomoro_white.png', url: '/client-logos/tomoro_white.png' },
-    { name: 'tri_white.png', url: '/client-logos/tri_white.png' },
-    { name: 'ultima-II_white.png', url: '/client-logos/ultima-II_white.png' },
-    { name: 'valo_white.png', url: '/client-logos/valo_white.png' },
-    { name: 'vivo_white.png', url: '/client-logos/vivo_white.png' },
-    { name: 'wardah_white.png', url: '/client-logos/wardah_white.png' },
-    { name: 'wuling_white.png', url: '/client-logos/wuling_white.png' },
-    { name: 'wyeth_white.png', url: '/client-logos/wyeth_white.png' },
-    { name: 'xl_white.png', url: '/client-logos/xl_white.png' },
-    { name: 'lilac-post-pro.png', url: '/lovable-uploads/73f5e109-5a65-4fca-9511-3f9077bead37.png' },
-    { name: 'Lieve-Logo-White.png', url: '/lovable-uploads/5ada6f74-27f7-415c-9050-858b791223aa.png' }
-  ];
+  // Fetch logos from database
+  useEffect(() => {
+    const fetchLogos = async () => {
+      const { data, error } = await supabase
+        .from('client_logos')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true });
+      
+      if (!error && data) {
+        setLogos(data as ClientLogo[]);
+      }
+      setLoading(false);
+    };
+
+    fetchLogos();
+
+    // Subscribe to realtime changes
+    const channel = supabase
+      .channel('client_logos_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'client_logos'
+        },
+        () => {
+          fetchLogos();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   // Create 3 rows with infinite continuous looping
   const createLogoRows = () => {
+    if (logos.length === 0) return [];
+    
     const logosPerRow = Math.ceil(logos.length / 3);
     const rows = [];
     
@@ -96,6 +99,31 @@ export const ClientLogos = () => {
     }
   }, []);
 
+  const getScaleClass = (scale: string) => {
+    switch (scale) {
+      case '3x':
+        return 'scale-[3]';
+      case '2x':
+        return 'scale-[2]';
+      case 'small':
+        return 'scale-75';
+      default:
+        return '';
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="bg-white/5 backdrop-blur-2xl rounded-3xl border border-white/20 shadow-2xl overflow-hidden mb-8 p-8">
+        <div className="text-center text-white/50">Loading logos...</div>
+      </div>
+    );
+  }
+
+  if (logos.length === 0) {
+    return null;
+  }
+
   return (
     <div className="bg-white/5 backdrop-blur-2xl rounded-3xl border border-white/20 shadow-2xl overflow-hidden mb-8">
       <div className="p-4 md:p-8 pb-0">
@@ -121,60 +149,29 @@ export const ClientLogos = () => {
               animationDuration: '220s'
             }}
           >
-            {rowLogos.map((logo, logoIndex) => {
-              // Define 3x enlarged logos
-              const is3xLogo = logo.name.toLowerCase().includes('skintific');
-              
-              // Define 2x enlarged logos
-              const is2xLogo = [
-                'bibit-logo_brandlogos.net_mdpay_white.png',
-                'fibe-mini_white.png', 
-                'siloam-hospital_white.png',
-                'miranda_white.png',
-                'xl_white.png',
-                'oppo_white.png'
-              ].includes(logo.name);
-              
-              // Define smaller logos that need to be scaled down
-              const isSmallerLogo = [
-                'indofood-kulkuil_white.png',
-                'wuling_white.png',
-                'freefire_white.png'
-              ].includes(logo.name);
-              
-              return (
-                <div
-                  key={`${rowIndex}-${logoIndex}`}
-                  className="flex-shrink-0 flex items-center justify-center bg-white/10 rounded-xl border border-white/10 hover:bg-white/20 transition-all duration-300 p-2 w-20 h-10 md:w-32 md:h-16"
-                >
-                  <img
-                    src={logo.url}
-                    alt={logo.name}
-                    className={`max-w-full max-h-full object-contain filter brightness-0 invert opacity-70 hover:opacity-100 transition-all duration-300 ${
-                      is3xLogo 
-                        ? 'scale-[3]' 
-                        : is2xLogo
-                        ? 'scale-[2]'
-                        : isSmallerLogo
-                        ? 'scale-75'
-                        : ''
-                    }`}
-                    onError={(e) => {
-                      // Fallback to text if image fails to load
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = 'none';
-                      const parent = target.parentElement;
-                      if (parent && !parent.querySelector('.logo-text')) {
-                        const textDiv = document.createElement('div');
-                        textDiv.className = 'logo-text text-white/70 font-semibold text-xs text-center px-1';
-                        textDiv.textContent = logo.name;
-                        parent.appendChild(textDiv);
-                      }
-                    }}
-                  />
-                </div>
-              );
-            })}
+            {rowLogos.map((logo, logoIndex) => (
+              <div
+                key={`${rowIndex}-${logoIndex}`}
+                className="flex-shrink-0 flex items-center justify-center bg-white/10 rounded-xl border border-white/10 hover:bg-white/20 transition-all duration-300 p-2 w-20 h-10 md:w-32 md:h-16"
+              >
+                <img
+                  src={logo.url}
+                  alt={logo.name}
+                  className={`max-w-full max-h-full object-contain filter brightness-0 invert opacity-70 hover:opacity-100 transition-all duration-300 ${getScaleClass(logo.scale)}`}
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                    const parent = target.parentElement;
+                    if (parent && !parent.querySelector('.logo-text')) {
+                      const textDiv = document.createElement('div');
+                      textDiv.className = 'logo-text text-white/70 font-semibold text-xs text-center px-1';
+                      textDiv.textContent = logo.name;
+                      parent.appendChild(textDiv);
+                    }
+                  }}
+                />
+              </div>
+            ))}
           </div>
         ))}
         <div className="pb-6 md:pb-8"></div>

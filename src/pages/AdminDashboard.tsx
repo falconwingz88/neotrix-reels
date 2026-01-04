@@ -50,7 +50,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { useProjects, CustomProject } from '@/contexts/ProjectsContext';
 import { useContacts } from '@/contexts/ContactsContext';
-import { ArrowLeft, Plus, LogOut, X, Trash2, Edit2, Users, AlertCircle, Check, Link2, FolderOpen, RefreshCw, CalendarIcon, FolderKanban, MessageSquare, MapPin, Clock, ExternalLink, GripVertical, List, LayoutGrid, Briefcase } from 'lucide-react';
+import { ArrowLeft, Plus, LogOut, X, Trash2, Edit2, Users, AlertCircle, Check, Link2, FolderOpen, RefreshCw, CalendarIcon, FolderKanban, MessageSquare, MapPin, Clock, ExternalLink, GripVertical, List, LayoutGrid, Briefcase, Image } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import UndoNotification, { UndoNotificationItem } from '@/components/UndoNotification';
@@ -68,6 +68,15 @@ interface JobOpening {
   requirements: string[];
   traits: string[];
   sort_order: number | null;
+  is_active: boolean;
+}
+
+interface ClientLogo {
+  id: string;
+  name: string;
+  url: string;
+  scale: string;
+  sort_order: number;
   is_active: boolean;
 }
 
@@ -139,6 +148,16 @@ const AdminDashboard = () => {
   const [jobRequirements, setJobRequirements] = useState('');
   const [jobTraits, setJobTraits] = useState('');
   const [jobIsActive, setJobIsActive] = useState(true);
+  
+  // Client logos state
+  const [clientLogos, setClientLogos] = useState<ClientLogo[]>([]);
+  const [logosLoading, setLogosLoading] = useState(true);
+  const [showLogoForm, setShowLogoForm] = useState(false);
+  const [editingLogo, setEditingLogo] = useState<ClientLogo | null>(null);
+  const [logoName, setLogoName] = useState('');
+  const [logoUrl, setLogoUrl] = useState('');
+  const [logoScale, setLogoScale] = useState('normal');
+  const [logoIsActive, setLogoIsActive] = useState(true);
   
   // Undo notifications state
   const [undoNotifications, setUndoNotifications] = useState<UndoNotificationItem[]>([]);
@@ -219,9 +238,24 @@ const AdminDashboard = () => {
     setJobsLoading(false);
   };
 
+  // Fetch client logos
+  const fetchClientLogos = async () => {
+    setLogosLoading(true);
+    const { data, error } = await supabase
+      .from('client_logos')
+      .select('*')
+      .order('sort_order', { ascending: true });
+    
+    if (!error && data) {
+      setClientLogos(data as ClientLogo[]);
+    }
+    setLogosLoading(false);
+  };
+
   useEffect(() => {
     if (isAdmin) {
       fetchJobOpenings();
+      fetchClientLogos();
     }
   }, [isAdmin]);
 
@@ -624,6 +658,137 @@ const AdminDashboard = () => {
     }
   };
 
+  // Logo form handlers
+  const resetLogoForm = () => {
+    setLogoName('');
+    setLogoUrl('');
+    setLogoScale('normal');
+    setLogoIsActive(true);
+    setEditingLogo(null);
+    setShowLogoForm(false);
+  };
+
+  const handleLogoSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!logoName.trim() || !logoUrl.trim()) {
+      toast({
+        title: "Error",
+        description: "Logo name and URL are required.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      if (editingLogo) {
+        const { error } = await supabase
+          .from('client_logos')
+          .update({
+            name: logoName.trim(),
+            url: logoUrl.trim(),
+            scale: logoScale,
+            is_active: logoIsActive,
+          })
+          .eq('id', editingLogo.id);
+        
+        if (error) throw error;
+        
+        toast({
+          title: "Logo updated",
+          description: `"${logoName}" has been updated.`,
+        });
+      } else {
+        const maxOrder = clientLogos.reduce((max, l) => Math.max(max, l.sort_order), 0);
+        
+        const { error } = await supabase
+          .from('client_logos')
+          .insert({
+            name: logoName.trim(),
+            url: logoUrl.trim(),
+            scale: logoScale,
+            is_active: logoIsActive,
+            sort_order: maxOrder + 1,
+          });
+        
+        if (error) throw error;
+        
+        toast({
+          title: "Logo added",
+          description: `"${logoName}" has been added to the client logos.`,
+        });
+      }
+      
+      resetLogoForm();
+      fetchClientLogos();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save logo.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleEditLogo = (logo: ClientLogo) => {
+    setEditingLogo(logo);
+    setLogoName(logo.name);
+    setLogoUrl(logo.url);
+    setLogoScale(logo.scale);
+    setLogoIsActive(logo.is_active);
+    setShowLogoForm(true);
+  };
+
+  const handleDeleteLogo = async (logoId: string, logoName: string) => {
+    if (!window.confirm(`Delete "${logoName}"?`)) return;
+    
+    try {
+      const { error } = await supabase
+        .from('client_logos')
+        .delete()
+        .eq('id', logoId);
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Logo deleted",
+        description: `"${logoName}" has been removed.`,
+      });
+      
+      fetchClientLogos();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete logo.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const toggleLogoActive = async (logo: ClientLogo) => {
+    try {
+      const { error } = await supabase
+        .from('client_logos')
+        .update({ is_active: !logo.is_active })
+        .eq('id', logo.id);
+      
+      if (error) throw error;
+      
+      toast({
+        title: logo.is_active ? "Logo hidden" : "Logo shown",
+        description: `"${logo.name}" is now ${logo.is_active ? 'hidden from' : 'visible on'} the homepage.`,
+      });
+      
+      fetchClientLogos();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update logo status.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-800 to-blue-900 p-4 md:p-8 overflow-x-hidden">
       {/* Header */}
@@ -668,6 +833,10 @@ const AdminDashboard = () => {
             <TabsTrigger value="jobs" className="data-[state=active]:bg-white/20 text-white flex-1 sm:flex-none text-xs sm:text-sm">
               <Briefcase className="w-4 h-4 mr-1 sm:mr-2" />
               <span className="hidden sm:inline">Jobs</span> ({jobOpenings.length})
+            </TabsTrigger>
+            <TabsTrigger value="logos" className="data-[state=active]:bg-white/20 text-white flex-1 sm:flex-none text-xs sm:text-sm">
+              <Image className="w-4 h-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Logos</span> ({clientLogos.length})
             </TabsTrigger>
           </TabsList>
 
@@ -1403,6 +1572,202 @@ const AdminDashboard = () => {
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </TabsContent>
+
+          {/* Logos Tab */}
+          <TabsContent value="logos">
+            <div className="space-y-6">
+              {/* Add/Edit Logo Form */}
+              {showLogoForm ? (
+                <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-xl font-semibold text-white">
+                      {editingLogo ? 'Edit Logo' : 'Add New Logo'}
+                    </h2>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={resetLogoForm}
+                      className="text-white hover:bg-white/10"
+                    >
+                      <X className="w-5 h-5" />
+                    </Button>
+                  </div>
+
+                  <form onSubmit={handleLogoSubmit} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="logoName" className="text-white">Brand Name *</Label>
+                      <Input
+                        id="logoName"
+                        value={logoName}
+                        onChange={(e) => setLogoName(e.target.value)}
+                        className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+                        placeholder="e.g. BCA, Oppo, Telkomsel"
+                        required
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="logoUrl" className="text-white">Logo URL *</Label>
+                      <Input
+                        id="logoUrl"
+                        value={logoUrl}
+                        onChange={(e) => setLogoUrl(e.target.value)}
+                        className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+                        placeholder="/client-logos/brand_white.png or https://..."
+                        required
+                      />
+                      <p className="text-white/50 text-xs">Use /client-logos/ for local files or full URL for external images</p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-white">Logo Scale</Label>
+                      <div className="flex flex-wrap gap-2">
+                        {['small', 'normal', '2x', '3x'].map((scale) => (
+                          <Badge
+                            key={scale}
+                            variant={logoScale === scale ? "default" : "outline"}
+                            className={`cursor-pointer transition-colors ${
+                              logoScale === scale
+                                ? 'bg-white text-black hover:bg-white/90'
+                                : 'border-white/20 text-white hover:bg-white/10'
+                            }`}
+                            onClick={() => setLogoScale(scale)}
+                          >
+                            {scale === 'small' ? '0.75x' : scale === 'normal' ? '1x' : scale}
+                          </Badge>
+                        ))}
+                      </div>
+                      <p className="text-white/50 text-xs">Adjust if logo appears too small or too large</p>
+                    </div>
+
+                    {logoUrl && (
+                      <div className="space-y-2">
+                        <Label className="text-white">Preview</Label>
+                        <div className="bg-white/10 rounded-lg p-4 flex items-center justify-center h-20">
+                          <img
+                            src={logoUrl}
+                            alt="Preview"
+                            className={`max-h-full object-contain filter brightness-0 invert ${
+                              logoScale === '3x' ? 'scale-[3]' : 
+                              logoScale === '2x' ? 'scale-[2]' : 
+                              logoScale === 'small' ? 'scale-75' : ''
+                            }`}
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                            }}
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        id="logoIsActive"
+                        checked={logoIsActive}
+                        onCheckedChange={setLogoIsActive}
+                      />
+                      <Label htmlFor="logoIsActive" className="text-white cursor-pointer">
+                        Show on homepage
+                      </Label>
+                    </div>
+
+                    <div className="flex gap-3 pt-4">
+                      <Button
+                        type="submit"
+                        className="bg-white/20 hover:bg-white/30 text-white border border-white/20"
+                      >
+                        <Check className="w-4 h-4 mr-2" />
+                        {editingLogo ? 'Update Logo' : 'Add Logo'}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        onClick={resetLogoForm}
+                        className="text-white hover:bg-white/10"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </form>
+                </div>
+              ) : (
+                <Button
+                  onClick={() => setShowLogoForm(true)}
+                  className="bg-white/20 hover:bg-white/30 text-white border border-white/20"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add New Logo
+                </Button>
+              )}
+
+              {/* Logos List */}
+              {logosLoading ? (
+                <div className="text-center text-white/50 py-8">Loading logos...</div>
+              ) : clientLogos.length === 0 ? (
+                <div className="text-center text-white/50 py-8">No client logos yet</div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                  {clientLogos.map((logo) => (
+                    <div
+                      key={logo.id}
+                      className={cn(
+                        "bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 p-4 relative group",
+                        !logo.is_active && "opacity-50"
+                      )}
+                    >
+                      <div className="aspect-square flex items-center justify-center mb-3">
+                        <img
+                          src={logo.url}
+                          alt={logo.name}
+                          className={`max-w-full max-h-full object-contain filter brightness-0 invert ${
+                            logo.scale === '3x' ? 'scale-[2]' : 
+                            logo.scale === '2x' ? 'scale-150' : 
+                            logo.scale === 'small' ? 'scale-75' : ''
+                          }`}
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      </div>
+                      <p className="text-white text-xs text-center truncate font-medium">{logo.name}</p>
+                      <p className="text-white/40 text-[10px] text-center">{logo.scale}</p>
+                      
+                      {/* Actions overlay */}
+                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => toggleLogoActive(logo)}
+                          className={cn(
+                            "text-white hover:bg-white/10",
+                            logo.is_active ? "text-green-400" : "text-white/40"
+                          )}
+                        >
+                          {logo.is_active ? 'Hide' : 'Show'}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleEditLogo(logo)}
+                          className="text-white hover:bg-white/10"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDeleteLogo(logo.id, logo.name)}
+                          className="text-red-400 hover:text-red-300 hover:bg-red-500/20"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
                       </div>
                     </div>
                   ))}

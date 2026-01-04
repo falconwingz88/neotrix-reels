@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      client_logos: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean | null
+          name: string
+          scale: string | null
+          sort_order: number | null
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          scale?: string | null
+          sort_order?: number | null
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          scale?: string | null
+          sort_order?: number | null
+          updated_at?: string
+          url?: string
+        }
+        Relationships: []
+      }
       job_openings: {
         Row: {
           created_at: string

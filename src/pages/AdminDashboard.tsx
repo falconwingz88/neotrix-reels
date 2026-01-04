@@ -56,6 +56,7 @@ import { useToast } from '@/hooks/use-toast';
 import UndoNotification, { UndoNotificationItem } from '@/components/UndoNotification';
 import { ThumbnailUpload } from '@/components/ThumbnailUpload';
 import { SortableProjectItem } from '@/components/SortableProjectItem';
+import { ClientLogoSelector } from '@/components/ClientLogoSelector';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -1126,14 +1127,13 @@ const AdminDashboard = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="client" className="text-white">Client</Label>
-                <Input
-                  id="client"
-                  type="text"
+                <Label htmlFor="client" className="text-white flex items-center gap-2">
+                  <Image className="w-4 h-4" />
+                  Client Logo
+                </Label>
+                <ClientLogoSelector
                   value={client}
-                  onChange={(e) => setClient(e.target.value)}
-                  className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
-                  placeholder="e.g. OPPO, Telkomsel, BNI"
+                  onChange={setClient}
                 />
               </div>
 

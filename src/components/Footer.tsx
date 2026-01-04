@@ -78,9 +78,7 @@ export const Footer = () => {
 
         {/* Copyright */}
         <div className="border-t border-white/10 mt-8 pt-6 text-center">
-          <p className="text-white/50">
-            © 2024 Neotrix. All rights reserved. | Privacy Policy | Terms of Service
-          </p>
+          <p className="text-white/50">© 2026 Neotrix. All rights reserved. | Privacy Policy | Terms of Service</p>
         </div>
       </div>
     </footer>;

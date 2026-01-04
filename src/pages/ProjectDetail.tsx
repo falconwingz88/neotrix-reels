@@ -1,4 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { ArrowLeft, Calendar, Users, Clock, FolderOpen, Share2, Edit2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -6,6 +7,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { useProjects } from "@/contexts/ProjectsContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 // Helper function to extract YouTube video ID
@@ -22,13 +24,39 @@ const getEmbedUrl = (url: string): string => {
   return videoId ? `https://www.youtube.com/embed/${videoId}` : "";
 };
 
+interface ClientLogo {
+  name: string;
+  url: string;
+  scale: string;
+}
+
 const ProjectDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { customProjects, loading } = useProjects();
   const { isAuthenticated, isAdmin } = useAuth();
+  const [clientLogo, setClientLogo] = useState<ClientLogo | null>(null);
 
   const project = customProjects.find((p) => p.id === id);
+
+  // Fetch client logo when project loads
+  useEffect(() => {
+    const fetchClientLogo = async () => {
+      if (project?.client) {
+        const { data } = await supabase
+          .from('client_logos')
+          .select('name, url, scale')
+          .eq('name', project.client)
+          .eq('is_active', true)
+          .single();
+        
+        if (data) {
+          setClientLogo(data);
+        }
+      }
+    };
+    fetchClientLogo();
+  }, [project?.client]);
 
   const handleShare = async () => {
     const url = window.location.href;
@@ -37,6 +65,15 @@ const ProjectDetail = () => {
       toast.success("Link copied to clipboard!");
     } catch {
       toast.error("Failed to copy link");
+    }
+  };
+
+  const getScaleClass = (scale: string) => {
+    switch (scale) {
+      case '3x': return 'scale-150';
+      case '2x': return 'scale-125';
+      case 'small': return 'scale-75';
+      default: return '';
     }
   };
 
@@ -226,15 +263,31 @@ const ProjectDetail = () => {
           </div>
 
           {/* Client Information */}
-          <div>
-            <h2 className="text-2xl font-semibold text-white mb-4 flex items-center gap-2">
-              <Users className="w-6 h-6" />
-              Client
-            </h2>
-            <div className="bg-white/5 rounded-lg p-4 border border-white/10">
-              <div className="text-white/80">{projectData.client}</div>
+          {projectData.client && (
+            <div>
+              <h2 className="text-2xl font-semibold text-white mb-4 flex items-center gap-2">
+                <Users className="w-6 h-6" />
+                Client
+              </h2>
+              <div className="bg-white/5 rounded-lg p-4 border border-white/10">
+                {clientLogo ? (
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 flex items-center justify-center bg-white/10 rounded-lg">
+                      <img
+                        src={clientLogo.url}
+                        alt={clientLogo.name}
+                        className={`max-w-full max-h-full object-contain filter brightness-0 invert ${getScaleClass(clientLogo.scale)}`}
+                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                      />
+                    </div>
+                    <span className="text-white font-medium">{clientLogo.name}</span>
+                  </div>
+                ) : (
+                  <div className="text-white/80">{projectData.client}</div>
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Credits */}
           {projectData.credits && (

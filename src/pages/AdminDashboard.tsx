@@ -50,7 +50,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { useProjects, CustomProject } from '@/contexts/ProjectsContext';
 import { useContacts } from '@/contexts/ContactsContext';
-import { ArrowLeft, Plus, LogOut, X, Trash2, Edit2, Users, AlertCircle, Check, Link2, FolderOpen, RefreshCw, CalendarIcon, FolderKanban, MessageSquare, MapPin, Clock, ExternalLink, GripVertical, List, LayoutGrid, Briefcase, Image } from 'lucide-react';
+import { ArrowLeft, Plus, LogOut, X, Trash2, Edit2, Users, AlertCircle, Check, Link2, FolderOpen, RefreshCw, CalendarIcon, FolderKanban, MessageSquare, MapPin, Clock, ExternalLink, GripVertical, List, LayoutGrid, Briefcase, Image, Search } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import UndoNotification, { UndoNotificationItem } from '@/components/UndoNotification';
@@ -158,6 +158,7 @@ const AdminDashboard = () => {
   const [logoUrl, setLogoUrl] = useState('');
   const [logoScale, setLogoScale] = useState('normal');
   const [logoIsActive, setLogoIsActive] = useState(true);
+  const [logoSearchTerm, setLogoSearchTerm] = useState('');
   
   // Undo notifications state
   const [undoNotifications, setUndoNotifications] = useState<UndoNotificationItem[]>([]);
@@ -1698,13 +1699,24 @@ const AdminDashboard = () => {
                   </form>
                 </div>
               ) : (
-                <Button
-                  onClick={() => setShowLogoForm(true)}
-                  className="bg-white/20 hover:bg-white/30 text-white border border-white/20"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add New Logo
-                </Button>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Button
+                    onClick={() => setShowLogoForm(true)}
+                    className="bg-white/20 hover:bg-white/30 text-white border border-white/20"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add New Logo
+                  </Button>
+                  <div className="relative flex-1 max-w-xs">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                    <Input
+                      value={logoSearchTerm}
+                      onChange={(e) => setLogoSearchTerm(e.target.value)}
+                      placeholder="Search logos..."
+                      className="pl-9 bg-white/10 border-white/20 text-white placeholder:text-white/40"
+                    />
+                  </div>
+                </div>
               )}
 
               {/* Logos List */}
@@ -1714,7 +1726,9 @@ const AdminDashboard = () => {
                 <div className="text-center text-white/50 py-8">No client logos yet</div>
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                  {clientLogos.map((logo) => (
+                  {clientLogos
+                    .filter((logo) => logo.name.toLowerCase().includes(logoSearchTerm.toLowerCase()))
+                    .map((logo) => (
                     <div
                       key={logo.id}
                       className={cn(

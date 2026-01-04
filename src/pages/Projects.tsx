@@ -30,6 +30,23 @@ export const Projects = () => {
         </div>
         
         <ProjectsBrowser />
+        
+        {/* Bottom Message */}
+        <div className="text-center py-12 mt-8 border-t border-white/10">
+          <p className="text-white/70 text-lg md:text-xl font-medium mb-2">
+            Many more projects we can't show you yet
+          </p>
+          <p className="text-white/50 text-sm md:text-base">
+            Contact us if you are interested and we can show you the rest
+          </p>
+          <Button
+            variant="ghost"
+            onClick={() => navigate('/contact')}
+            className="mt-4 text-white hover:bg-white/10"
+          >
+            Get in Touch
+          </Button>
+        </div>
       </div>
     </div>
   );

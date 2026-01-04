@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { Mail, ArrowRight } from "lucide-react";
 import { useProjects } from "@/contexts/ProjectsContext";
 
-const neotrixLogo = "/lovable-uploads/e25231ff-24d7-47d0-b8da-ebd1979c96de.png";
+
 
 const REELS = [
   {
@@ -143,14 +143,8 @@ const Index = () => {
         {/* Main Hero Video - Neotrix Reels 2024 */}
         <div className="max-w-7xl mx-auto w-full mb-8 md:mb-12">
           <div className="text-center mb-6 md:mb-8">
-            <div className="flex justify-center mb-4 md:mb-6 animate-fade-in">
-              <img src={neotrixLogo} alt="Neotrix Logo" className="h-16 md:h-32 w-auto object-contain" />
-            </div>
             <p
               className="text-lg md:text-2xl text-white/90 font-medium animate-fade-in px-4"
-              style={{
-                animationDelay: "0.2s",
-              }}
             >
               Innovate. Animate. Elevate.
             </p>

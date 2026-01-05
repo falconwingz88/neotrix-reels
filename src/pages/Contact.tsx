@@ -106,16 +106,44 @@ export const Contact = () => {
       }
     }
   };
-  const generateWhatsAppMessage = (contactId: string) => {
-    const clientLink = `${window.location.origin}/client/${contactId}`;
-    const message = `Hi! I want to talk more about a project I have.\n\nHere are the details: ${clientLink}`;
+  const generateWhatsAppMessage = () => {
+    const finalRole = role === "Other" ? otherRole : role;
+    
+    // Build project description
+    let projectDesc = "";
+    if (projectStatus === "have_project") {
+      projectDesc = "I already have a project in mind";
+      if (hasDeck && deckLink) {
+        projectDesc += ` and I have a deck ready`;
+      }
+    } else if (projectStatus === "not_sure") {
+      projectDesc = "I'm not sure about my project yet, but I'd love to explore ideas with you";
+    } else if (projectStatus === "discuss") {
+      projectDesc = "I'd like to discuss possibilities first before diving into specifics";
+    }
+
+    // Build video details if provided
+    let videoDetails = "";
+    if (videoVersions && videoDuration) {
+      videoDetails = `\n\nFor the video, I'm looking at ${videoVersions} version(s) with a duration of ${videoDuration}.`;
+    }
+
+    // Build timeline details
+    let timelineDetails = "";
+    if (deliveryDate || startDate) {
+      const parts = [];
+      if (deliveryDate) parts.push(`delivery by ${format(deliveryDate, "MMMM d, yyyy")}`);
+      if (startDate) parts.push(`starting around ${format(startDate, "MMMM d, yyyy")}`);
+      timelineDetails = `\n\nTimeline-wise, I'm thinking ${parts.join(" and ")}.`;
+    }
+
+    const message = `Hi! My name is ${name} and I'm a ${finalRole}. ${projectDesc}.${videoDetails}${timelineDetails}\n\nLooking forward to hearing from you!`;
+    
     return encodeURIComponent(message);
   };
   const openWhatsApp = () => {
-    // Use saved contact ID or get the most recent one
-    const contactId = savedContactId;
-    if (!contactId) return;
-    const message = generateWhatsAppMessage(contactId);
+    if (!savedContactId) return;
+    const message = generateWhatsAppMessage();
     const waLink = `https://wa.me/6287797681961?text=${message}`;
 
     // Create a temporary anchor to force the exact URL

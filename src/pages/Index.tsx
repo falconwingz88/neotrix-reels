@@ -71,14 +71,14 @@ const Index = () => {
   const duplicatedProjects = [...previewProjects, ...previewProjects];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-800 to-blue-900 bg-[length:200%_200%] animate-gradient p-3 md:p-6 relative overflow-auto scrollbar-glassmorphism backdrop-blur-md">
+    <div className="min-h-screen bg-black p-3 md:p-6 relative overflow-auto scrollbar-glassmorphism">
       {/* Header */}
       <Header />
 
       {/* Enhanced Background Effects with More Bouncing Circles and Reduced Blur */}
       <div className="absolute inset-0 overflow-hidden">
-        {/* Large Background Circles - Less Blurred */}
-        <div className="absolute top-10 right-10 w-96 h-96 bg-gradient-to-r from-purple-400/25 to-pink-400/25 rounded-full blur-2xl animate-pulse" />
+        {/* Large Background Circles - Blue tones only */}
+        <div className="absolute top-10 right-10 w-96 h-96 bg-gradient-to-r from-blue-500/25 to-cyan-400/25 rounded-full blur-2xl animate-pulse" />
         <div
           className="absolute bottom-10 left-10 w-96 h-96 bg-gradient-to-r from-blue-400/25 to-indigo-400/25 rounded-full blur-2xl animate-pulse"
           style={{
@@ -86,7 +86,7 @@ const Index = () => {
           }}
         />
         <div
-          className="absolute top-1/3 left-1/3 w-72 h-72 bg-gradient-to-r from-pink-400/15 to-purple-400/15 rounded-full blur-2xl animate-pulse"
+          className="absolute top-1/3 left-1/3 w-72 h-72 bg-gradient-to-r from-cyan-400/15 to-blue-400/15 rounded-full blur-2xl animate-pulse"
           style={{
             animationDelay: "1s",
           }}

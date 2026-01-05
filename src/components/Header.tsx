@@ -63,7 +63,7 @@ export const Header = () => {
               className="rounded-full hover:bg-white/20 transition-all duration-300 px-4 py-2 text-white font-medium"
               onClick={() => navigate('/about-us')}
             >
-              Contact Us
+              About Us
             </Button>
             <Button
               variant="ghost"
@@ -148,7 +148,7 @@ export const Header = () => {
                 setMobileMenuOpen(false);
               }}
             >
-              Contact Us
+              About Us
             </Button>
             <Button
               variant="ghost"

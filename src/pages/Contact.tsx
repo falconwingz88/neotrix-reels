@@ -317,7 +317,7 @@ export const Contact = () => {
                         </span>
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
+                    <PopoverContent className="w-auto p-0 bg-[#1a1a2e] border-white/20" align="start">
                       <Calendar mode="single" selected={deliveryDate} onSelect={setDeliveryDate} initialFocus className="p-3 pointer-events-auto" />
                     </PopoverContent>
                   </Popover>
@@ -332,7 +332,7 @@ export const Contact = () => {
                         <span className="text-white">{startDate ? format(startDate, "PPP") : "Pick a start date"}</span>
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
+                    <PopoverContent className="w-auto p-0 bg-[#1a1a2e] border-white/20" align="start">
                       <Calendar mode="single" selected={startDate} onSelect={setStartDate} initialFocus className="p-3 pointer-events-auto" />
                     </PopoverContent>
                   </Popover>

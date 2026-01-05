@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 
 export const Projects = () => {
   const navigate = useNavigate();
+  
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-800 to-blue-900">

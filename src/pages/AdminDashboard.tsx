@@ -261,15 +261,7 @@ const AdminDashboard = () => {
     }
   }, [isAdmin]);
 
-  if (authLoading || !isAuthenticated || !isAdmin) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-800 to-blue-900 flex items-center justify-center">
-        <div className="text-white">Loading...</div>
-      </div>
-    );
-  }
-
-  // Parse links and validate
+  // Parse links and validate - must be before early return to maintain hook order
   const parsedLinks = links.split('\n').map(l => l.trim()).filter(l => l);
   const invalidLinks = parsedLinks.filter(link => !isValidUrl(link));
   const hasInvalidLinks = invalidLinks.length > 0 && parsedLinks.length > 0;
@@ -293,6 +285,14 @@ const AdminDashboard = () => {
 
   // Check if form is valid for submission
   const isFormValid = projectName.trim() && !hasInvalidLinks && !hasInvalidFileLink && !hasInvalidThumbnail;
+
+  if (authLoading || !isAuthenticated || !isAdmin) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-white">Loading...</div>
+      </div>
+    );
+  }
 
   const handleLogout = async () => {
     await logout();

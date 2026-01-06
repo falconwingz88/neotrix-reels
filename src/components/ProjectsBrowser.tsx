@@ -7,7 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import { useProjects } from "@/contexts/ProjectsContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
-
 export interface Project {
   id: string;
   title: string;
@@ -31,76 +30,66 @@ const getYouTubeVideoId = (url: string): string => {
   const match = url.match(regExp);
   return match && match[2].length === 11 ? match[2] : "";
 };
-
 const getYouTubeThumbnail = (url: string): string => {
   const videoId = getYouTubeVideoId(url);
   return videoId ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : "";
 };
-
 export const TAG_OPTIONS = ["Beauty", "Liquid", "VFX", "Character Animation", "Non-Character Animation", "FX"];
 const YEAR_OPTIONS = [2026, 2025, 2024, 2023, 2022, 2021, 2020];
-
 export const ProjectsBrowser = () => {
   const navigate = useNavigate();
-  const { customProjects, loading } = useProjects();
-  const { isAdmin } = useAuth();
+  const {
+    customProjects,
+    loading
+  } = useProjects();
+  const {
+    isAdmin
+  } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [showFilters, setShowFilters] = useState(false);
 
   // Convert custom projects to Project format (already sorted by sort_order from context)
-  const allProjects: Project[] = customProjects
-    .map((cp) => ({
-      id: cp.id,
-      title: cp.title,
-      description: cp.description,
-      thumbnail: cp.thumbnail || (cp.links[0] ? getYouTubeThumbnail(cp.links[0]) : ""),
-      tags: cp.tags,
-      year: cp.year || new Date(cp.createdAt).getFullYear(),
-      client: cp.client || cp.credits || "Neotrix",
-      primaryVideoUrl: cp.links[0] || "",
-      allVideos: cp.links,
-      deliveryFiles: [],
-      fileLink: cp.fileLink,
-      deliveryDate: cp.deliveryDate,
-      createdAt: cp.createdAt,
-    }));
+  const allProjects: Project[] = customProjects.map(cp => ({
+    id: cp.id,
+    title: cp.title,
+    description: cp.description,
+    thumbnail: cp.thumbnail || (cp.links[0] ? getYouTubeThumbnail(cp.links[0]) : ""),
+    tags: cp.tags,
+    year: cp.year || new Date(cp.createdAt).getFullYear(),
+    client: cp.client || cp.credits || "Neotrix",
+    primaryVideoUrl: cp.links[0] || "",
+    allVideos: cp.links,
+    deliveryFiles: [],
+    fileLink: cp.fileLink,
+    deliveryDate: cp.deliveryDate,
+    createdAt: cp.createdAt
+  }));
 
   // Create a Set of filtered project IDs for quick lookup
   const filteredProjectIds = useMemo(() => {
     const ids = new Set<string>();
-    allProjects.forEach((project) => {
-      const matchesSearch =
-        project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        project.client.toLowerCase().includes(searchTerm.toLowerCase());
-
-      const matchesTags = selectedTags.length === 0 || selectedTags.some((tag) => project.tags.includes(tag));
-
+    allProjects.forEach(project => {
+      const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase()) || project.description.toLowerCase().includes(searchTerm.toLowerCase()) || project.client.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesTags = selectedTags.length === 0 || selectedTags.some(tag => project.tags.includes(tag));
       const matchesYear = selectedYear === null || project.year === selectedYear;
-
       if (matchesSearch && matchesTags && matchesYear) {
         ids.add(project.id);
       }
     });
     return ids;
   }, [allProjects, searchTerm, selectedTags, selectedYear]);
-
-  const filteredProjects = allProjects.filter((project) => filteredProjectIds.has(project.id));
-
+  const filteredProjects = allProjects.filter(project => filteredProjectIds.has(project.id));
   const toggleTag = (tag: string) => {
-    setSelectedTags((prev) => (prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]));
+    setSelectedTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]);
   };
-
   const clearFilters = () => {
     setSelectedTags([]);
     setSelectedYear(null);
     setSearchTerm("");
   };
-
-  return (
-    <div className="space-y-6">
+  return <div className="space-y-6">
       {/* Header */}
       <div className="text-center space-y-4">
         <h1 className="text-4xl font-bold text-white">Other Projects</h1>
@@ -115,26 +104,16 @@ export const ProjectsBrowser = () => {
         <div className="flex flex-col md:flex-row gap-4">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/60 w-4 h-4" />
-            <Input
-              placeholder="Search projects..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-white/60"
-            />
+            <Input placeholder="Search projects..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-white/60" />
           </div>
-          <Button
-            onClick={() => setShowFilters(!showFilters)}
-            variant="outline"
-            className="bg-white/5 border-white/40 text-white hover:bg-white/10"
-          >
+          <Button onClick={() => setShowFilters(!showFilters)} variant="outline" className="bg-white/5 border-white/40 text-white hover:bg-white/10">
             <Filter className="w-4 h-4 mr-2" />
             Filters
           </Button>
         </div>
 
         {/* Filter Panel */}
-        {showFilters && (
-          <div className="bg-white/5 backdrop-blur-sm rounded-lg p-6 space-y-4">
+        {showFilters && <div className="bg-white/5 backdrop-blur-sm rounded-lg p-6 space-y-4">
             {/* Tag Filters */}
             <div>
               <h3 className="text-white font-medium mb-3 flex items-center gap-2">
@@ -142,20 +121,9 @@ export const ProjectsBrowser = () => {
                 Categories
               </h3>
               <div className="flex flex-wrap gap-2">
-                {TAG_OPTIONS.map((tag) => (
-                  <Badge
-                    key={tag}
-                    variant={selectedTags.includes(tag) ? "default" : "outline"}
-                    className={`cursor-pointer transition-colors ${
-                      selectedTags.includes(tag)
-                        ? "bg-white text-black hover:bg-white/90"
-                        : "border-white/20 text-white hover:bg-white/10"
-                    }`}
-                    onClick={() => toggleTag(tag)}
-                  >
+                {TAG_OPTIONS.map(tag => <Badge key={tag} variant={selectedTags.includes(tag) ? "default" : "outline"} className={`cursor-pointer transition-colors ${selectedTags.includes(tag) ? "bg-white text-black hover:bg-white/90" : "border-white/20 text-white hover:bg-white/10"}`} onClick={() => toggleTag(tag)}>
                     {tag}
-                  </Badge>
-                ))}
+                  </Badge>)}
               </div>
             </div>
 
@@ -166,70 +134,51 @@ export const ProjectsBrowser = () => {
                 Year
               </h3>
               <div className="flex flex-wrap gap-2">
-                {YEAR_OPTIONS.map((year) => (
-                  <Badge
-                    key={year}
-                    variant={selectedYear === year ? "default" : "outline"}
-                    className={`cursor-pointer transition-colors ${
-                      selectedYear === year
-                        ? "bg-white text-black hover:bg-white/90"
-                        : "border-white/20 text-white hover:bg-white/10"
-                    }`}
-                    onClick={() => setSelectedYear(selectedYear === year ? null : year)}
-                  >
+                {YEAR_OPTIONS.map(year => <Badge key={year} variant={selectedYear === year ? "default" : "outline"} className={`cursor-pointer transition-colors ${selectedYear === year ? "bg-white text-black hover:bg-white/90" : "border-white/20 text-white hover:bg-white/10"}`} onClick={() => setSelectedYear(selectedYear === year ? null : year)}>
                     {year}
-                  </Badge>
-                ))}
+                  </Badge>)}
               </div>
             </div>
 
             {/* Clear Filters */}
-            {(selectedTags.length > 0 || selectedYear !== null || searchTerm) && (
-              <Button onClick={clearFilters} variant="ghost" className="text-white hover:bg-white/10">
+            {(selectedTags.length > 0 || selectedYear !== null || searchTerm) && <Button onClick={clearFilters} variant="ghost" className="text-white hover:bg-white/10">
                 <X className="w-4 h-4 mr-2" />
                 Clear all filters
-              </Button>
-            )}
-          </div>
-        )}
+              </Button>}
+          </div>}
       </div>
 
       {/* Results Summary */}
-      <div className="text-white/70 text-sm">
-        Showing {filteredProjects.length} of {allProjects.length} projects
-      </div>
+      
 
       {/* Projects Grid with animations */}
-      <motion.div 
-        layout
-        className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-1 md:gap-6"
-      >
+      <motion.div layout className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-1 md:gap-6">
         <AnimatePresence mode="popLayout">
-          {filteredProjects.map((project) => (
-            <motion.div
-              key={project.id}
-              layout
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              transition={{ 
-                duration: 0.3, 
-                ease: [0.4, 0, 0.2, 1],
-                layout: { duration: 0.4 }
-              }}
-              className="group cursor-pointer bg-white/5 backdrop-blur-sm rounded-md md:rounded-lg overflow-hidden border border-white/10 hover:border-white/20 relative"
-              whileHover={{ scale: 1.03 }}
-              onClick={() => navigate(`/projects/${project.id}`)}
-            >
+          {filteredProjects.map(project => <motion.div key={project.id} layout initial={{
+          opacity: 0,
+          scale: 0.9,
+          y: 20
+        }} animate={{
+          opacity: 1,
+          scale: 1,
+          y: 0
+        }} exit={{
+          opacity: 0,
+          scale: 0.9,
+          y: 20
+        }} transition={{
+          duration: 0.3,
+          ease: [0.4, 0, 0.2, 1],
+          layout: {
+            duration: 0.4
+          }
+        }} className="group cursor-pointer bg-white/5 backdrop-blur-sm rounded-md md:rounded-lg overflow-hidden border border-white/10 hover:border-white/20 relative" whileHover={{
+          scale: 1.03
+        }} onClick={() => navigate(`/projects/${project.id}`)}>
               <div className="aspect-[4/3] md:aspect-video bg-gray-800 overflow-hidden">
-                <img
-                  src={project.thumbnail || "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400"}
-                  alt={project.title}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                  onError={(e) => {
-                    e.currentTarget.src = "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400";
-                  }}
-                />
+                <img src={project.thumbnail || "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400"} alt={project.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" onError={e => {
+              e.currentTarget.src = "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400";
+            }} />
               </div>
               <div className="p-1 md:p-4 space-y-0.5 md:space-y-3">
                 <div className="flex items-start justify-between gap-1">
@@ -241,80 +190,48 @@ export const ProjectsBrowser = () => {
                   </span>
                 </div>
                 <p className="text-[10px] md:text-sm text-white/70 line-clamp-2">
-                  {project.description.length > 50 ? (
-                    <>
+                  {project.description.length > 50 ? <>
                       <span className="md:hidden">{project.description.slice(0, 50)}...</span>
                       <span className="hidden md:inline">
-                        {project.description.length > 100 ? (
-                          <>
+                        {project.description.length > 100 ? <>
                             {project.description.slice(0, 100)}...
                             <span className="text-blue-300 hover:underline ml-1">see more</span>
-                          </>
-                        ) : (
-                          project.description
-                        )}
+                          </> : project.description}
                       </span>
-                    </>
-                  ) : (
-                    project.description
-                  )}
+                    </> : project.description}
                 </p>
                 <div className="hidden md:flex items-center gap-2 text-xs text-white/60">
                   <Users className="w-3 h-3" />
                   <span className="line-clamp-1">{project.client}</span>
                 </div>
                 <div className="flex flex-wrap gap-0.5 md:gap-1">
-                  {project.tags.slice(0, 2).map((tag, index) => (
-                    <Badge
-                      key={index}
-                      variant="secondary"
-                      className="text-[8px] md:text-xs bg-white/10 text-white/80 hover:bg-white/20 px-1 py-0 md:px-2 md:py-0.5"
-                    >
+                  {project.tags.slice(0, 2).map((tag, index) => <Badge key={index} variant="secondary" className="text-[8px] md:text-xs bg-white/10 text-white/80 hover:bg-white/20 px-1 py-0 md:px-2 md:py-0.5">
                       {tag}
-                    </Badge>
-                  ))}
-                  {project.tags.length > 2 && (
-                    <Badge variant="secondary" className="text-[8px] md:text-xs bg-white/10 text-white/80 px-1 py-0 md:px-2 md:py-0.5">
+                    </Badge>)}
+                  {project.tags.length > 2 && <Badge variant="secondary" className="text-[8px] md:text-xs bg-white/10 text-white/80 px-1 py-0 md:px-2 md:py-0.5">
                       +{project.tags.length - 2}
-                    </Badge>
-                  )}
+                    </Badge>}
                 </div>
               </div>
               
               {/* Admin File Access Button */}
-              {isAdmin && (
-                project.fileLink ? (
-                  <a
-                    href={project.fileLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => e.stopPropagation()}
-                    className="absolute bottom-2 right-2 md:bottom-4 md:right-4 flex items-center gap-1 px-2 py-1 md:px-3 md:py-1.5 bg-green-600 hover:bg-green-500 text-white text-xs font-medium rounded-md transition-colors"
-                  >
+              {isAdmin && (project.fileLink ? <a href={project.fileLink} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="absolute bottom-2 right-2 md:bottom-4 md:right-4 flex items-center gap-1 px-2 py-1 md:px-3 md:py-1.5 bg-green-600 hover:bg-green-500 text-white text-xs font-medium rounded-md transition-colors">
                     <FolderOpen className="w-3 h-3" />
                     <span className="hidden md:inline">Access Files</span>
-                  </a>
-                ) : (
-                  <div className="absolute bottom-2 right-2 md:bottom-4 md:right-4 flex items-center gap-1 px-2 py-1 md:px-3 md:py-1.5 bg-gray-600 text-white/50 text-xs font-medium rounded-md cursor-not-allowed">
+                  </a> : <div className="absolute bottom-2 right-2 md:bottom-4 md:right-4 flex items-center gap-1 px-2 py-1 md:px-3 md:py-1.5 bg-gray-600 text-white/50 text-xs font-medium rounded-md cursor-not-allowed">
                     <FolderOpen className="w-3 h-3" />
                     <span className="hidden md:inline">No Files</span>
-                  </div>
-                )
-              )}
-            </motion.div>
-          ))}
+                  </div>)}
+            </motion.div>)}
         </AnimatePresence>
       </motion.div>
 
       {/* No Results */}
-      {filteredProjects.length === 0 && (
-        <div className="text-center py-12">
+      {filteredProjects.length === 0 && <div className="text-center py-12">
           <p className="text-white/60">No projects found matching your criteria.</p>
           <Button onClick={clearFilters} variant="ghost" className="mt-4 text-white hover:bg-white/10">
             Clear filters
           </Button>
-        </div>
-      )}
-    </div>
-  );
+        </div>}
+    </div>;
 };

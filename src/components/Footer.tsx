@@ -7,7 +7,7 @@ export const Footer = () => {
           {/* Company Info */}
           <div className="space-y-4">
             <h3 className="text-2xl font-bold text-white">Neotrix</h3>
-            <p className="text-white/70 leading-relaxed">is a 3D animation Studio in Jakarta, uniquely blending artistry with cutting-edge Technology and AI.</p>
+            <p className="text-white/70 leading-relaxed">is a 3D animation Studio in Jakarta for commercial, series, and Movies. uniquely blending artistry with cutting-edge Technology and AI.</p>
             <p className="text-white/60 italic text-sm mt-2">"Technology inspires creativity, Creativity challenges technology" - John Lasseter (Pixar)
 
           </p>

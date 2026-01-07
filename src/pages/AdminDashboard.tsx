@@ -108,9 +108,10 @@ const isValidUrl = (string: string): boolean => {
 };
 
 const AdminDashboard = () => {
+  // UI-only check - actual security enforced by RLS policies on database tables
   const { isAuthenticated, isAdmin, logout, loading: authLoading } = useAuth();
   const { customProjects, addProject, updateProject, deleteProject, reorderProjectsByIds, initializeDefaultProjects, loading: projectsLoading } = useProjects();
-  const { contacts, deleteContact, clearAllContacts } = useContacts();
+  const { contacts, deleteContact, clearAllContacts, loading: contactsLoading } = useContacts();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { toast } = useToast();

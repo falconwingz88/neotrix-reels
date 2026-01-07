@@ -57,25 +57,31 @@ export const Contact = () => {
   const canProceedStep3 = videoVersions !== "" && videoDuration !== "";
   const canProceedStep4 = deliveryDate !== undefined || startDate !== undefined;
   const canProceedStep5 = name.trim() !== "";
-  const saveContactSubmission = (): string => {
+  const saveContactSubmission = async (): Promise<string> => {
     const finalRole = role === "Other" ? otherRole : role;
     const contactId = Date.now().toString();
-    addContact({
-      name,
-      role: finalRole,
-      projectStatus,
-      hasDeck,
-      deckLink,
-      videoVersions,
-      videoDuration,
-      deliveryDate: deliveryDate ? deliveryDate.toISOString() : null,
-      startDate: startDate ? startDate.toISOString() : null,
-      location
-    });
-    setSavedContactId(contactId);
+    try {
+      await addContact({
+        name,
+        role: finalRole,
+        projectStatus,
+        hasDeck,
+        deckLink,
+        videoVersions,
+        videoDuration,
+        deliveryDate: deliveryDate ? deliveryDate.toISOString() : null,
+        startDate: startDate ? startDate.toISOString() : null,
+        location
+      });
+      setSavedContactId(contactId);
+    } catch (error) {
+      console.error('Failed to save contact:', error);
+      // Still set the ID so the user can proceed to WhatsApp
+      setSavedContactId(contactId);
+    }
     return contactId;
   };
-  const goToNextStep = () => {
+  const goToNextStep = async () => {
     if (currentStep < 6) {
       // Skip step 3 (video details) if user selected "not sure" or "discuss first"
       if (currentStep === 2 && (projectStatus === "not_sure" || projectStatus === "discuss")) {
@@ -83,7 +89,7 @@ export const Contact = () => {
       } else {
         // Save contact when going to final step (after name input - step 5)
         if (currentStep === 5) {
-          saveContactSubmission();
+          await saveContactSubmission();
         }
         setCurrentStep(currentStep + 1);
       }

@@ -8,7 +8,8 @@ import { format } from "date-fns";
 
 const ClientDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const { contacts } = useContacts();
+  const { contacts, loading: contactsLoading } = useContacts();
+  // UI-only check - actual security enforced by RLS policies (only admins can view contacts)
   const { isAuthenticated, loading } = useAuth();
   const navigate = useNavigate();
 
@@ -20,7 +21,7 @@ const ClientDetail = () => {
     }
   }, [isAuthenticated, loading, navigate]);
 
-  if (loading) {
+  if (loading || contactsLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 flex items-center justify-center">
         <div className="text-white">Loading...</div>

@@ -47,6 +47,54 @@ export type Database = {
         }
         Relationships: []
       }
+      contacts: {
+        Row: {
+          created_at: string | null
+          deck_link: string | null
+          delivery_date: string | null
+          has_deck: boolean | null
+          id: string
+          location: string | null
+          name: string
+          project_status: string
+          role: string
+          start_date: string | null
+          submitted_at: string | null
+          video_duration: string | null
+          video_versions: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          deck_link?: string | null
+          delivery_date?: string | null
+          has_deck?: boolean | null
+          id?: string
+          location?: string | null
+          name: string
+          project_status: string
+          role: string
+          start_date?: string | null
+          submitted_at?: string | null
+          video_duration?: string | null
+          video_versions?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          deck_link?: string | null
+          delivery_date?: string | null
+          has_deck?: boolean | null
+          id?: string
+          location?: string | null
+          name?: string
+          project_status?: string
+          role?: string
+          start_date?: string | null
+          submitted_at?: string | null
+          video_duration?: string | null
+          video_versions?: string | null
+        }
+        Relationships: []
+      }
       job_openings: {
         Row: {
           created_at: string

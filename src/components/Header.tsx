@@ -1,8 +1,14 @@
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { Home, Menu } from 'lucide-react';
+import { Home, Menu, ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 import neotrixLogo from '@/assets/neotrix-logo-white.png';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 export const Header = () => {
   const navigate = useNavigate();
@@ -44,6 +50,33 @@ export const Header = () => {
             >
               Works
             </Button>
+            
+            {/* Tools Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="rounded-full hover:bg-white/20 transition-all duration-300 px-4 py-2 text-white font-medium"
+                >
+                  Tools
+                  <ChevronDown className="ml-1 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="bg-black/90 backdrop-blur-xl border-white/20 z-50">
+                <DropdownMenuItem 
+                  className="text-white hover:bg-white/20 cursor-pointer focus:bg-white/20 focus:text-white"
+                  onClick={() => navigate('/neo-timeline')}
+                >
+                  Neo-Timeline
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  className="text-white/40 cursor-not-allowed focus:bg-transparent focus:text-white/40"
+                  disabled
+                >
+                  Other tools coming soon...
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button
               variant="ghost"
               className="rounded-full hover:bg-white/20 transition-all duration-300 px-4 py-2 text-white font-medium"
@@ -120,6 +153,24 @@ export const Header = () => {
             >
               Works
             </Button>
+            
+            {/* Tools Section */}
+            <div className="rounded-lg bg-white/5 p-2">
+              <span className="text-white/60 text-sm px-2">Tools</span>
+              <Button
+                variant="ghost"
+                className="w-full justify-start rounded-lg hover:bg-white/10 text-white font-medium mt-1"
+                onClick={() => {
+                  navigate('/neo-timeline');
+                  setMobileMenuOpen(false);
+                }}
+              >
+                Neo-Timeline
+              </Button>
+              <div className="px-4 py-2 text-white/40 text-sm">
+                Other tools coming soon...
+              </div>
+            </div>
             <Button
               variant="ghost"
               className="w-full justify-start rounded-lg bg-white/5 hover:bg-white/10 text-white font-medium"

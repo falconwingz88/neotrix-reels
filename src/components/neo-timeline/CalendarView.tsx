@@ -353,14 +353,6 @@ export const CalendarView = ({
     const isResizingThis = activeResize?.eventId === event.id;
     const isBouncing = resizeBounceEventId === event.id;
 
-    // Enhanced bounce animation
-    const bounceTransition = {
-      type: 'spring' as const,
-      stiffness: 500,
-      damping: 15,
-      mass: 0.8,
-    };
-
     return (
       <motion.div
         data-event-id={event.id}
@@ -368,27 +360,37 @@ export const CalendarView = ({
         layoutId={`${event.id}-${dateToKey(date)}`}
         initial={{ opacity: 1, scale: 1 }}
         animate={{
-          scale: isBouncing ? [1, 1.12, 0.95, 1.05, 1] : isResizingThis ? 1.02 : 1,
-          y: isBouncing ? [0, -4, 2, -1, 0] : 0,
+          scale: isBouncing ? [1, 1.15, 0.92, 1.08, 1] : isResizingThis ? 1.03 : 1,
+          y: isBouncing ? [0, -6, 3, -2, 0] : 0,
         }}
-        whileHover={{ scale: 1.02, zIndex: 10 }}
-        whileTap={{ scale: 1.04, zIndex: 20 }}
+        transition={{
+          type: 'spring',
+          stiffness: isBouncing ? 600 : 400,
+          damping: isBouncing ? 12 : 25,
+          mass: 0.6,
+        }}
+        whileHover={{ scale: 1.03, zIndex: 10 }}
+        whileTap={{ scale: 1.05, zIndex: 20 }}
         whileDrag={{
-          scale: 1.08,
+          scale: 1.1,
           zIndex: 50,
-          boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
-          cursor: 'grabbing',
+          boxShadow: '0 12px 40px rgba(0,0,0,0.4)',
         }}
         drag={!activeResize}
         dragControls={dragControls}
         dragListener={false}
         dragMomentum={false}
-        dragElastic={0.12}
+        dragElastic={0.15}
         onDragStart={() => setIsDragging(true)}
         onDragEnd={(e, info) => handleDragEnd(event, info)}
-        transition={isBouncing ? bounceTransition : springConfig}
         onClick={(e) => setSelected(event, e)}
-        className={`relative text-xs text-white select-none group ${
+        onPointerDown={(e) => {
+          // Start drag from anywhere on the event (not just inner div)
+          if (activeResize) return;
+          if ((e.target as HTMLElement).closest('[data-resize-handle]')) return;
+          dragControls.start(e);
+        }}
+        className={`relative text-xs text-white select-none group cursor-grab active:cursor-grabbing ${
           isSelected ? 'ring-2 ring-white/60 ring-inset' : ''
         } ${isSingleDay ? 'rounded-lg mx-1 px-2 py-1' : ''} ${
           isMultiDay && isFirstDay ? 'rounded-l-lg rounded-r-none ml-1 pl-2 pr-0 py-1' : ''
@@ -404,24 +406,18 @@ export const CalendarView = ({
         {isFirstDay && (
           <div
             data-resize-handle="true"
-            onPointerDown={(e) => startResize(e, event, 'left')}
+            onPointerDown={(e) => {
+              e.stopPropagation();
+              startResize(e, event, 'left');
+            }}
             className="absolute left-0 top-0 bottom-0 w-2 cursor-ew-resize opacity-0 group-hover:opacity-100 bg-white/30 rounded-l-lg transition-opacity flex items-center justify-center z-10"
           >
             <div className="w-0.5 h-3 bg-white/60 rounded" />
           </div>
         )}
 
-        <div
-          onPointerDown={(e) => {
-            if (activeResize) return;
-            e.stopPropagation();
-            dragControls.start(e);
-          }}
-          className="cursor-grab active:cursor-grabbing truncate"
-        >
-          {/* Only show title on first day for multi-day events */}
+        <div className="truncate pointer-events-none">
           {isFirstDay && <span className="font-medium">{event.title}</span>}
-          {/* Show empty space for continuation days */}
           {!isFirstDay && isMultiDay && <span className="opacity-0">.</span>}
         </div>
 
@@ -429,7 +425,10 @@ export const CalendarView = ({
         {isLastDay && (
           <div
             data-resize-handle="true"
-            onPointerDown={(e) => startResize(e, event, 'right')}
+            onPointerDown={(e) => {
+              e.stopPropagation();
+              startResize(e, event, 'right');
+            }}
             className="absolute right-0 top-0 bottom-0 w-2 cursor-ew-resize opacity-0 group-hover:opacity-100 bg-white/30 rounded-r-lg transition-opacity flex items-center justify-center z-10"
           >
             <div className="w-0.5 h-3 bg-white/60 rounded" />

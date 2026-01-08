@@ -425,7 +425,7 @@ export const CalendarView = ({
         dragControls={dragControls}
         dragListener={false}
         dragMomentum={false}
-        dragElastic={0.15}
+        dragElastic={0}
         onDragStart={() => setIsDragging(true)}
         onDragEnd={(e, info) => handleDragEnd(event, info)}
         onClick={(e) => setSelected(event, e)}

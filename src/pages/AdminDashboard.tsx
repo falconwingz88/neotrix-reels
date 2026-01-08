@@ -50,7 +50,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { useProjects, CustomProject } from '@/contexts/ProjectsContext';
 import { useContacts } from '@/contexts/ContactsContext';
-import { ArrowLeft, Plus, LogOut, X, Trash2, Edit2, Users, AlertCircle, Check, Link2, FolderOpen, RefreshCw, CalendarIcon, FolderKanban, MessageSquare, MapPin, Clock, ExternalLink, GripVertical, List, LayoutGrid, Briefcase, Image, Search } from 'lucide-react';
+import { ArrowLeft, Plus, LogOut, X, Trash2, Edit2, Users, AlertCircle, Check, Link2, FolderOpen, RefreshCw, CalendarIcon, FolderKanban, MessageSquare, MapPin, Clock, ExternalLink, GripVertical, List, LayoutGrid, Briefcase, Image, Search, Settings } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import UndoNotification, { UndoNotificationItem } from '@/components/UndoNotification';
@@ -59,6 +59,8 @@ import { SortableProjectItem } from '@/components/SortableProjectItem';
 import { ClientLogoSelector } from '@/components/ClientLogoSelector';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
+import { useSiteSettings } from '@/contexts/SiteSettingsContext';
+import { Slider } from '@/components/ui/slider';
 
 interface JobOpening {
   id: string;
@@ -112,12 +114,17 @@ const AdminDashboard = () => {
   const { isAuthenticated, isAdmin, logout, loading: authLoading } = useAuth();
   const { customProjects, addProject, updateProject, deleteProject, reorderProjectsByIds, initializeDefaultProjects, loading: projectsLoading } = useProjects();
   const { contacts, deleteContact, clearAllContacts, loading: contactsLoading } = useContacts();
+  const { settings, updateSetting } = useSiteSettings();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('projects');
   const [isCompactView, setIsCompactView] = useState(true);
+  
+  // Site settings state
+  const [localOpacity, setLocalOpacity] = useState(settings.glassmorphismOpacity);
+  const [isApplyingSettings, setIsApplyingSettings] = useState(false);
 
   const [showForm, setShowForm] = useState(false);
   const [editingProject, setEditingProject] = useState<CustomProject | null>(null);
@@ -177,6 +184,29 @@ const AdminDashboard = () => {
     })
   );
 
+  // Sync local opacity with settings
+  useEffect(() => {
+    setLocalOpacity(settings.glassmorphismOpacity);
+  }, [settings.glassmorphismOpacity]);
+
+  const handleApplySettings = async () => {
+    setIsApplyingSettings(true);
+    try {
+      await updateSetting('glassmorphism_opacity', localOpacity.toString());
+      toast({
+        title: "Settings applied",
+        description: "Glassmorphism opacity has been updated site-wide.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to apply settings.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsApplyingSettings(false);
+    }
+  };
 
   // Redirect if not authenticated or not admin
   useEffect(() => {
@@ -846,6 +876,10 @@ const AdminDashboard = () => {
             <TabsTrigger value="contacts" className="data-[state=active]:bg-white/20 text-white flex-1 sm:flex-none text-xs sm:text-sm">
               <MessageSquare className="w-4 h-4 mr-1 sm:mr-2" />
               <span className="hidden sm:inline">Interested Form</span> ({contacts.length})
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="data-[state=active]:bg-white/20 text-white flex-1 sm:flex-none text-xs sm:text-sm">
+              <Settings className="w-4 h-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Settings</span>
             </TabsTrigger>
           </TabsList>
 
@@ -1794,6 +1828,63 @@ const AdminDashboard = () => {
                   ))}
                 </div>
               )}
+            </div>
+          </TabsContent>
+
+          {/* Settings Tab */}
+          <TabsContent value="settings">
+            <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6">
+              <h2 className="text-xl font-semibold text-white mb-6">Site Settings</h2>
+              
+              <div className="space-y-8">
+                {/* Glassmorphism Opacity */}
+                <div className="space-y-4">
+                  <div>
+                    <Label className="text-white text-base">Glassmorphism Panel Opacity</Label>
+                    <p className="text-white/60 text-sm mt-1">
+                      Adjust the opacity of all glassmorphism panels across the site. This setting applies to everyone when they refresh the page.
+                    </p>
+                  </div>
+                  
+                  <div className="flex items-center gap-6">
+                    <div className="flex-1">
+                      <Slider
+                        value={[localOpacity]}
+                        onValueChange={([value]) => setLocalOpacity(value)}
+                        min={0}
+                        max={0.5}
+                        step={0.01}
+                        className="w-full"
+                      />
+                    </div>
+                    <div className="w-20 text-center">
+                      <span className="text-white font-mono text-lg">{Math.round(localOpacity * 100)}%</span>
+                    </div>
+                  </div>
+                  
+                  {/* Preview */}
+                  <div className="mt-4">
+                    <p className="text-white/60 text-sm mb-2">Preview:</p>
+                    <div 
+                      className="p-4 rounded-xl border border-white/20 backdrop-blur-xl"
+                      style={{ backgroundColor: `rgba(255, 255, 255, ${localOpacity})` }}
+                    >
+                      <p className="text-white">This is how the glassmorphism panels will look.</p>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Apply Button */}
+                <div className="flex justify-end pt-4 border-t border-white/10">
+                  <Button
+                    onClick={handleApplySettings}
+                    disabled={isApplyingSettings || localOpacity === settings.glassmorphismOpacity}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    {isApplyingSettings ? 'Applying...' : 'Apply Changes'}
+                  </Button>
+                </div>
+              </div>
             </div>
           </TabsContent>
         </Tabs>

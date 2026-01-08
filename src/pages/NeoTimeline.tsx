@@ -188,6 +188,8 @@ const NeoTimeline = () => {
         ...e,
         start_time: new Date(e.start_time),
         end_time: new Date(e.end_time),
+        project_id: e.project_id || 'default',
+        is_sub_event: e.is_sub_event || false,
       }))
     );
   };
@@ -206,15 +208,21 @@ const NeoTimeline = () => {
     const { data, error } = await supabase
       .from('calendar_events')
       .insert({
-        ...event,
-        user_id: user.id,
+        title: event.title,
+        description: event.description,
         start_time: event.start_time.toISOString(),
-        end_time: event.end_time.toISOString()
+        end_time: event.end_time.toISOString(),
+        color: event.color,
+        all_day: event.all_day,
+        user_id: user.id,
+        project_id: event.project_id || 'default',
+        is_sub_event: event.is_sub_event || false,
       })
       .select()
       .single();
     
     if (error) {
+      console.error('Error saving event:', error);
       toast({
         title: "Error",
         description: "Failed to save event.",
@@ -223,10 +231,12 @@ const NeoTimeline = () => {
       return null;
     }
     
-    const newEvent = {
+    const newEvent: CalendarEvent = {
       ...data,
       start_time: new Date(data.start_time),
-      end_time: new Date(data.end_time)
+      end_time: new Date(data.end_time),
+      project_id: data.project_id,
+      is_sub_event: data.is_sub_event,
     };
     
     setEvents(prev => [...prev, newEvent]);
@@ -251,12 +261,15 @@ const NeoTimeline = () => {
         start_time: event.start_time.toISOString(),
         end_time: event.end_time.toISOString(),
         color: event.color,
-        all_day: event.all_day
+        all_day: event.all_day,
+        project_id: event.project_id || 'default',
+        is_sub_event: event.is_sub_event || false,
       })
       .eq('id', event.id)
       .eq('user_id', user.id);
     
     if (error) {
+      console.error('Error updating event:', error);
       toast({
         title: "Error",
         description: "Failed to update event.",

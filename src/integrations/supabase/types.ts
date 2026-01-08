@@ -22,6 +22,8 @@ export type Database = {
           description: string | null
           end_time: string
           id: string
+          is_sub_event: boolean | null
+          project_id: string | null
           start_time: string
           title: string
           updated_at: string
@@ -34,6 +36,8 @@ export type Database = {
           description?: string | null
           end_time: string
           id?: string
+          is_sub_event?: boolean | null
+          project_id?: string | null
           start_time: string
           title: string
           updated_at?: string
@@ -46,6 +50,8 @@ export type Database = {
           description?: string | null
           end_time?: string
           id?: string
+          is_sub_event?: boolean | null
+          project_id?: string | null
           start_time?: string
           title?: string
           updated_at?: string
@@ -227,6 +233,30 @@ export type Database = {
           title?: string
           updated_at?: string
           year?: string | null
+        }
+        Relationships: []
+      }
+      site_settings: {
+        Row: {
+          created_at: string
+          id: string
+          key: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          key: string
+          updated_at?: string
+          value: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          key?: string
+          updated_at?: string
+          value?: string
         }
         Relationships: []
       }

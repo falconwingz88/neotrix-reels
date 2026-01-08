@@ -53,10 +53,18 @@ const NeoTimeline = () => {
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newEventStart, setNewEventStart] = useState<Date | null>(null);
-  const [backgroundGradient, setBackgroundGradient] = useState({
-    from: '#000000',
-    via: '#0f172a',
-    to: '#1e1b4b'
+  
+  // Load theme from localStorage
+  const [backgroundGradient, setBackgroundGradient] = useState(() => {
+    const saved = localStorage.getItem('neo-timeline-theme');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return { from: '#000000', via: '#0f172a', to: '#1e1b4b' };
+      }
+    }
+    return { from: '#000000', via: '#0f172a', to: '#1e1b4b' };
   });
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   
@@ -65,6 +73,12 @@ const NeoTimeline = () => {
     { id: 'default', name: 'General', color: '#3b82f6', visible: true }
   ]);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+  const [sidebarSelectedEvent, setSidebarSelectedEvent] = useState<CalendarEvent | null>(null);
+
+  // Save theme to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem('neo-timeline-theme', JSON.stringify(backgroundGradient));
+  }, [backgroundGradient]);
 
   // Get visible project IDs
   const visibleProjectIds = projects.filter(p => p.visible).map(p => p.id);
@@ -220,10 +234,22 @@ const NeoTimeline = () => {
   };
 
   const handleEventClick = (event: CalendarEvent) => {
+    setSidebarSelectedEvent(event);
+  };
+
+  const handleEventEdit = (event: CalendarEvent) => {
     setSelectedEvent(event);
     setNewEventStart(null);
     setIsModalOpen(true);
   };
+
+  const handleEventResize = useCallback(async (eventId: string, newEnd: Date) => {
+    const event = events.find(e => e.id === eventId);
+    if (!event) return;
+    
+    const updatedEvent = { ...event, end_time: newEnd };
+    await updateEvent(updatedEvent);
+  }, [events, updateEvent]);
 
   const navigateDate = (direction: 'prev' | 'next') => {
     const newDate = new Date(currentDate);
@@ -287,6 +313,9 @@ const NeoTimeline = () => {
             onProjectsChange={setProjects}
             selectedProjectId={selectedProjectId}
             onSelectProject={setSelectedProjectId}
+            selectedEvent={sidebarSelectedEvent}
+            onEventClick={handleEventEdit}
+            onClearSelectedEvent={() => setSidebarSelectedEvent(null)}
           />
 
           {/* Main Calendar Area */}
@@ -429,6 +458,7 @@ const NeoTimeline = () => {
                 onDateClick={handleDateClick}
                 onEventClick={handleEventClick}
                 onEventDrop={handleEventDrop}
+                onEventResize={handleEventResize}
                 visibleProjectIds={selectedProjectId ? [selectedProjectId] : visibleProjectIds}
               />
             </div>

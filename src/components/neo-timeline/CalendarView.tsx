@@ -9,6 +9,7 @@ interface CalendarViewProps {
   onDateClick: (date: Date) => void;
   onEventClick: (event: CalendarEvent) => void;
   onEventDrop: (eventId: string, newStart: Date, newEnd: Date) => void;
+  onEventResize?: (eventId: string, newEnd: Date) => void;
   visibleProjectIds?: string[] | null;
 }
 
@@ -19,11 +20,14 @@ export const CalendarView = ({
   onDateClick,
   onEventClick,
   onEventDrop,
+  onEventResize,
   visibleProjectIds
 }: CalendarViewProps) => {
   const [draggedEvent, setDraggedEvent] = useState<CalendarEvent | null>(null);
   const [dragOverSlot, setDragOverSlot] = useState<{ day: number; hour: number } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [isResizing, setIsResizing] = useState(false);
+  const [resizingEvent, setResizingEvent] = useState<CalendarEvent | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const hours = Array.from({ length: 24 }, (_, i) => i);
@@ -138,9 +142,56 @@ export const CalendarView = ({
     mass: 0.8
   };
 
-  const EventCard = ({ event, compact = false }: { 
+  const handleResizeStart = (e: React.MouseEvent, event: CalendarEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setIsResizing(true);
+    setResizingEvent(event);
+    
+    const startY = e.clientY;
+    const startDuration = event.end_time.getTime() - event.start_time.getTime();
+    const hourHeight = 56; // h-14 = 3.5rem = 56px
+
+    const handleMouseMove = (moveEvent: MouseEvent) => {
+      if (!resizingEvent && !event) return;
+      
+      const deltaY = moveEvent.clientY - startY;
+      const deltaHours = Math.round(deltaY / hourHeight);
+      const newDuration = Math.max(3600000, startDuration + (deltaHours * 3600000)); // Min 1 hour
+      
+      const newEnd = new Date(event.start_time.getTime() + newDuration);
+      
+      // Visual update would happen via state, but we defer to final mouseup
+      setResizingEvent({ ...event, end_time: newEnd });
+    };
+
+    const handleMouseUp = (upEvent: MouseEvent) => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      
+      if (resizingEvent || event) {
+        const deltaY = upEvent.clientY - startY;
+        const deltaHours = Math.round(deltaY / hourHeight);
+        const newDuration = Math.max(3600000, startDuration + (deltaHours * 3600000));
+        const newEnd = new Date(event.start_time.getTime() + newDuration);
+        
+        if (onEventResize && newEnd.getTime() !== event.end_time.getTime()) {
+          onEventResize(event.id, newEnd);
+        }
+      }
+      
+      setIsResizing(false);
+      setResizingEvent(null);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  };
+
+  const EventCard = ({ event, compact = false, showResize = false }: { 
     event: CalendarEvent; 
     compact?: boolean;
+    showResize?: boolean;
   }) => (
     <motion.div
       layout
@@ -154,11 +205,12 @@ export const CalendarView = ({
         boxShadow: "0 10px 30px rgba(0,0,0,0.3)",
         cursor: "grabbing"
       }}
-      drag
+      drag={!isResizing}
       dragMomentum={false}
       dragElastic={0.1}
-      onDragStart={() => handleDragStart(event)}
+      onDragStart={() => !isResizing && handleDragStart(event)}
       onDragEnd={(e, info) => {
+        if (isResizing) return;
         const element = document.elementFromPoint(info.point.x, info.point.y);
         const slot = element?.closest('[data-slot]');
         if (slot) {
@@ -175,9 +227,9 @@ export const CalendarView = ({
       transition={springConfig}
       onClick={(e) => {
         e.stopPropagation();
-        if (!isDragging) onEventClick(event);
+        if (!isDragging && !isResizing) onEventClick(event);
       }}
-      className={`rounded-lg px-2 py-1 text-xs text-white cursor-grab active:cursor-grabbing select-none ${
+      className={`relative rounded-lg px-2 py-1 text-xs text-white cursor-grab active:cursor-grabbing select-none group ${
         compact ? 'truncate' : ''
       }`}
       style={{ 
@@ -189,6 +241,14 @@ export const CalendarView = ({
       {!compact && (
         <div className="text-white/70 text-[10px]">
           {event.start_time.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+        </div>
+      )}
+      {showResize && (
+        <div
+          onMouseDown={(e) => handleResizeStart(e, event)}
+          className="absolute bottom-0 left-0 right-0 h-2 cursor-ns-resize opacity-0 group-hover:opacity-100 bg-white/30 rounded-b-lg transition-opacity flex items-center justify-center"
+        >
+          <div className="w-8 h-0.5 bg-white/60 rounded" />
         </div>
       )}
     </motion.div>
@@ -301,7 +361,7 @@ export const CalendarView = ({
               >
                 <AnimatePresence mode="popLayout">
                   {hourEvents.map(event => (
-                    <EventCard key={event.id} event={event} />
+                    <EventCard key={event.id} event={event} showResize />
                   ))}
                 </AnimatePresence>
               </motion.div>
@@ -361,7 +421,7 @@ export const CalendarView = ({
               >
                 <AnimatePresence mode="popLayout">
                   {hourEvents.map(event => (
-                    <EventCard key={event.id} event={event} />
+                    <EventCard key={event.id} event={event} showResize />
                   ))}
                 </AnimatePresence>
               </motion.div>

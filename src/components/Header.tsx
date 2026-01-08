@@ -101,7 +101,7 @@ export const Header = () => {
             <Button
               variant="ghost"
               className="rounded-full hover:bg-white/20 transition-all duration-300 px-4 py-2 text-white/60 font-medium"
-              onClick={() => navigate('/admin-login')}
+              onClick={() => navigate('/login')}
             >
               Login
             </Button>
@@ -205,7 +205,7 @@ export const Header = () => {
               variant="ghost"
               className="w-full justify-start rounded-lg bg-white/5 hover:bg-white/10 text-white/60 font-medium"
               onClick={() => {
-                navigate('/admin-login');
+                navigate('/login');
                 setMobileMenuOpen(false);
               }}
             >

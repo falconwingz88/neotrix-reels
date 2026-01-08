@@ -139,13 +139,41 @@ const NeoTimeline = () => {
     }
   }, [isAuthenticated, user]);
 
+  // Import shared snapshot from URL hash
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (!hash.startsWith('#share=')) return;
+
+    try {
+      const encoded = hash.replace('#share=', '');
+      const json = decodeURIComponent(escape(window.atob(encoded)));
+      const payload = JSON.parse(json) as { projects?: any[]; events?: any[] };
+
+      if (payload.projects && Array.isArray(payload.projects)) {
+        setProjects(payload.projects);
+      }
+
+      if (payload.events && Array.isArray(payload.events)) {
+        setEvents(
+          payload.events.map((e) => ({
+            ...e,
+            start_time: new Date(e.start_time),
+            end_time: new Date(e.end_time),
+          }))
+        );
+      }
+
+      toast({ title: 'Loaded shared timeline' });
+    } catch {
+      toast({ title: 'Invalid share link', variant: 'destructive' });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const loadEvents = async () => {
     if (!user) return;
 
-    const { data, error } = await supabase
-      .from('calendar_events')
-      .select('*')
-      .eq('user_id', user.id);
+    const { data, error } = await supabase.from('calendar_events').select('*').eq('user_id', user.id);
 
     if (error) {
       console.error('Error loading events:', error);
@@ -340,6 +368,36 @@ const NeoTimeline = () => {
     setCurrentDate(newDate);
   };
 
+  const snapshotPayload = () => ({
+    projects,
+    events: events.map((e) => ({
+      ...e,
+      start_time: e.start_time.toISOString(),
+      end_time: e.end_time.toISOString(),
+    })),
+  });
+
+  const handleSaveSnapshot = () => {
+    const blob = new Blob([JSON.stringify(snapshotPayload(), null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `neo-timeline-${currentDate.getFullYear()}-${currentDate.getMonth() + 1}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast({ title: 'Saved snapshot' });
+  };
+
+  const handleShareSnapshot = async () => {
+    try {
+      const encoded = window.btoa(unescape(encodeURIComponent(JSON.stringify(snapshotPayload()))));
+      const link = `${window.location.origin}/neo-timeline#share=${encoded}`;
+      await navigator.clipboard.writeText(link);
+      toast({ title: 'Share link copied' });
+    } catch {
+      toast({ title: 'Failed to copy share link', variant: 'destructive' });
+    }
+  };
 
   const formatDateRange = () => {
     const options: Intl.DateTimeFormatOptions = { month: 'long', year: 'numeric' };
@@ -418,44 +476,36 @@ const NeoTimeline = () => {
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <span>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          disabled={!isAuthenticated}
-                          className={`bg-white/10 border-white/20 ${isAuthenticated ? 'text-white hover:bg-white/20' : 'text-white/40 cursor-not-allowed'}`}
-                        >
-                          <Save className="w-4 h-4" />
-                        </Button>
-                      </span>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={handleSaveSnapshot}
+                        className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                      >
+                        <Save className="w-4 h-4" />
+                      </Button>
                     </TooltipTrigger>
-                    {!isAuthenticated && (
-                      <TooltipContent className="bg-black/90 text-white border-white/20">
-                        <p>Login first</p>
-                      </TooltipContent>
-                    )}
+                    <TooltipContent className="bg-black/90 text-white border-white/20">
+                      <p>Download snapshot</p>
+                    </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
 
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <span>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          disabled={!isAuthenticated}
-                          className={`bg-white/10 border-white/20 ${isAuthenticated ? 'text-white hover:bg-white/20' : 'text-white/40 cursor-not-allowed'}`}
-                        >
-                          <Share2 className="w-4 h-4" />
-                        </Button>
-                      </span>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={handleShareSnapshot}
+                        className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                      >
+                        <Share2 className="w-4 h-4" />
+                      </Button>
                     </TooltipTrigger>
-                    {!isAuthenticated && (
-                      <TooltipContent className="bg-black/90 text-white border-white/20">
-                        <p>Login first</p>
-                      </TooltipContent>
-                    )}
+                    <TooltipContent className="bg-black/90 text-white border-white/20">
+                      <p>Copy share link</p>
+                    </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
 

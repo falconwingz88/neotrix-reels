@@ -447,6 +447,7 @@ export const CalendarView = ({
         dragListener={false}
         dragMomentum={false}
         dragElastic={0}
+        dragSnapToOrigin={false}
         onDragStart={() => setIsDragging(true)}
         onDragEnd={(e, info) => handleDragEnd(event, info)}
         onClick={(e) => setSelected(event, e)}
@@ -456,7 +457,8 @@ export const CalendarView = ({
           const target = e.target as HTMLElement;
           if (target.closest('[data-resize-handle]')) return;
           if (activeResize) return;
-          dragControls.start(e.nativeEvent);
+          e.stopPropagation();
+          dragControls.start(e);
         }}
         className={`relative text-xs text-white select-none group cursor-grab active:cursor-grabbing ${
           isSelected ? 'ring-2 ring-white/60 ring-inset' : ''

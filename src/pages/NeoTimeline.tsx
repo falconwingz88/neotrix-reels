@@ -68,6 +68,16 @@ const NeoTimeline = () => {
   ]);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [sidebarSelectedEvent, setSidebarSelectedEvent] = useState<CalendarEvent | null>(null);
+  const [selectedDates, setSelectedDates] = useState<Set<string>>(new Set());
+  const [showHolidays, setShowHolidays] = useState(() => {
+    const saved = localStorage.getItem('neo-timeline-show-holidays');
+    return saved !== null ? JSON.parse(saved) : true;
+  });
+
+  // Save showHolidays preference
+  useEffect(() => {
+    localStorage.setItem('neo-timeline-show-holidays', JSON.stringify(showHolidays));
+  }, [showHolidays]);
 
   // Save theme to localStorage when it changes
   useEffect(() => {
@@ -270,8 +280,32 @@ const NeoTimeline = () => {
   }, [events, updateEvent]);
 
 
-  const handleDateClick = (date: Date) => {
-    // Select only (no modal)
+  const dateToKey = (date: Date) => date.toISOString().split('T')[0];
+
+  const handleDateClick = (date: Date, multi?: boolean) => {
+    const key = dateToKey(date);
+    
+    if (multi) {
+      // Multi-select mode
+      setSelectedDates(prev => {
+        const next = new Set(prev);
+        if (next.has(key)) {
+          next.delete(key);
+        } else {
+          next.add(key);
+        }
+        return next;
+      });
+    } else {
+      // Single select - toggle or set
+      setSelectedDates(prev => {
+        if (prev.has(key) && prev.size === 1) {
+          return new Set(); // Deselect if already selected
+        }
+        return new Set([key]);
+      });
+    }
+    
     setNewEventStart(date);
     setSelectedEvent(null);
   };
@@ -345,6 +379,8 @@ const NeoTimeline = () => {
             selectedEvent={sidebarSelectedEvent}
             onEventClick={handleEventEdit}
             onClearSelectedEvent={() => setSidebarSelectedEvent(null)}
+            showHolidays={showHolidays}
+            onShowHolidaysChange={setShowHolidays}
           />
 
           {/* Main Calendar Area */}
@@ -463,6 +499,9 @@ const NeoTimeline = () => {
                 visibleProjectIds={selectedProjectId ? [selectedProjectId] : visibleProjectIds}
                 selectedEventIds={selectedEventIds}
                 onSelectedEventIdsChange={setSelectedEventIds}
+                selectedDates={selectedDates}
+                onSelectedDatesChange={setSelectedDates}
+                showHolidays={showHolidays}
               />
             </div>
           </div>

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
 import {
   ChevronLeft,
   ChevronRight,
@@ -14,7 +15,8 @@ import {
   X,
   FolderOpen,
   Calendar,
-  Clock
+  Clock,
+  Flag
 } from 'lucide-react';
 
 export interface Project {
@@ -22,6 +24,7 @@ export interface Project {
   name: string;
   color: string;
   visible: boolean;
+  isHoliday?: boolean; // Special flag for holiday project
 }
 
 export interface CalendarEvent {
@@ -44,6 +47,8 @@ interface ProjectSidebarProps {
   selectedEvent?: CalendarEvent | null;
   onEventClick?: (event: CalendarEvent) => void;
   onClearSelectedEvent?: () => void;
+  showHolidays?: boolean;
+  onShowHolidaysChange?: (show: boolean) => void;
 }
 
 export const ProjectSidebar = ({
@@ -53,7 +58,9 @@ export const ProjectSidebar = ({
   onSelectProject,
   selectedEvent,
   onEventClick,
-  onClearSelectedEvent
+  onClearSelectedEvent,
+  showHolidays = true,
+  onShowHolidaysChange,
 }: ProjectSidebarProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -105,12 +112,6 @@ export const ProjectSidebar = ({
     setEditingName('');
   };
 
-  const handleColorChange = (id: string, color: string) => {
-    onProjectsChange(
-      projects.map(p => p.id === id ? { ...p, color } : p)
-    );
-  };
-
   return (
     <motion.div
       initial={false}
@@ -118,7 +119,6 @@ export const ProjectSidebar = ({
       transition={{ type: 'spring', stiffness: 300, damping: 30 }}
       className="h-full bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 flex flex-col overflow-hidden"
     >
-
       {/* Header */}
       <div className="flex items-center justify-between p-3 border-b border-white/10">
         <AnimatePresence mode="wait">
@@ -203,6 +203,22 @@ export const ProjectSidebar = ({
               </motion.div>
             )}
 
+            {/* Indonesian Holidays Toggle */}
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              className="flex items-center justify-between p-2 rounded-lg bg-red-500/10 border border-red-500/20"
+            >
+              <div className="flex items-center gap-2">
+                <Flag className="w-4 h-4 text-red-400" />
+                <span className="text-white text-sm">Indonesia Holidays</span>
+              </div>
+              <Switch
+                checked={showHolidays}
+                onCheckedChange={onShowHolidaysChange}
+                className="data-[state=checked]:bg-red-500"
+              />
+            </motion.div>
+
             {/* All Events option */}
             <motion.div
               whileHover={{ scale: 1.02 }}
@@ -277,6 +293,7 @@ export const ProjectSidebar = ({
                           handleToggleVisibility(project.id);
                         }}
                         className="h-6 w-6 text-white/40 hover:text-white"
+                        title={project.visible ? 'Hide project' : 'Show project'}
                       >
                         {project.visible ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
                       </Button>
@@ -291,17 +308,19 @@ export const ProjectSidebar = ({
                       >
                         <Edit2 className="w-3 h-3" />
                       </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteProject(project.id);
-                        }}
-                        className="h-6 w-6 text-white/40 hover:text-red-400"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </Button>
+                      {!project.isHoliday && (
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteProject(project.id);
+                          }}
+                          className="h-6 w-6 text-white/40 hover:text-red-400"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      )}
                     </div>
                   </>
                 )}
@@ -386,8 +405,9 @@ export const ProjectSidebar = ({
               }}
               className={`w-6 h-6 rounded-full cursor-pointer border-2 ${
                 selectedProjectId === project.id ? 'border-white' : 'border-transparent'
-              }`}
+              } ${!project.visible ? 'opacity-50' : ''}`}
               style={{ backgroundColor: project.color }}
+              title={project.name}
             />
           ))}
           {projects.length > 5 && (

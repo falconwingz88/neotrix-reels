@@ -25,6 +25,8 @@ interface CalendarViewProps {
   selectedDates?: Set<string>;
   onSelectedDatesChange?: (next: Set<string>) => void;
   showHolidays?: boolean;
+  selectedProjectId?: string | null;
+  blendMode?: boolean; // When true, events color the day background instead of showing pills
 }
 
 export const CalendarView = ({
@@ -42,6 +44,8 @@ export const CalendarView = ({
   selectedDates,
   onSelectedDatesChange,
   showHolidays = true,
+  selectedProjectId,
+  blendMode = false,
 }: CalendarViewProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dragOverSlot, setDragOverSlot] = useState<{ day: number; hour: number } | null>(null);
@@ -72,10 +76,23 @@ export const CalendarView = ({
     return project?.color || event.color || '#3b82f6';
   };
 
+  // Filter events based on visibility and sub-event rules
   const filteredEvents = useMemo(() => {
-    if (!visibleProjectIds) return events;
-    return events.filter((e) => visibleProjectIds.includes(e.project_id || 'default'));
-  }, [events, visibleProjectIds]);
+    let filtered = events;
+    
+    // Filter by visible projects
+    if (visibleProjectIds) {
+      filtered = filtered.filter((e) => visibleProjectIds.includes(e.project_id || 'default'));
+    }
+    
+    // Sub-events: only show when their parent project is selected
+    // If no project is selected (all events view), hide sub-events
+    if (!selectedProjectId) {
+      filtered = filtered.filter((e) => !e.is_sub_event);
+    }
+    
+    return filtered;
+  }, [events, visibleProjectIds, selectedProjectId]);
 
   const getMonthDates = () => {
     const year = currentDate.getFullYear();
@@ -521,6 +538,16 @@ export const CalendarView = ({
           const isDateSelected = selectedDates?.has(dateKey) ?? false;
           const holiday = showHolidays ? getHolidayForDate(date) : undefined;
 
+          // Calculate blend color from events for this day
+          const blendColors = blendMode && dayEvents.length > 0 
+            ? dayEvents.map(e => getEventColor(e))
+            : [];
+          const blendStyle = blendColors.length > 0 
+            ? blendColors.length === 1 
+              ? { backgroundColor: `${blendColors[0]}40` }
+              : { background: `linear-gradient(135deg, ${blendColors.map((c, idx) => `${c}40 ${(idx / blendColors.length) * 100}%`).join(', ')})` }
+            : {};
+
           return (
             <motion.div
               key={i}
@@ -533,10 +560,11 @@ export const CalendarView = ({
                   ? 'rgba(59, 130, 246, 0.2)'
                   : isDateSelected
                     ? 'rgba(59, 130, 246, 0.15)'
-                    : 'rgba(255, 255, 255, 0.05)',
+                    : blendColors.length === 0 ? 'rgba(255, 255, 255, 0.05)' : undefined,
                 scale: isDragOver ? 1.02 : 1,
               }}
               transition={springConfig}
+              style={blendColors.length > 0 && !isDragOver && !isDateSelected ? blendStyle : undefined}
               className={`min-h-24 p-1 hover:bg-white/10 transition-colors border-b border-r border-white/5 ${
                 !isCurrentMonth ? 'opacity-40' : ''
               } ${isToday(date) ? 'ring-2 ring-blue-500 ring-inset' : ''} ${
@@ -555,18 +583,45 @@ export const CalendarView = ({
                   </span>
                 )}
               </div>
-              <AnimatePresence mode="popLayout">
-                <div className="space-y-1">
-                  {dayEvents.slice(0, 3).map((event) => (
-                    <EventCard key={event.id} event={event} date={date} />
+              
+              {/* Show event pills only when NOT in blend mode */}
+              {!blendMode && (
+                <AnimatePresence mode="popLayout">
+                  <div className="space-y-1">
+                    {dayEvents.slice(0, 3).map((event) => (
+                      <EventCard key={event.id} event={event} date={date} />
+                    ))}
+                    {dayEvents.length > 3 && (
+                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[10px] text-white/60 px-1">
+                        +{dayEvents.length - 3} more
+                      </motion.div>
+                    )}
+                  </div>
+                </AnimatePresence>
+              )}
+              
+              {/* In blend mode, show count badge if multiple events */}
+              {blendMode && dayEvents.length > 0 && (
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {dayEvents.map((event) => (
+                    <motion.div
+                      key={event.id}
+                      data-event-id={event.id}
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelected(event, e);
+                      }}
+                      className={`w-2 h-2 rounded-full cursor-pointer ${
+                        selectedEventIds?.has(event.id) ? 'ring-2 ring-white' : ''
+                      }`}
+                      style={{ backgroundColor: getEventColor(event) }}
+                      title={event.title}
+                    />
                   ))}
-                  {dayEvents.length > 3 && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[10px] text-white/60 px-1">
-                      +{dayEvents.length - 3} more
-                    </motion.div>
-                  )}
                 </div>
-              </AnimatePresence>
+              )}
             </motion.div>
           );
         })}

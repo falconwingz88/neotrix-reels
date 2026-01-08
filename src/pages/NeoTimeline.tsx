@@ -9,7 +9,7 @@ import { CalendarView } from '@/components/neo-timeline/CalendarView';
 import { EventModal } from '@/components/neo-timeline/EventModal';
 import { BackgroundSettings } from '@/components/neo-timeline/BackgroundSettings';
 import { ProjectSidebar, Project } from '@/components/neo-timeline/ProjectSidebar';
-import { ChevronLeft, ChevronRight, Plus, Settings, Save, Share2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, Settings, Save, Share2, X } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
@@ -32,6 +32,8 @@ export interface CalendarEvent {
   all_day: boolean;
   user_id?: string;
   project_id?: string;
+  parent_event_id?: string; // For sub-events - links to parent event
+  is_sub_event?: boolean;
 }
 
 type ViewType = 'month';
@@ -448,36 +450,118 @@ const NeoTimeline = () => {
             onClearSelectedEvent={() => setSidebarSelectedEvent(null)}
             showHolidays={showHolidays}
             onShowHolidaysChange={setShowHolidays}
+            events={events}
+            onCreateSubEvent={(projectId) => {
+              // Create a sub-event for the selected project
+              setSelectedEvent(null);
+              setNewEventStart(new Date());
+              setIsModalOpen(true);
+            }}
           />
 
           {/* Main Calendar Area */}
           <div className="flex-1 min-w-0">
             {/* Calendar Header */}
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => navigateDate('prev')}
-                    className="text-white hover:bg-white/20"
-                  >
-                    <ChevronLeft className="w-5 h-5" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => navigateDate('next')}
-                    className="text-white hover:bg-white/20"
-                  >
-                    <ChevronRight className="w-5 h-5" />
-                  </Button>
+              <div className="flex items-center gap-4">
+                {/* Month/Year Navigation */}
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => navigateDate('prev')}
+                      className="text-white hover:bg-white/20"
+                    >
+                      <ChevronLeft className="w-5 h-5" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => navigateDate('next')}
+                      className="text-white hover:bg-white/20"
+                    >
+                      <ChevronRight className="w-5 h-5" />
+                    </Button>
+                  </div>
+                  
+                  {/* Month Selector */}
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="ghost" className="text-white hover:bg-white/20 px-3">
+                        {currentDate.toLocaleDateString('en-US', { month: 'long' })}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-48 p-2 bg-black/90 border-white/20 backdrop-blur-xl">
+                      <div className="grid grid-cols-3 gap-1">
+                        {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].map((month, i) => (
+                          <Button
+                            key={month}
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              const newDate = new Date(currentDate);
+                              newDate.setMonth(i);
+                              setCurrentDate(newDate);
+                            }}
+                            className={`text-white/80 hover:bg-white/20 text-xs ${currentDate.getMonth() === i ? 'bg-white/20' : ''}`}
+                          >
+                            {month}
+                          </Button>
+                        ))}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                  
+                  {/* Year Selector */}
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="ghost" className="text-white hover:bg-white/20 px-3">
+                        {currentDate.getFullYear()}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-48 p-2 bg-black/90 border-white/20 backdrop-blur-xl max-h-64 overflow-y-auto">
+                      <div className="grid grid-cols-3 gap-1">
+                        {Array.from({ length: 21 }, (_, i) => currentDate.getFullYear() - 10 + i).map((year) => (
+                          <Button
+                            key={year}
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              const newDate = new Date(currentDate);
+                              newDate.setFullYear(year);
+                              setCurrentDate(newDate);
+                            }}
+                            className={`text-white/80 hover:bg-white/20 text-xs ${currentDate.getFullYear() === year ? 'bg-white/20' : ''}`}
+                          >
+                            {year}
+                          </Button>
+                        ))}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                 </div>
-                <span className="text-white text-lg font-medium">
-                  {selectedProjectId 
-                    ? projects.find(p => p.id === selectedProjectId)?.name || formatDateRange()
-                    : formatDateRange()}
-                </span>
+                
+                {/* Project Title (when selected) */}
+                {selectedProjectId && (
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/10 border border-white/20">
+                    <div 
+                      className="w-3 h-3 rounded-full" 
+                      style={{ backgroundColor: projects.find(p => p.id === selectedProjectId)?.color || '#3b82f6' }}
+                    />
+                    <span className="text-white font-medium">
+                      {projects.find(p => p.id === selectedProjectId)?.name || 'Project'}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setSelectedProjectId(null)}
+                      className="h-5 w-5 text-white/60 hover:text-white hover:bg-white/20 ml-1"
+                    >
+                      <X className="w-3 h-3" />
+                    </Button>
+                  </div>
+                )}
               </div>
               
               <div className="flex items-center gap-2 flex-wrap">
@@ -566,6 +650,8 @@ const NeoTimeline = () => {
                 selectedDates={selectedDates}
                 onSelectedDatesChange={setSelectedDates}
                 showHolidays={showHolidays}
+                selectedProjectId={selectedProjectId}
+                blendMode={!!selectedProjectId}
               />
             </div>
           </div>
@@ -602,6 +688,8 @@ const NeoTimeline = () => {
           setSelectedEvent(null);
         } : undefined}
         isAuthenticated={isAuthenticated}
+        isSubEvent={!!selectedProjectId}
+        projectColor={projects.find(p => p.id === selectedProjectId)?.color || '#3b82f6'}
       />
     </div>
   );

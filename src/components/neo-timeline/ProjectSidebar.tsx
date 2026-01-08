@@ -43,6 +43,8 @@ export interface CalendarEvent {
   all_day: boolean;
   user_id?: string;
   project_id?: string;
+  parent_event_id?: string;
+  is_sub_event?: boolean;
 }
 
 const PROJECT_COLORS = [
@@ -61,6 +63,8 @@ interface ProjectSidebarProps {
   onClearSelectedEvent?: () => void;
   showHolidays?: boolean;
   onShowHolidaysChange?: (show: boolean) => void;
+  events?: CalendarEvent[];
+  onCreateSubEvent?: (projectId: string) => void;
 }
 
 export const ProjectSidebar = ({
@@ -73,6 +77,8 @@ export const ProjectSidebar = ({
   onClearSelectedEvent,
   showHolidays = true,
   onShowHolidaysChange,
+  events = [],
+  onCreateSubEvent,
 }: ProjectSidebarProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -238,6 +244,69 @@ export const ProjectSidebar = ({
                       <Edit2 className="w-3 h-3 mr-2" />
                       Edit Event
                     </Button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Sub-Events Panel - Visible when project is selected */}
+            <AnimatePresence>
+              {selectedProjectId && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="overflow-hidden"
+                >
+                  <div className="p-3 rounded-xl bg-white/10 border border-white/20 mb-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-white/60 text-xs font-medium uppercase tracking-wide">
+                        Sub-Events
+                      </span>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => onCreateSubEvent?.(selectedProjectId)}
+                        className="h-6 text-white/60 hover:text-white px-2"
+                      >
+                        <Plus className="w-3 h-3 mr-1" />
+                        Add
+                      </Button>
+                    </div>
+                    
+                    {/* List of sub-events for this project */}
+                    <div className="space-y-1 max-h-48 overflow-y-auto">
+                      {events
+                        .filter(e => e.project_id === selectedProjectId && e.is_sub_event)
+                        .map((subEvent) => (
+                          <motion.div
+                            key={subEvent.id}
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => onEventClick?.(subEvent)}
+                            className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer bg-white/5 hover:bg-white/10 ${
+                              selectedEvent?.id === subEvent.id ? 'ring-1 ring-white/40' : ''
+                            }`}
+                          >
+                            <div
+                              className="w-2 h-2 rounded-full flex-shrink-0"
+                              style={{ backgroundColor: subEvent.color }}
+                            />
+                            <span className="text-white text-xs truncate flex-1">
+                              {subEvent.title}
+                            </span>
+                            <span className="text-white/40 text-[10px]">
+                              {subEvent.start_time.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                            </span>
+                          </motion.div>
+                        ))}
+                      
+                      {events.filter(e => e.project_id === selectedProjectId && e.is_sub_event).length === 0 && (
+                        <p className="text-white/40 text-xs text-center py-2">
+                          No sub-events yet
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </motion.div>
               )}

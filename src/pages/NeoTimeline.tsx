@@ -49,6 +49,7 @@ const NeoTimeline = () => {
   const [selectedEventIds, setSelectedEventIds] = useState<Set<string>>(new Set());
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newEventStart, setNewEventStart] = useState<Date | null>(null);
+  const [newEventIsSubEvent, setNewEventIsSubEvent] = useState(false);
   
   // Load theme from localStorage
   const [backgroundGradient, setBackgroundGradient] = useState(() => {
@@ -455,6 +456,7 @@ const NeoTimeline = () => {
               // Create a sub-event for the selected project
               setSelectedEvent(null);
               setNewEventStart(new Date());
+              setNewEventIsSubEvent(true);
               setIsModalOpen(true);
             }}
           />
@@ -623,6 +625,8 @@ const NeoTimeline = () => {
                 <Button
                   onClick={() => {
                     setSelectedEvent(null);
+                    setNewEventStart(new Date());
+                    setNewEventIsSubEvent(false);
                     setIsModalOpen(true);
                   }}
                   className="bg-blue-600 hover:bg-blue-700 text-white"
@@ -667,6 +671,7 @@ const NeoTimeline = () => {
           setIsModalOpen(false);
           setSelectedEvent(null);
           setNewEventStart(null);
+          setNewEventIsSubEvent(false);
         }}
         event={selectedEvent}
         defaultStart={newEventStart}
@@ -674,13 +679,18 @@ const NeoTimeline = () => {
           if (selectedEvent) {
             await updateEvent({ ...selectedEvent, ...eventData });
           } else if (isAuthenticated) {
-            await saveEvent({ ...eventData, project_id: selectedProjectId || 'default' });
+            await saveEvent({
+              ...eventData,
+              project_id: selectedProjectId || 'default',
+              is_sub_event: newEventIsSubEvent,
+            });
           } else {
-            createLocalEvent(eventData);
+            createLocalEvent({ ...eventData, is_sub_event: newEventIsSubEvent });
           }
           setIsModalOpen(false);
           setSelectedEvent(null);
           setNewEventStart(null);
+          setNewEventIsSubEvent(false);
         }}
         onDelete={selectedEvent ? () => {
           deleteEvent(selectedEvent.id);
@@ -688,7 +698,7 @@ const NeoTimeline = () => {
           setSelectedEvent(null);
         } : undefined}
         isAuthenticated={isAuthenticated}
-        isSubEvent={!!selectedProjectId}
+        isSubEvent={newEventIsSubEvent}
         projectColor={projects.find(p => p.id === selectedProjectId)?.color || '#3b82f6'}
       />
     </div>

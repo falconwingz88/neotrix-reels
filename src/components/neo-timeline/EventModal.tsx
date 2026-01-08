@@ -62,8 +62,9 @@ export const EventModal = ({
   const [endDate, setEndDate] = useState('');
   const [endTime, setEndTime] = useState('');
   const [allDay, setAllDay] = useState(false);
-  const [isSubEvent, setIsSubEvent] = useState(defaultIsSubEvent);
   const [eventColor, setEventColor] = useState(projectColor);
+
+  const isSubEvent = event?.is_sub_event ?? defaultIsSubEvent;
 
   useEffect(() => {
     if (event) {
@@ -74,7 +75,6 @@ export const EventModal = ({
       setEndDate(formatDateInput(event.end_time));
       setEndTime(formatTimeInput(event.end_time));
       setAllDay(event.all_day);
-      setIsSubEvent(event.is_sub_event || false);
       setEventColor(event.color || projectColor);
     } else if (defaultStart) {
       setTitle('');
@@ -86,10 +86,9 @@ export const EventModal = ({
       setEndDate(formatDateInput(endDefault));
       setEndTime(formatTimeInput(endDefault));
       setAllDay(false);
-      setIsSubEvent(defaultIsSubEvent);
       setEventColor(projectColor);
     }
-  }, [event, defaultStart, isOpen, defaultIsSubEvent, projectColor]);
+  }, [event, defaultStart, isOpen, projectColor]);
 
   const formatDateInput = (date: Date) => {
     return date.toISOString().split('T')[0];
@@ -156,7 +155,7 @@ export const EventModal = ({
             />
           </div>
 
-          {/* Color and Sub-event row */}
+          {/* Color row */}
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-2">
               <Label className="text-white/80">Color</Label>
@@ -178,15 +177,12 @@ export const EventModal = ({
               </Popover>
             </div>
 
-            <div className="flex items-center gap-2">
-              <Layers className="w-4 h-4 text-white/60" />
-              <Label htmlFor="isSubEvent" className="text-white/80 text-sm">Sub-event</Label>
-              <Switch
-                id="isSubEvent"
-                checked={isSubEvent}
-                onCheckedChange={setIsSubEvent}
-              />
-            </div>
+            {isSubEvent && (
+              <div className="flex items-center gap-2">
+                <Layers className="w-4 h-4 text-white/60" />
+                <span className="text-white/60 text-sm">Sub-event</span>
+              </div>
+            )}
           </div>
           
           <div className="flex items-center gap-2">

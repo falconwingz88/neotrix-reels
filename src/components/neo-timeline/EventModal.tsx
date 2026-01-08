@@ -18,7 +18,19 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { Trash2 } from 'lucide-react';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { Trash2, Layers } from 'lucide-react';
+import { ColorPicker } from './ColorPicker';
+
+const EVENT_COLORS = [
+  '#3b82f6', '#ef4444', '#22c55e', '#f59e0b',
+  '#8b5cf6', '#ec4899', '#06b6d4', '#f97316',
+  '#14b8a6', '#6366f1', '#84cc16', '#a855f7',
+];
 
 interface EventModalProps {
   isOpen: boolean;
@@ -28,6 +40,8 @@ interface EventModalProps {
   onSave: (event: Omit<CalendarEvent, 'id' | 'user_id'>) => void;
   onDelete?: () => void;
   isAuthenticated: boolean;
+  isSubEvent?: boolean;
+  projectColor?: string;
 }
 
 export const EventModal = ({
@@ -37,7 +51,9 @@ export const EventModal = ({
   defaultStart,
   onSave,
   onDelete,
-  isAuthenticated
+  isAuthenticated,
+  isSubEvent: defaultIsSubEvent = false,
+  projectColor = '#3b82f6'
 }: EventModalProps) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -46,6 +62,8 @@ export const EventModal = ({
   const [endDate, setEndDate] = useState('');
   const [endTime, setEndTime] = useState('');
   const [allDay, setAllDay] = useState(false);
+  const [isSubEvent, setIsSubEvent] = useState(defaultIsSubEvent);
+  const [eventColor, setEventColor] = useState(projectColor);
 
   useEffect(() => {
     if (event) {
@@ -56,6 +74,8 @@ export const EventModal = ({
       setEndDate(formatDateInput(event.end_time));
       setEndTime(formatTimeInput(event.end_time));
       setAllDay(event.all_day);
+      setIsSubEvent(event.is_sub_event || false);
+      setEventColor(event.color || projectColor);
     } else if (defaultStart) {
       setTitle('');
       setDescription('');
@@ -66,8 +86,10 @@ export const EventModal = ({
       setEndDate(formatDateInput(endDefault));
       setEndTime(formatTimeInput(endDefault));
       setAllDay(false);
+      setIsSubEvent(defaultIsSubEvent);
+      setEventColor(projectColor);
     }
-  }, [event, defaultStart, isOpen]);
+  }, [event, defaultStart, isOpen, defaultIsSubEvent, projectColor]);
 
   const formatDateInput = (date: Date) => {
     return date.toISOString().split('T')[0];
@@ -90,8 +112,9 @@ export const EventModal = ({
       description: description.trim() || undefined,
       start_time: start,
       end_time: end,
-      color: event?.color || '#3b82f6', // Keep existing or default, color managed by project
-      all_day: allDay
+      color: eventColor,
+      all_day: allDay,
+      is_sub_event: isSubEvent,
     });
   };
 
@@ -99,8 +122,13 @@ export const EventModal = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="bg-black/90 backdrop-blur-xl border-white/20 text-white max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-white">
+          <DialogTitle className="text-white flex items-center gap-2">
             {event ? 'Edit Event' : 'New Event'}
+            {isSubEvent && (
+              <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-white/60">
+                Sub-event
+              </span>
+            )}
           </DialogTitle>
         </DialogHeader>
         
@@ -126,6 +154,39 @@ export const EventModal = ({
               placeholder="Add description..."
               className="bg-white/10 border-white/20 text-white placeholder:text-white/40 min-h-20"
             />
+          </div>
+
+          {/* Color and Sub-event row */}
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <Label className="text-white/80">Color</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button
+                    type="button"
+                    className="w-8 h-8 rounded-lg cursor-pointer border-2 border-white/20 hover:border-white/40 transition-colors"
+                    style={{ backgroundColor: eventColor }}
+                  />
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-3 bg-black/90 border-white/20 backdrop-blur-xl">
+                  <ColorPicker
+                    colors={EVENT_COLORS}
+                    selectedColor={eventColor}
+                    onChange={setEventColor}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Layers className="w-4 h-4 text-white/60" />
+              <Label htmlFor="isSubEvent" className="text-white/80 text-sm">Sub-event</Label>
+              <Switch
+                id="isSubEvent"
+                checked={isSubEvent}
+                onCheckedChange={setIsSubEvent}
+              />
+            </div>
           </div>
           
           <div className="flex items-center gap-2">

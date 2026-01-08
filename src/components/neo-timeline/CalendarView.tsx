@@ -3,14 +3,22 @@ import { AnimatePresence, motion, PanInfo, useDragControls } from 'framer-motion
 import { CalendarEvent } from '@/pages/NeoTimeline';
 import { getHolidayForDate } from '@/lib/indonesian-holidays';
 
+interface Project {
+  id: string;
+  name: string;
+  color: string;
+  visible: boolean;
+}
+
 interface CalendarViewProps {
   view: 'month';
   currentDate: Date;
   events: CalendarEvent[];
+  projects: Project[];
   onDateClick: (date: Date, multi?: boolean) => void;
   onEventClick: (event: CalendarEvent) => void;
   onEventDrop: (eventId: string, newStart: Date, newEnd: Date) => void;
-  onEventResize?: (eventId: string, newEnd: Date) => void;
+  onEventResize?: (eventId: string, newStart: Date, newEnd: Date) => void;
   visibleProjectIds?: string[] | null;
   selectedEventIds?: Set<string>;
   onSelectedEventIdsChange?: (next: Set<string>) => void;
@@ -23,6 +31,7 @@ export const CalendarView = ({
   view,
   currentDate,
   events,
+  projects,
   onDateClick,
   onEventClick,
   onEventDrop,
@@ -38,15 +47,22 @@ export const CalendarView = ({
   const [dragOverSlot, setDragOverSlot] = useState<{ day: number; hour: number } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
 
-  // Resize state
+  // Resize state - supports both left and right edge
   const [activeResize, setActiveResize] = useState<null | {
     eventId: string;
     startX: number;
+    originalStart: Date;
     originalEnd: Date;
     cellWidth: number;
-    eventStart: Date;
+    edge: 'left' | 'right';
   }>(null);
-  const [resizePreviewEnd, setResizePreviewEnd] = useState<Record<string, Date>>({});
+  const [resizePreview, setResizePreview] = useState<Record<string, { start: Date; end: Date }>>({});
+
+  // Get project color for an event
+  const getEventColor = (event: CalendarEvent) => {
+    const project = projects.find(p => p.id === event.project_id);
+    return project?.color || event.color || '#3b82f6';
+  };
 
   const filteredEvents = useMemo(() => {
     if (!visibleProjectIds) return events;
@@ -131,30 +147,54 @@ export const CalendarView = ({
     onEventClick(event);
   };
 
-  // Resize handlers with global pointer events
+  // Resize handlers with global pointer events - supports left and right edges
   useEffect(() => {
     if (!activeResize) return;
 
     const handlePointerMove = (e: PointerEvent) => {
       const deltaX = e.clientX - activeResize.startX;
       const deltaDays = Math.round(deltaX / Math.max(1, activeResize.cellWidth));
-      const nextEnd = new Date(activeResize.originalEnd);
-      nextEnd.setDate(activeResize.originalEnd.getDate() + deltaDays);
-      // Ensure end is at least same day as start
-      if (nextEnd < activeResize.eventStart) {
-        nextEnd.setTime(activeResize.eventStart.getTime());
-        nextEnd.setHours(23, 59, 59, 999);
+      
+      if (activeResize.edge === 'right') {
+        const nextEnd = new Date(activeResize.originalEnd);
+        nextEnd.setDate(activeResize.originalEnd.getDate() + deltaDays);
+        // Ensure end is at least same day as start
+        if (nextEnd < activeResize.originalStart) {
+          nextEnd.setTime(activeResize.originalStart.getTime());
+          nextEnd.setHours(23, 59, 59, 999);
+        }
+        setResizePreview((prev) => ({ 
+          ...prev, 
+          [activeResize.eventId]: { start: activeResize.originalStart, end: nextEnd }
+        }));
+      } else {
+        // Left edge - adjust start date
+        const nextStart = new Date(activeResize.originalStart);
+        nextStart.setDate(activeResize.originalStart.getDate() + deltaDays);
+        // Ensure start is not after end
+        if (nextStart > activeResize.originalEnd) {
+          nextStart.setTime(activeResize.originalEnd.getTime());
+          nextStart.setHours(0, 0, 0, 0);
+        }
+        setResizePreview((prev) => ({ 
+          ...prev, 
+          [activeResize.eventId]: { start: nextStart, end: activeResize.originalEnd }
+        }));
       }
-      setResizePreviewEnd((prev) => ({ ...prev, [activeResize.eventId]: nextEnd }));
     };
 
     const handlePointerUp = () => {
-      const preview = resizePreviewEnd[activeResize.eventId];
-      if (preview && onEventResize && preview.getTime() !== activeResize.originalEnd.getTime()) {
-        onEventResize(activeResize.eventId, preview);
+      const preview = resizePreview[activeResize.eventId];
+      if (preview && onEventResize) {
+        const hasChanged = 
+          preview.start.getTime() !== activeResize.originalStart.getTime() ||
+          preview.end.getTime() !== activeResize.originalEnd.getTime();
+        if (hasChanged) {
+          onEventResize(activeResize.eventId, preview.start, preview.end);
+        }
       }
       setActiveResize(null);
-      setResizePreviewEnd((prev) => {
+      setResizePreview((prev) => {
         const next = { ...prev };
         delete next[activeResize.eventId];
         return next;
@@ -167,9 +207,9 @@ export const CalendarView = ({
       window.removeEventListener('pointermove', handlePointerMove);
       window.removeEventListener('pointerup', handlePointerUp);
     };
-  }, [activeResize, resizePreviewEnd, onEventResize]);
+  }, [activeResize, resizePreview, onEventResize]);
 
-  const startResize = (e: React.PointerEvent, event: CalendarEvent) => {
+  const startResize = (e: React.PointerEvent, event: CalendarEvent, edge: 'left' | 'right') => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -179,9 +219,10 @@ export const CalendarView = ({
     setActiveResize({
       eventId: event.id,
       startX: e.clientX,
+      originalStart: new Date(event.start_time),
       originalEnd: new Date(event.end_time),
       cellWidth,
-      eventStart: new Date(event.start_time),
+      edge,
     });
   };
 
@@ -223,21 +264,25 @@ export const CalendarView = ({
   const EventCard = ({ event, date }: { event: CalendarEvent; date: Date }) => {
     const dragControls = useDragControls();
     const isSelected = selectedEventIds?.has(event.id) ?? false;
-    const endToShow = resizePreviewEnd[event.id] ?? event.end_time;
+    const preview = resizePreview[event.id];
+    const startToShow = preview?.start ?? event.start_time;
+    const endToShow = preview?.end ?? event.end_time;
+    const eventColor = getEventColor(event);
 
-    const eventStart = new Date(event.start_time);
-    const eventEnd = endToShow;
+    const eventStart = new Date(startToShow);
+    const eventEnd = new Date(endToShow);
     const isFirstDay = eventStart.toDateString() === date.toDateString();
     const isLastDay = eventEnd.toDateString() === date.toDateString();
-    const isMultiDay = eventStart.toDateString() !== new Date(event.end_time).toDateString();
+    const isMultiDay = eventStart.toDateString() !== eventEnd.toDateString();
+    const isSingleDay = !isMultiDay;
 
     return (
       <motion.div
         layout
         layoutId={`${event.id}-${dateToKey(date)}`}
         initial={{ scale: 1, opacity: 1 }}
-        whileHover={{ scale: 1.03, zIndex: 10 }}
-        whileTap={{ scale: 1.06, zIndex: 20 }}
+        whileHover={{ scale: 1.02, zIndex: 10 }}
+        whileTap={{ scale: 1.04, zIndex: 20 }}
         whileDrag={{
           scale: 1.08,
           zIndex: 50,
@@ -253,35 +298,48 @@ export const CalendarView = ({
         onDragEnd={(e, info) => handleDragEnd(event, info)}
         transition={springConfig}
         onClick={(e) => setSelected(event, e)}
-        className={`relative rounded-lg px-2 py-1 text-xs text-white select-none group truncate ${
-          isSelected ? 'ring-2 ring-white/60' : ''
-        } ${!isFirstDay ? 'rounded-l-none' : ''} ${!isLastDay ? 'rounded-r-none' : ''}`}
+        className={`relative px-2 py-1 text-xs text-white select-none group truncate ${
+          isSelected ? 'ring-2 ring-white/60 ring-inset' : ''
+        } ${isSingleDay ? 'rounded-lg' : ''} ${isMultiDay && isFirstDay ? 'rounded-l-lg rounded-r-none' : ''} ${isMultiDay && isLastDay ? 'rounded-r-lg rounded-l-none' : ''} ${isMultiDay && !isFirstDay && !isLastDay ? 'rounded-none' : ''}`}
         style={{
-          backgroundColor: event.color,
+          backgroundColor: eventColor,
           touchAction: 'none',
-          marginLeft: !isFirstDay ? '-4px' : 0,
-          marginRight: !isLastDay ? '-4px' : 0,
+          // Seamless multi-day: extend to cell edges
+          marginLeft: isMultiDay && !isFirstDay ? '-1px' : 0,
+          marginRight: isMultiDay && !isLastDay ? '-1px' : 0,
+          paddingLeft: isMultiDay && !isFirstDay ? '4px' : undefined,
+          paddingRight: isMultiDay && !isLastDay ? '4px' : undefined,
         }}
       >
+        {/* Left resize handle - only on first day */}
+        {isFirstDay && (
+          <div
+            onPointerDown={(e) => startResize(e, event, 'left')}
+            className="absolute left-0 top-0 bottom-0 w-2 cursor-ew-resize opacity-0 group-hover:opacity-100 bg-white/30 rounded-l-lg transition-opacity flex items-center justify-center z-10"
+          >
+            <div className="w-0.5 h-3 bg-white/60 rounded" />
+          </div>
+        )}
+
         <div
           onPointerDown={(e) => {
             if (activeResize || !isFirstDay) return;
             e.stopPropagation();
             dragControls.start(e);
           }}
-          className="cursor-grab active:cursor-grabbing"
+          className="cursor-grab active:cursor-grabbing pl-1"
         >
           {isFirstDay && <div className="font-medium truncate">{event.title}</div>}
-          {!isFirstDay && isMultiDay && <div className="font-medium truncate opacity-60">↳ {event.title}</div>}
+          {!isFirstDay && isMultiDay && <div className="font-medium truncate opacity-70">{event.title}</div>}
         </div>
 
-        {/* Resize handle - only on last day */}
+        {/* Right resize handle - only on last day */}
         {isLastDay && (
           <div
-            onPointerDown={(e) => startResize(e, event)}
-            className="absolute right-0 top-0 bottom-0 w-3 cursor-ew-resize opacity-0 group-hover:opacity-100 bg-white/30 rounded-r-lg transition-opacity flex items-center justify-center"
+            onPointerDown={(e) => startResize(e, event, 'right')}
+            className="absolute right-0 top-0 bottom-0 w-2 cursor-ew-resize opacity-0 group-hover:opacity-100 bg-white/30 rounded-r-lg transition-opacity flex items-center justify-center z-10"
           >
-            <div className="w-0.5 h-4 bg-white/60 rounded" />
+            <div className="w-0.5 h-3 bg-white/60 rounded" />
           </div>
         )}
       </motion.div>

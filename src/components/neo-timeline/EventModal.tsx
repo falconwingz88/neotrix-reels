@@ -5,7 +5,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { ColorPicker } from './ColorPicker';
 import {
   Dialog,
   DialogContent,
@@ -31,17 +30,6 @@ interface EventModalProps {
   isAuthenticated: boolean;
 }
 
-const DEFAULT_COLORS = [
-  '#3b82f6', // Blue
-  '#ef4444', // Red
-  '#22c55e', // Green
-  '#f59e0b', // Amber
-  '#8b5cf6', // Purple
-  '#ec4899', // Pink
-  '#06b6d4', // Cyan
-  '#f97316', // Orange
-];
-
 export const EventModal = ({
   isOpen,
   onClose,
@@ -57,7 +45,6 @@ export const EventModal = ({
   const [startTime, setStartTime] = useState('');
   const [endDate, setEndDate] = useState('');
   const [endTime, setEndTime] = useState('');
-  const [color, setColor] = useState(DEFAULT_COLORS[0]);
   const [allDay, setAllDay] = useState(false);
 
   useEffect(() => {
@@ -68,7 +55,6 @@ export const EventModal = ({
       setStartTime(formatTimeInput(event.start_time));
       setEndDate(formatDateInput(event.end_time));
       setEndTime(formatTimeInput(event.end_time));
-      setColor(event.color);
       setAllDay(event.all_day);
     } else if (defaultStart) {
       setTitle('');
@@ -79,7 +65,6 @@ export const EventModal = ({
       endDefault.setHours(endDefault.getHours() + 1);
       setEndDate(formatDateInput(endDefault));
       setEndTime(formatTimeInput(endDefault));
-      setColor(DEFAULT_COLORS[Math.floor(Math.random() * DEFAULT_COLORS.length)]);
       setAllDay(false);
     }
   }, [event, defaultStart, isOpen]);
@@ -105,7 +90,7 @@ export const EventModal = ({
       description: description.trim() || undefined,
       start_time: start,
       end_time: end,
-      color,
+      color: event?.color || '#3b82f6', // Keep existing or default, color managed by project
       all_day: allDay
     });
   };
@@ -191,15 +176,6 @@ export const EventModal = ({
                 />
               )}
             </div>
-          </div>
-          
-          <div className="space-y-2">
-            <Label className="text-white/80">Color</Label>
-            <ColorPicker
-              colors={DEFAULT_COLORS}
-              selectedColor={color}
-              onChange={setColor}
-            />
           </div>
           
           <DialogFooter className="flex gap-2">

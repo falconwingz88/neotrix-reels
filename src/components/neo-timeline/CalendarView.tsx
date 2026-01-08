@@ -259,16 +259,32 @@ export const CalendarView = ({
     });
   };
 
+  // Find slot at pointer position during drag
+  const findSlotAtPoint = useCallback((x: number, y: number) => {
+    const elements = document.elementsFromPoint(x, y) as Element[];
+    const slot = elements
+      .map((el) => (el as HTMLElement).closest?.('[data-slot]') as HTMLElement | null)
+      .find((el): el is HTMLElement => !!el);
+    return slot;
+  }, []);
+
+  const handleDrag = useCallback((info: PanInfo) => {
+    const slot = findSlotAtPoint(info.point.x, info.point.y);
+    if (slot) {
+      const dayAttr = slot.getAttribute('data-day');
+      if (dayAttr) {
+        setDragOverSlot({ day: parseInt(dayAttr, 10), hour: 0 });
+      }
+    } else {
+      setDragOverSlot(null);
+    }
+  }, [findSlotAtPoint]);
+
   const handleDragEnd = (event: CalendarEvent, info: PanInfo) => {
     setIsDragging(false);
     setDragOverSlot(null);
 
-    // Use elementsFromPoint so the dragged element doesn't block hit-testing.
-    const elements = document.elementsFromPoint(info.point.x, info.point.y) as Element[];
-    const slot = elements
-      .map((el) => (el as HTMLElement).closest?.('[data-slot]') as HTMLElement | null)
-      .find((el): el is HTMLElement => !!el);
-
+    const slot = findSlotAtPoint(info.point.x, info.point.y);
     if (!slot) return;
 
     const slotDate = slot.getAttribute('data-date');
@@ -446,6 +462,7 @@ export const CalendarView = ({
         dragElastic={0}
         dragSnapToOrigin={false}
         onDragStart={() => setIsDragging(true)}
+        onDrag={(e, info) => handleDrag(info)}
         onDragEnd={(e, info) => handleDragEnd(event, info)}
         onClick={(e) => setSelected(event, e)}
         onPointerDown={(e) => {
@@ -575,7 +592,8 @@ export const CalendarView = ({
               data-hour={0}
               data-date={date.toISOString()}
               animate={{
-                scale: isDragOver ? 1.02 : 1,
+                scale: isDragOver ? 1.04 : 1,
+                backgroundColor: isDragOver ? 'rgba(59, 130, 246, 0.35)' : undefined,
               }}
               transition={springConfig}
               style={dayStyle}
@@ -583,8 +601,7 @@ export const CalendarView = ({
                 !isCurrentMonth ? 'opacity-40' : ''
               } ${isToday(date) ? 'ring-2 ring-blue-500 ring-inset' : ''} ${
                 isDateSelected ? 'ring-2 ring-blue-400 ring-inset' : ''
-              }`}
-              onMouseEnter={() => isDragging && setDragOverSlot({ day: i, hour: 0 })}
+              } ${isDragOver ? 'ring-2 ring-blue-400 ring-inset z-10' : ''}`}
               onClick={(e) => handleDateClick(date, e)}
             >
               <div className="flex items-center justify-between mb-1 flex-shrink-0">

@@ -20,6 +20,7 @@ import AboutUs from "./pages/AboutUs";
 import JoinUs from "./pages/JoinUs";
 import Hiring from "./pages/Hiring";
 import NeoTimeline from "./pages/NeoTimeline";
+import NeoTimelineView from "./pages/NeoTimelineView";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +43,7 @@ const App = () => (
                 <Route path="/join-us" element={<JoinUs />} />
                 <Route path="/hiring" element={<Hiring />} />
                 <Route path="/neo-timeline" element={<NeoTimeline />} />
+                <Route path="/neo-timeline/view" element={<NeoTimelineView />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/admin-login" element={<AdminLogin />} />
                 <Route path="/admin" element={<AdminDashboard />} />

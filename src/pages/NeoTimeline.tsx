@@ -390,10 +390,15 @@ const NeoTimeline = () => {
 
   const handleShareSnapshot = async () => {
     try {
-      const encoded = window.btoa(unescape(encodeURIComponent(JSON.stringify(snapshotPayload()))));
-      const link = `${window.location.origin}/neo-timeline#share=${encoded}`;
+      const payload = {
+        ...snapshotPayload(),
+        gradient: backgroundGradient,
+        showHolidays,
+      };
+      const encoded = window.btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+      const link = `${window.location.origin}/neo-timeline/view?data=${encoded}`;
       await navigator.clipboard.writeText(link);
-      toast({ title: 'Share link copied' });
+      toast({ title: 'View-only link copied!' });
     } catch {
       toast({ title: 'Failed to copy share link', variant: 'destructive' });
     }

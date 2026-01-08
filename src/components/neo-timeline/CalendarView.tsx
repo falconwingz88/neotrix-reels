@@ -351,16 +351,26 @@ export const CalendarView = ({
     const isSingleDay = !isMultiDay;
 
     const isResizingThis = activeResize?.eventId === event.id;
-    const baseScale = isResizingThis ? 1.03 : 1;
-    const scaleToAnimate = resizeBounceEventId === event.id ? [baseScale, 1.07, baseScale] : baseScale;
+    const isBouncing = resizeBounceEventId === event.id;
+
+    // Enhanced bounce animation
+    const bounceTransition = {
+      type: 'spring' as const,
+      stiffness: 500,
+      damping: 15,
+      mass: 0.8,
+    };
 
     return (
       <motion.div
         data-event-id={event.id}
         layout
         layoutId={`${event.id}-${dateToKey(date)}`}
-        initial={{ opacity: 1 }}
-        animate={{ scale: scaleToAnimate }}
+        initial={{ opacity: 1, scale: 1 }}
+        animate={{
+          scale: isBouncing ? [1, 1.12, 0.95, 1.05, 1] : isResizingThis ? 1.02 : 1,
+          y: isBouncing ? [0, -4, 2, -1, 0] : 0,
+        }}
         whileHover={{ scale: 1.02, zIndex: 10 }}
         whileTap={{ scale: 1.04, zIndex: 20 }}
         whileDrag={{
@@ -376,19 +386,18 @@ export const CalendarView = ({
         dragElastic={0.12}
         onDragStart={() => setIsDragging(true)}
         onDragEnd={(e, info) => handleDragEnd(event, info)}
-        transition={springConfig}
+        transition={isBouncing ? bounceTransition : springConfig}
         onClick={(e) => setSelected(event, e)}
-        className={`relative px-2 py-1 text-xs text-white select-none group truncate ${
+        className={`relative text-xs text-white select-none group ${
           isSelected ? 'ring-2 ring-white/60 ring-inset' : ''
-        } ${isSingleDay ? 'rounded-lg' : ''} ${isMultiDay && isFirstDay ? 'rounded-l-lg rounded-r-none' : ''} ${isMultiDay && isLastDay ? 'rounded-r-lg rounded-l-none' : ''} ${isMultiDay && !isFirstDay && !isLastDay ? 'rounded-none' : ''}`}
+        } ${isSingleDay ? 'rounded-lg mx-1 px-2 py-1' : ''} ${
+          isMultiDay && isFirstDay ? 'rounded-l-lg rounded-r-none ml-1 pl-2 pr-0 py-1' : ''
+        } ${isMultiDay && isLastDay ? 'rounded-r-lg rounded-l-none mr-1 pr-2 pl-0 py-1' : ''} ${
+          isMultiDay && !isFirstDay && !isLastDay ? 'rounded-none px-0 py-1' : ''
+        }`}
         style={{
           backgroundColor: eventColor,
           touchAction: 'none',
-          // Seamless multi-day: extend to cell edges
-          marginLeft: isMultiDay && !isFirstDay ? '-8px' : 0,
-          marginRight: isMultiDay && !isLastDay ? '-8px' : 0,
-          paddingLeft: isMultiDay && !isFirstDay ? '10px' : undefined,
-          paddingRight: isMultiDay && !isLastDay ? '10px' : undefined,
         }}
       >
         {/* Left resize handle - only on first day */}
@@ -408,10 +417,12 @@ export const CalendarView = ({
             e.stopPropagation();
             dragControls.start(e);
           }}
-          className="cursor-grab active:cursor-grabbing pl-1"
+          className="cursor-grab active:cursor-grabbing truncate"
         >
-          {isFirstDay && <div className="font-medium truncate">{event.title}</div>}
-          {!isFirstDay && isMultiDay && <div className="font-medium truncate opacity-70">{event.title}</div>}
+          {/* Only show title on first day for multi-day events */}
+          {isFirstDay && <span className="font-medium">{event.title}</span>}
+          {/* Show empty space for continuation days */}
+          {!isFirstDay && isMultiDay && <span className="opacity-0">.</span>}
         </div>
 
         {/* Right resize handle - only on last day */}
@@ -430,9 +441,22 @@ export const CalendarView = ({
 
   if (view === 'month') {
     return (
-      <div ref={containerRef} className="grid grid-cols-7 gap-px bg-white/10">
+      <div ref={containerRef} className="relative grid grid-cols-7 bg-white/10" onPointerDown={startMarquee}>
+        {/* Marquee selection box */}
+        {marquee && (
+          <div
+            className="fixed pointer-events-none z-50 border-2 border-blue-400 bg-blue-400/20 rounded"
+            style={{
+              left: Math.min(marquee.start.x, marquee.current.x),
+              top: Math.min(marquee.start.y, marquee.current.y),
+              width: Math.abs(marquee.current.x - marquee.start.x),
+              height: Math.abs(marquee.current.y - marquee.start.y),
+            }}
+          />
+        )}
+
         {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-          <div key={day} className="p-2 text-center text-white/60 text-sm font-medium bg-white/5">
+          <div key={day} className="p-2 text-center text-white/60 text-sm font-medium bg-white/5 border-b border-white/10">
             {day}
           </div>
         ))}
@@ -456,14 +480,16 @@ export const CalendarView = ({
                 backgroundColor: isDragOver
                   ? 'rgba(59, 130, 246, 0.2)'
                   : isDateSelected
-                  ? 'rgba(59, 130, 246, 0.15)'
-                  : 'rgba(255, 255, 255, 0.05)',
+                    ? 'rgba(59, 130, 246, 0.15)'
+                    : 'rgba(255, 255, 255, 0.05)',
                 scale: isDragOver ? 1.02 : 1,
               }}
               transition={springConfig}
-              className={`min-h-24 p-1 hover:bg-white/10 transition-colors ${!isCurrentMonth ? 'opacity-40' : ''} ${
-                isToday(date) ? 'ring-2 ring-blue-500 ring-inset' : ''
-              } ${isDateSelected ? 'ring-2 ring-blue-400 ring-inset' : ''}`}
+              className={`min-h-24 p-1 hover:bg-white/10 transition-colors border-b border-r border-white/5 ${
+                !isCurrentMonth ? 'opacity-40' : ''
+              } ${isToday(date) ? 'ring-2 ring-blue-500 ring-inset' : ''} ${
+                isDateSelected ? 'ring-2 ring-blue-400 ring-inset' : ''
+              }`}
               onMouseEnter={() => isDragging && setDragOverSlot({ day: i, hour: 0 })}
               onClick={(e) => handleDateClick(date, e)}
             >
@@ -483,7 +509,7 @@ export const CalendarView = ({
                     <EventCard key={event.id} event={event} date={date} />
                   ))}
                   {dayEvents.length > 3 && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[10px] text-white/60">
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[10px] text-white/60 px-1">
                       +{dayEvents.length - 3} more
                     </motion.div>
                   )}

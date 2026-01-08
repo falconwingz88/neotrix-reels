@@ -262,7 +262,7 @@ export const EventModal = ({
                     <Button
                       type="submit"
                       className="bg-blue-600 hover:bg-blue-700"
-                      disabled={!isAuthenticated && !!event}
+                      disabled={!isAuthenticated && !event}
                     >
                       {event ? 'Update' : 'Create'}
                     </Button>

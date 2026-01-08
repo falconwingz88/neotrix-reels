@@ -554,6 +554,19 @@ export const CalendarView = ({
               : { background: `linear-gradient(135deg, ${blendColors.map((c, idx) => `${c}40 ${(idx / blendColors.length) * 100}%`).join(', ')})` }
             : {};
 
+          // Build background style with proper priority
+          const bgColor = isDragOver
+            ? 'rgba(59, 130, 246, 0.2)'
+            : isDateSelected
+              ? 'rgba(59, 130, 246, 0.15)'
+              : blendColors.length === 0
+                ? 'rgba(255, 255, 255, 0.05)'
+                : undefined;
+
+          const dayStyle = blendColors.length > 0 && !isDragOver && !isDateSelected
+            ? blendStyle
+            : { backgroundColor: bgColor };
+
           return (
             <motion.div
               key={i}
@@ -565,16 +578,7 @@ export const CalendarView = ({
                 scale: isDragOver ? 1.02 : 1,
               }}
               transition={springConfig}
-              style={{
-                ...blendStyle,
-                backgroundColor: isDragOver
-                  ? 'rgba(59, 130, 246, 0.2)'
-                  : isDateSelected
-                    ? 'rgba(59, 130, 246, 0.15)'
-                    : blendColors.length > 0
-                      ? undefined // let blendStyle handle it
-                      : 'rgba(255, 255, 255, 0.05)',
-              }}
+              style={dayStyle}
               className={`min-h-24 p-1 hover:bg-white/10 transition-colors border-b border-r border-white/5 flex flex-col ${
                 !isCurrentMonth ? 'opacity-40' : ''
               } ${isToday(date) ? 'ring-2 ring-blue-500 ring-inset' : ''} ${
@@ -596,23 +600,19 @@ export const CalendarView = ({
               
               {/* Show event pills when NOT in blend mode */}
               {!blendMode && (
-                <div className="mt-1 space-y-0.5">
-                  <AnimatePresence mode="popLayout">
-                    {dayEvents.map((event) => (
-                      <EventCard key={event.id} event={event} date={date} />
-                    ))}
-                  </AnimatePresence>
+                <div className="mt-1 flex flex-col gap-0.5">
+                  {dayEvents.map((event) => (
+                    <EventCard key={event.id} event={event} date={date} />
+                  ))}
                 </div>
               )}
               
               {/* In blend mode: show sub-events as pills (they are the nested events) */}
               {blendMode && (
-                <div className="mt-1 space-y-0.5">
-                  <AnimatePresence mode="popLayout">
-                    {subEvents.map((event) => (
-                      <EventCard key={event.id} event={event} date={date} />
-                    ))}
-                  </AnimatePresence>
+                <div className="mt-1 flex flex-col gap-0.5">
+                  {subEvents.map((event) => (
+                    <EventCard key={event.id} event={event} date={date} />
+                  ))}
                 </div>
               )}
             </motion.div>

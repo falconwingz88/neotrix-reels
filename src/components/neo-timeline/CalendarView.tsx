@@ -49,6 +49,8 @@ export const CalendarView = ({
 }: CalendarViewProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dragOverSlot, setDragOverSlot] = useState<{ day: number; hour: number } | null>(null);
+  const dragOverDayRef = useRef<number | null>(null);
+  const dragRafRef = useRef<number | null>(null);
   const [isDragging, setIsDragging] = useState(false);
 
   // Resize state - supports both left and right edge
@@ -268,20 +270,33 @@ export const CalendarView = ({
     return slot;
   }, []);
 
-  const handleDrag = useCallback((info: PanInfo) => {
-    const slot = findSlotAtPoint(info.point.x, info.point.y);
-    if (slot) {
-      const dayAttr = slot.getAttribute('data-day');
-      if (dayAttr) {
-        setDragOverSlot({ day: parseInt(dayAttr, 10), hour: 0 });
-      }
-    } else {
-      setDragOverSlot(null);
-    }
-  }, [findSlotAtPoint]);
+  const handleDrag = useCallback(
+    (info: PanInfo) => {
+      // Avoid re-rendering the whole grid on every pointer move.
+      // Only update when the hovered day actually changes and throttle to rAF.
+      const slot = findSlotAtPoint(info.point.x, info.point.y);
+      const nextDay = slot ? Number(slot.getAttribute('data-day')) : null;
+
+      if (Number.isNaN(nextDay as number)) return;
+      if (nextDay === dragOverDayRef.current) return;
+
+      dragOverDayRef.current = nextDay;
+
+      if (dragRafRef.current) cancelAnimationFrame(dragRafRef.current);
+      dragRafRef.current = requestAnimationFrame(() => {
+        setDragOverSlot(nextDay === null ? null : { day: nextDay, hour: 0 });
+      });
+    },
+    [findSlotAtPoint]
+  );
 
   const handleDragEnd = (event: CalendarEvent, info: PanInfo) => {
     setIsDragging(false);
+    dragOverDayRef.current = null;
+    if (dragRafRef.current) {
+      cancelAnimationFrame(dragRafRef.current);
+      dragRafRef.current = null;
+    }
     setDragOverSlot(null);
 
     const slot = findSlotAtPoint(info.point.x, info.point.y);
@@ -461,7 +476,10 @@ export const CalendarView = ({
         dragMomentum={false}
         dragElastic={0}
         dragSnapToOrigin={false}
-        onDragStart={() => setIsDragging(true)}
+        onDragStart={() => {
+          dragOverDayRef.current = null;
+          setIsDragging(true);
+        }}
         onDrag={(e, info) => handleDrag(info)}
         onDragEnd={(e, info) => handleDragEnd(event, info)}
         onClick={(e) => setSelected(event, e)}
@@ -591,10 +609,6 @@ export const CalendarView = ({
               data-day={i}
               data-hour={0}
               data-date={date.toISOString()}
-              animate={{
-                scale: isDragOver ? 1.04 : 1,
-                backgroundColor: isDragOver ? 'rgba(59, 130, 246, 0.35)' : undefined,
-              }}
               transition={springConfig}
               style={dayStyle}
               className={`min-h-24 p-1 hover:bg-white/10 transition-colors border-b border-r border-white/5 flex flex-col ${

@@ -431,10 +431,11 @@ export const CalendarView = ({
         onClick={(e) => setSelected(event, e)}
         onPointerDown={(e) => {
           // Start drag only from the card body (not resize handles)
+          if (e.button !== 0) return;
           const target = e.target as HTMLElement;
           if (target.closest('[data-resize-handle]')) return;
           if (activeResize) return;
-          dragControls.start(e);
+          dragControls.start(e.nativeEvent);
         }}
         className={`relative text-xs text-white select-none group cursor-grab active:cursor-grabbing ${
           isSelected ? 'ring-2 ring-white/60 ring-inset' : ''

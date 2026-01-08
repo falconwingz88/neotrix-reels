@@ -2,14 +2,13 @@ import { useState, useEffect, useCallback } from 'react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { CalendarView } from '@/components/neo-timeline/CalendarView';
 import { EventModal } from '@/components/neo-timeline/EventModal';
-import { ColorPicker } from '@/components/neo-timeline/ColorPicker';
 import { BackgroundSettings } from '@/components/neo-timeline/BackgroundSettings';
+import { ProjectSidebar, Project } from '@/components/neo-timeline/ProjectSidebar';
 import { 
   ChevronLeft, 
   ChevronRight, 
@@ -39,6 +38,7 @@ export interface CalendarEvent {
   color: string;
   all_day: boolean;
   user_id?: string;
+  project_id?: string;
 }
 
 type ViewType = 'day' | 'week' | 'month';
@@ -48,7 +48,7 @@ const NeoTimeline = () => {
   const { toast } = useToast();
   
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [view, setView] = useState<ViewType>('week');
+  const [view, setView] = useState<ViewType>('month');
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -59,6 +59,15 @@ const NeoTimeline = () => {
     to: '#1e1b4b'
   });
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  
+  // Project management state
+  const [projects, setProjects] = useState<Project[]>([
+    { id: 'default', name: 'General', color: '#3b82f6', visible: true }
+  ]);
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+
+  // Get visible project IDs
+  const visibleProjectIds = projects.filter(p => p.visible).map(p => p.id);
 
   // Load events from database if authenticated
   useEffect(() => {
@@ -133,7 +142,6 @@ const NeoTimeline = () => {
 
   const updateEvent = async (event: CalendarEvent) => {
     if (!isAuthenticated || !user) {
-      // Update locally only for non-authenticated users
       setEvents(prev => prev.map(e => e.id === event.id ? event : e));
       return event;
     }
@@ -245,11 +253,11 @@ const NeoTimeline = () => {
     return currentDate.toLocaleDateString('en-US', options);
   };
 
-  // Create local event for non-authenticated users
   const createLocalEvent = (event: Omit<CalendarEvent, 'id' | 'user_id'>) => {
     const newEvent: CalendarEvent = {
       ...event,
-      id: `local-${Date.now()}`
+      id: `local-${Date.now()}`,
+      project_id: selectedProjectId || 'default'
     };
     setEvents(prev => [...prev, newEvent]);
     return newEvent;
@@ -272,146 +280,158 @@ const NeoTimeline = () => {
       <Header />
       
       <main className="relative z-10 pt-24 pb-16 px-4 min-h-screen">
-        <div className="max-w-7xl mx-auto">
-          {/* Calendar Header */}
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
-            <div className="flex items-center gap-4">
-              <h1 className="text-2xl md:text-3xl font-bold text-white">Neo-Timeline</h1>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={goToToday}
-                className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-              >
-                Today
-              </Button>
-              <div className="flex items-center gap-1">
+        <div className="max-w-full mx-auto flex gap-4">
+          {/* Project Sidebar */}
+          <ProjectSidebar
+            projects={projects}
+            onProjectsChange={setProjects}
+            selectedProjectId={selectedProjectId}
+            onSelectProject={setSelectedProjectId}
+          />
+
+          {/* Main Calendar Area */}
+          <div className="flex-1 min-w-0">
+            {/* Calendar Header */}
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
+              <div className="flex items-center gap-4">
+                <h1 className="text-2xl md:text-3xl font-bold text-white">Neo-Timeline</h1>
                 <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => navigateDate('prev')}
-                  className="text-white hover:bg-white/20"
+                  variant="outline"
+                  size="sm"
+                  onClick={goToToday}
+                  className="bg-white/10 border-white/20 text-white hover:bg-white/20"
                 >
-                  <ChevronLeft className="w-5 h-5" />
+                  Today
                 </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => navigateDate('next')}
-                  className="text-white hover:bg-white/20"
-                >
-                  <ChevronRight className="w-5 h-5" />
-                </Button>
-              </div>
-              <span className="text-white text-lg font-medium">{formatDateRange()}</span>
-            </div>
-            
-            <div className="flex items-center gap-2 flex-wrap">
-              {/* View Toggle */}
-              <div className="flex bg-white/10 rounded-lg p-1">
-                {(['day', 'week', 'month'] as ViewType[]).map((v) => (
+                <div className="flex items-center gap-1">
                   <Button
-                    key={v}
-                    variant={view === v ? 'default' : 'ghost'}
-                    size="sm"
-                    onClick={() => setView(v)}
-                    className={view === v 
-                      ? 'bg-white/20 text-white' 
-                      : 'text-white/60 hover:text-white hover:bg-white/10'
-                    }
-                  >
-                    {v.charAt(0).toUpperCase() + v.slice(1)}
-                  </Button>
-                ))}
-              </div>
-
-              {/* Action Buttons */}
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        disabled={!isAuthenticated}
-                        className={`bg-white/10 border-white/20 ${isAuthenticated ? 'text-white hover:bg-white/20' : 'text-white/40 cursor-not-allowed'}`}
-                      >
-                        <Save className="w-4 h-4" />
-                      </Button>
-                    </span>
-                  </TooltipTrigger>
-                  {!isAuthenticated && (
-                    <TooltipContent className="bg-black/90 text-white border-white/20">
-                      <p>Login first</p>
-                    </TooltipContent>
-                  )}
-                </Tooltip>
-              </TooltipProvider>
-
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        disabled={!isAuthenticated}
-                        className={`bg-white/10 border-white/20 ${isAuthenticated ? 'text-white hover:bg-white/20' : 'text-white/40 cursor-not-allowed'}`}
-                      >
-                        <Share2 className="w-4 h-4" />
-                      </Button>
-                    </span>
-                  </TooltipTrigger>
-                  {!isAuthenticated && (
-                    <TooltipContent className="bg-black/90 text-white border-white/20">
-                      <p>Login first</p>
-                    </TooltipContent>
-                  )}
-                </Tooltip>
-              </TooltipProvider>
-
-              <Popover open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
+                    variant="ghost"
                     size="icon"
-                    className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                    onClick={() => navigateDate('prev')}
+                    className="text-white hover:bg-white/20"
                   >
-                    <Settings className="w-4 h-4" />
+                    <ChevronLeft className="w-5 h-5" />
                   </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-80 bg-black/90 border-white/20 backdrop-blur-xl">
-                  <BackgroundSettings 
-                    gradient={backgroundGradient} 
-                    onChange={setBackgroundGradient} 
-                  />
-                </PopoverContent>
-              </Popover>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => navigateDate('next')}
+                    className="text-white hover:bg-white/20"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </Button>
+                </div>
+                <span className="text-white text-lg font-medium">{formatDateRange()}</span>
+              </div>
+              
+              <div className="flex items-center gap-2 flex-wrap">
+                {/* View Toggle */}
+                <div className="flex bg-white/10 rounded-lg p-1">
+                  {(['day', 'week', 'month'] as ViewType[]).map((v) => (
+                    <Button
+                      key={v}
+                      variant={view === v ? 'default' : 'ghost'}
+                      size="sm"
+                      onClick={() => setView(v)}
+                      className={view === v 
+                        ? 'bg-white/20 text-white' 
+                        : 'text-white/60 hover:text-white hover:bg-white/10'
+                      }
+                    >
+                      {v.charAt(0).toUpperCase() + v.slice(1)}
+                    </Button>
+                  ))}
+                </div>
 
-              <Button
-                onClick={() => {
-                  setNewEventStart(new Date());
-                  setSelectedEvent(null);
-                  setIsModalOpen(true);
-                }}
-                className="bg-blue-600 hover:bg-blue-700 text-white"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Add Event
-              </Button>
+                {/* Action Buttons */}
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          disabled={!isAuthenticated}
+                          className={`bg-white/10 border-white/20 ${isAuthenticated ? 'text-white hover:bg-white/20' : 'text-white/40 cursor-not-allowed'}`}
+                        >
+                          <Save className="w-4 h-4" />
+                        </Button>
+                      </span>
+                    </TooltipTrigger>
+                    {!isAuthenticated && (
+                      <TooltipContent className="bg-black/90 text-white border-white/20">
+                        <p>Login first</p>
+                      </TooltipContent>
+                    )}
+                  </Tooltip>
+                </TooltipProvider>
+
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          disabled={!isAuthenticated}
+                          className={`bg-white/10 border-white/20 ${isAuthenticated ? 'text-white hover:bg-white/20' : 'text-white/40 cursor-not-allowed'}`}
+                        >
+                          <Share2 className="w-4 h-4" />
+                        </Button>
+                      </span>
+                    </TooltipTrigger>
+                    {!isAuthenticated && (
+                      <TooltipContent className="bg-black/90 text-white border-white/20">
+                        <p>Login first</p>
+                      </TooltipContent>
+                    )}
+                  </Tooltip>
+                </TooltipProvider>
+
+                <Popover open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                    >
+                      <Settings className="w-4 h-4" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-80 bg-black/90 border-white/20 backdrop-blur-xl">
+                    <BackgroundSettings 
+                      gradient={backgroundGradient} 
+                      onChange={setBackgroundGradient} 
+                    />
+                  </PopoverContent>
+                </Popover>
+
+                <Button
+                  onClick={() => {
+                    setNewEventStart(new Date());
+                    setSelectedEvent(null);
+                    setIsModalOpen(true);
+                  }}
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Event
+                </Button>
+              </div>
             </div>
-          </div>
 
-          {/* Calendar Grid */}
-          <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 overflow-hidden">
-            <CalendarView
-              view={view}
-              currentDate={currentDate}
-              events={events}
-              onDateClick={handleDateClick}
-              onEventClick={handleEventClick}
-              onEventDrop={handleEventDrop}
-            />
+            {/* Calendar Grid */}
+            <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 overflow-hidden">
+              <CalendarView
+                view={view}
+                currentDate={currentDate}
+                events={events}
+                onDateClick={handleDateClick}
+                onEventClick={handleEventClick}
+                onEventDrop={handleEventDrop}
+                visibleProjectIds={selectedProjectId ? [selectedProjectId] : visibleProjectIds}
+              />
+            </div>
           </div>
         </div>
       </main>
@@ -432,7 +452,7 @@ const NeoTimeline = () => {
           if (selectedEvent) {
             await updateEvent({ ...selectedEvent, ...eventData });
           } else if (isAuthenticated) {
-            await saveEvent(eventData);
+            await saveEvent({ ...eventData, project_id: selectedProjectId || 'default' });
           } else {
             createLocalEvent(eventData);
           }

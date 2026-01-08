@@ -59,11 +59,12 @@ export const CalendarView = ({
   const [resizePreview, setResizePreview] = useState<Record<string, { start: Date; end: Date }>>({});
   const [resizeBounceEventId, setResizeBounceEventId] = useState<string | null>(null);
 
-  // Marquee selection state
+  // Marquee selection state (store coords relative to the calendar grid)
   const [marquee, setMarquee] = useState<null | {
     start: { x: number; y: number };
     current: { x: number; y: number };
   }>(null);
+  const marqueeContainerRectRef = useRef<DOMRect | null>(null);
 
   // Get project color for an event
   const getEventColor = (event: CalendarEvent) => {
@@ -203,7 +204,7 @@ export const CalendarView = ({
 
       // little bounce on release
       setResizeBounceEventId(activeResize.eventId);
-      window.setTimeout(() => setResizeBounceEventId(null), 260);
+      window.setTimeout(() => setResizeBounceEventId(null), 520);
 
       setActiveResize(null);
       setResizePreview((prev) => {
@@ -242,8 +243,12 @@ export const CalendarView = ({
     setIsDragging(false);
     setDragOverSlot(null);
 
-    const element = document.elementFromPoint(info.point.x, info.point.y);
-    const slot = element?.closest('[data-slot]') as HTMLElement | null;
+    // Use elementsFromPoint so the dragged element doesn't block hit-testing.
+    const elements = document.elementsFromPoint(info.point.x, info.point.y) as Element[];
+    const slot = elements
+      .map((el) => (el as HTMLElement).closest?.('[data-slot]') as HTMLElement | null)
+      .find((el): el is HTMLElement => !!el);
+
     if (!slot) return;
 
     const slotDate = slot.getAttribute('data-date');
@@ -256,7 +261,8 @@ export const CalendarView = ({
     newStart.setHours(event.start_time.getHours(), event.start_time.getMinutes(), 0, 0);
     const newEnd = new Date(newStart.getTime() + duration);
 
-    const idsToMove = selectedEventIds && selectedEventIds.has(event.id) ? Array.from(selectedEventIds) : [event.id];
+    const idsToMove =
+      selectedEventIds && selectedEventIds.has(event.id) ? Array.from(selectedEventIds) : [event.id];
 
     if (idsToMove.length <= 1) {
       onEventDrop(event.id, newStart, newEnd);
@@ -274,12 +280,23 @@ export const CalendarView = ({
   };
 
   const getMarqueeRect = useCallback(() => {
-    if (!marquee) return null;
+    if (!marquee || !marqueeContainerRectRef.current) return null;
+
     const x1 = Math.min(marquee.start.x, marquee.current.x);
     const y1 = Math.min(marquee.start.y, marquee.current.y);
     const x2 = Math.max(marquee.start.x, marquee.current.x);
     const y2 = Math.max(marquee.start.y, marquee.current.y);
-    return { left: x1, top: y1, right: x2, bottom: y2, width: x2 - x1, height: y2 - y1 };
+
+    const r = marqueeContainerRectRef.current;
+    // return in viewport coords (for intersects()), while marquee stores container-relative coords
+    return {
+      left: r.left + x1,
+      top: r.top + y1,
+      right: r.left + x2,
+      bottom: r.top + y2,
+      width: x2 - x1,
+      height: y2 - y1,
+    };
   }, [marquee]);
 
   const intersects = (a: { left: number; top: number; right: number; bottom: number }, b: DOMRect) => {
@@ -293,23 +310,28 @@ export const CalendarView = ({
     if (target.closest('[data-event-id]')) return;
     if (target.closest('[data-resize-handle]')) return;
 
-    const start = { x: e.clientX, y: e.clientY };
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    marqueeContainerRectRef.current = rect;
+
+    const start = { x: e.clientX - rect.left, y: e.clientY - rect.top };
     let hasStarted = false;
 
     const onMove = (ev: PointerEvent) => {
-      const dx = ev.clientX - start.x;
-      const dy = ev.clientY - start.y;
+      const current = { x: ev.clientX - rect.left, y: ev.clientY - rect.top };
+      const dx = current.x - start.x;
+      const dy = current.y - start.y;
       const dist = Math.hypot(dx, dy);
 
       if (!hasStarted && dist < 6) return;
 
       if (!hasStarted) {
         hasStarted = true;
-        setMarquee({ start, current: { x: ev.clientX, y: ev.clientY } });
+        setMarquee({ start, current });
         return;
       }
 
-      setMarquee((prev) => (prev ? { ...prev, current: { x: ev.clientX, y: ev.clientY } } : prev));
+      setMarquee((prev) => (prev ? { ...prev, current } : prev));
     };
 
     const onUp = () => {
@@ -360,14 +382,14 @@ export const CalendarView = ({
         layoutId={`${event.id}-${dateToKey(date)}`}
         initial={{ opacity: 1, scale: 1 }}
         animate={{
-          scale: isBouncing ? [1, 1.15, 0.92, 1.08, 1] : isResizingThis ? 1.03 : 1,
-          y: isBouncing ? [0, -6, 3, -2, 0] : 0,
+          scale: isBouncing ? [1, 1.18, 0.9, 1.1, 1] : isResizingThis ? 1.035 : 1,
+          y: isBouncing ? [0, -8, 4, -3, 0] : 0,
         }}
         transition={{
           type: 'spring',
-          stiffness: isBouncing ? 600 : 400,
-          damping: isBouncing ? 12 : 25,
-          mass: 0.6,
+          stiffness: isBouncing ? 720 : 420,
+          damping: isBouncing ? 14 : 28,
+          mass: 0.55,
         }}
         whileHover={{ scale: 1.03, zIndex: 10 }}
         whileTap={{ scale: 1.05, zIndex: 20 }}
@@ -440,11 +462,15 @@ export const CalendarView = ({
 
   if (view === 'month') {
     return (
-      <div ref={containerRef} className="relative grid grid-cols-7 bg-white/10" onPointerDown={startMarquee}>
+      <div
+        ref={containerRef}
+        className="relative grid grid-cols-7 bg-white/10 select-none"
+        onPointerDown={startMarquee}
+      >
         {/* Marquee selection box */}
         {marquee && (
           <div
-            className="fixed pointer-events-none z-50 border-2 border-blue-400 bg-blue-400/20 rounded"
+            className="absolute pointer-events-none z-50 border-2 border-primary/60 bg-primary/15 rounded"
             style={{
               left: Math.min(marquee.start.x, marquee.current.x),
               top: Math.min(marquee.start.y, marquee.current.y),

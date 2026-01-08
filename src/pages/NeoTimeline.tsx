@@ -436,7 +436,7 @@ const NeoTimeline = () => {
       <Header />
       
       <main className="relative z-10 pt-24 pb-16 px-4 min-h-screen">
-        <div className="max-w-full mx-auto flex gap-4">
+        <div className="max-w-full mx-auto flex gap-4 select-none">
           {/* Project Sidebar */}
           <ProjectSidebar
             projects={projects}

@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState, useEffect, useCallback } from 'react';
-import { AnimatePresence, motion, PanInfo } from 'framer-motion';
+import { AnimatePresence, motion, PanInfo, useDragControls } from 'framer-motion';
 import { CalendarEvent } from '@/pages/NeoTimeline';
 import { getHolidayForDate } from '@/lib/indonesian-holidays';
 
@@ -381,6 +381,7 @@ export const CalendarView = ({
   };
 
   const EventCard = ({ event, date }: { event: CalendarEvent; date: Date }) => {
+    const dragControls = useDragControls();
     const isSelected = selectedEventIds?.has(event.id) ?? false;
     const preview = resizePreview[event.id];
     const startToShow = preview?.start ?? event.start_time;
@@ -421,12 +422,20 @@ export const CalendarView = ({
           boxShadow: '0 12px 40px rgba(0,0,0,0.4)',
         }}
         drag={!activeResize}
-        dragListener={!activeResize}
+        dragControls={dragControls}
+        dragListener={false}
         dragMomentum={false}
         dragElastic={0.15}
         onDragStart={() => setIsDragging(true)}
         onDragEnd={(e, info) => handleDragEnd(event, info)}
         onClick={(e) => setSelected(event, e)}
+        onPointerDown={(e) => {
+          // Start drag only from the card body (not resize handles)
+          const target = e.target as HTMLElement;
+          if (target.closest('[data-resize-handle]')) return;
+          if (activeResize) return;
+          dragControls.start(e);
+        }}
         className={`relative text-xs text-white select-none group cursor-grab active:cursor-grabbing ${
           isSelected ? 'ring-2 ring-white/60 ring-inset' : ''
         } ${isSingleDay ? 'rounded-lg mx-1 px-2 py-1' : ''} ${

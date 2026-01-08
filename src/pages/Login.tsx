@@ -6,31 +6,23 @@ import { ArrowLeft, User } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
-const ALLOWED_ADMIN_EMAIL = 'neotrix.ai@gmail.com';
 
 const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const { isAuthenticated, isAdmin, loading, user } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
     if (!loading && isAuthenticated) {
-      // Check if user email matches allowed admin
-      if (user?.email?.toLowerCase() === ALLOWED_ADMIN_EMAIL.toLowerCase()) {
-        if (isAdmin) {
-          navigate('/admin', { replace: true });
-        }
-      } else {
-        // Non-admin users go to homepage
-        toast({
-          title: "Welcome!",
-          description: "You've been logged in successfully.",
-        });
-        navigate('/', { replace: true });
-      }
+      toast({
+        title: "Welcome!",
+        description: "You're logged in successfully.",
+      });
+      navigate('/neo-timeline', { replace: true });
     }
-  }, [isAuthenticated, isAdmin, loading, navigate, toast, user]);
+  }, [isAuthenticated, loading, navigate, toast]);
+
 
   const handleGoogleLogin = async () => {
     setIsLoading(true);

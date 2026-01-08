@@ -24,13 +24,6 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { Trash2, Layers } from 'lucide-react';
-import { ColorPicker } from './ColorPicker';
-
-const EVENT_COLORS = [
-  '#3b82f6', '#ef4444', '#22c55e', '#f59e0b',
-  '#8b5cf6', '#ec4899', '#06b6d4', '#f97316',
-  '#14b8a6', '#6366f1', '#84cc16', '#a855f7',
-];
 
 interface EventModalProps {
   isOpen: boolean;
@@ -62,7 +55,6 @@ export const EventModal = ({
   const [endDate, setEndDate] = useState('');
   const [endTime, setEndTime] = useState('');
   const [allDay, setAllDay] = useState(false);
-  const [eventColor, setEventColor] = useState(projectColor);
 
   const isSubEvent = event?.is_sub_event ?? defaultIsSubEvent;
 
@@ -75,7 +67,6 @@ export const EventModal = ({
       setEndDate(formatDateInput(event.end_time));
       setEndTime(formatTimeInput(event.end_time));
       setAllDay(event.all_day);
-      setEventColor(event.color || projectColor);
     } else if (defaultStart) {
       setTitle('');
       setDescription('');
@@ -86,9 +77,8 @@ export const EventModal = ({
       setEndDate(formatDateInput(endDefault));
       setEndTime(formatTimeInput(endDefault));
       setAllDay(false);
-      setEventColor(projectColor);
     }
-  }, [event, defaultStart, isOpen, projectColor]);
+  }, [event, defaultStart, isOpen]);
 
   const formatDateInput = (date: Date) => {
     return date.toISOString().split('T')[0];
@@ -111,7 +101,7 @@ export const EventModal = ({
       description: description.trim() || undefined,
       start_time: start,
       end_time: end,
-      color: eventColor,
+      color: projectColor, // Always use project color
       all_day: allDay,
       is_sub_event: isSubEvent,
     });
@@ -155,35 +145,17 @@ export const EventModal = ({
             />
           </div>
 
-          {/* Color row */}
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <Label className="text-white/80">Color</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <button
-                    type="button"
-                    className="w-8 h-8 rounded-lg cursor-pointer border-2 border-white/20 hover:border-white/40 transition-colors"
-                    style={{ backgroundColor: eventColor }}
-                  />
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-3 bg-black/90 border-white/20 backdrop-blur-xl">
-                  <ColorPicker
-                    colors={EVENT_COLORS}
-                    selectedColor={eventColor}
-                    onChange={setEventColor}
-                  />
-                </PopoverContent>
-              </Popover>
+          {/* Sub-event indicator */}
+          {isSubEvent && (
+            <div className="flex items-center gap-2 p-2 rounded-lg bg-white/5 border border-white/10">
+              <Layers className="w-4 h-4 text-white/60" />
+              <span className="text-white/60 text-sm">Sub-event of project</span>
+              <div 
+                className="w-4 h-4 rounded-full ml-auto"
+                style={{ backgroundColor: projectColor }}
+              />
             </div>
-
-            {isSubEvent && (
-              <div className="flex items-center gap-2">
-                <Layers className="w-4 h-4 text-white/60" />
-                <span className="text-white/60 text-sm">Sub-event</span>
-              </div>
-            )}
-          </div>
+          )}
           
           <div className="flex items-center gap-2">
             <Switch

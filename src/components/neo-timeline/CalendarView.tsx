@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState, useEffect, useCallback } from 'react';
-import { AnimatePresence, motion, PanInfo, useDragControls } from 'framer-motion';
+import { AnimatePresence, motion, PanInfo } from 'framer-motion';
 import { CalendarEvent } from '@/pages/NeoTimeline';
 import { getHolidayForDate } from '@/lib/indonesian-holidays';
 
@@ -216,9 +216,11 @@ export const CalendarView = ({
 
     window.addEventListener('pointermove', handlePointerMove);
     window.addEventListener('pointerup', handlePointerUp);
+    window.addEventListener('pointercancel', handlePointerUp);
     return () => {
       window.removeEventListener('pointermove', handlePointerMove);
       window.removeEventListener('pointerup', handlePointerUp);
+      window.removeEventListener('pointercancel', handlePointerUp);
     };
   }, [activeResize, resizePreview, onEventResize]);
 
@@ -305,6 +307,7 @@ export const CalendarView = ({
 
   const startMarquee = (e: React.PointerEvent) => {
     if (activeResize || isDragging) return;
+    if (e.button !== 0) return;
 
     const target = e.target as HTMLElement;
     if (target.closest('[data-event-id]')) return;
@@ -312,39 +315,58 @@ export const CalendarView = ({
 
     const rect = containerRef.current?.getBoundingClientRect();
     if (!rect) return;
-    marqueeContainerRectRef.current = rect;
 
+    e.preventDefault();
+
+    marqueeContainerRectRef.current = rect;
     const start = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    let latest = start;
     let hasStarted = false;
 
+    const prevUserSelect = document.body.style.userSelect;
+
     const onMove = (ev: PointerEvent) => {
-      const current = { x: ev.clientX - rect.left, y: ev.clientY - rect.top };
-      const dx = current.x - start.x;
-      const dy = current.y - start.y;
+      latest = { x: ev.clientX - rect.left, y: ev.clientY - rect.top };
+
+      const dx = latest.x - start.x;
+      const dy = latest.y - start.y;
       const dist = Math.hypot(dx, dy);
 
       if (!hasStarted && dist < 6) return;
 
       if (!hasStarted) {
         hasStarted = true;
-        setMarquee({ start, current });
+        document.body.style.userSelect = 'none';
+        setMarquee({ start, current: latest });
         return;
       }
 
-      setMarquee((prev) => (prev ? { ...prev, current } : prev));
+      setMarquee((prev) => (prev ? { ...prev, current: latest } : prev));
     };
 
-    const onUp = () => {
+    const finish = () => {
       window.removeEventListener('pointermove', onMove);
+      document.body.style.userSelect = prevUserSelect;
 
       if (!hasStarted) return;
 
-      const mr = getMarqueeRect();
+      const x1 = Math.min(start.x, latest.x);
+      const y1 = Math.min(start.y, latest.y);
+      const x2 = Math.max(start.x, latest.x);
+      const y2 = Math.max(start.y, latest.y);
+      const mr = {
+        left: rect.left + x1,
+        top: rect.top + y1,
+        right: rect.left + x2,
+        bottom: rect.top + y2,
+      };
+
       setMarquee(null);
 
-      if (!mr || !onSelectedEventIdsChange) return;
+      if (!onSelectedEventIdsChange) return;
 
-      const nodes = Array.from(document.querySelectorAll<HTMLElement>('[data-event-id]'));
+      const scope = containerRef.current ?? document;
+      const nodes = Array.from(scope.querySelectorAll<HTMLElement>('[data-event-id]'));
       const hitIds = nodes
         .filter((n) => intersects(mr, n.getBoundingClientRect()))
         .map((n) => n.getAttribute('data-event-id'))
@@ -353,12 +375,12 @@ export const CalendarView = ({
       onSelectedEventIdsChange(new Set(hitIds));
     };
 
-    window.addEventListener('pointermove', onMove);
-    window.addEventListener('pointerup', onUp, { once: true });
+    window.addEventListener('pointermove', onMove, { passive: true });
+    window.addEventListener('pointerup', finish, { once: true });
+    window.addEventListener('pointercancel', finish, { once: true });
   };
 
   const EventCard = ({ event, date }: { event: CalendarEvent; date: Date }) => {
-    const dragControls = useDragControls();
     const isSelected = selectedEventIds?.has(event.id) ?? false;
     const preview = resizePreview[event.id];
     const startToShow = preview?.start ?? event.start_time;
@@ -399,19 +421,12 @@ export const CalendarView = ({
           boxShadow: '0 12px 40px rgba(0,0,0,0.4)',
         }}
         drag={!activeResize}
-        dragControls={dragControls}
-        dragListener={false}
+        dragListener={!activeResize}
         dragMomentum={false}
         dragElastic={0.15}
         onDragStart={() => setIsDragging(true)}
         onDragEnd={(e, info) => handleDragEnd(event, info)}
         onClick={(e) => setSelected(event, e)}
-        onPointerDown={(e) => {
-          // Start drag from anywhere on the event (not just inner div)
-          if (activeResize) return;
-          if ((e.target as HTMLElement).closest('[data-resize-handle]')) return;
-          dragControls.start(e);
-        }}
         className={`relative text-xs text-white select-none group cursor-grab active:cursor-grabbing ${
           isSelected ? 'ring-2 ring-white/60 ring-inset' : ''
         } ${isSingleDay ? 'rounded-lg mx-1 px-2 py-1' : ''} ${
@@ -429,6 +444,7 @@ export const CalendarView = ({
           <div
             data-resize-handle="true"
             onPointerDown={(e) => {
+              e.preventDefault();
               e.stopPropagation();
               startResize(e, event, 'left');
             }}
@@ -448,6 +464,7 @@ export const CalendarView = ({
           <div
             data-resize-handle="true"
             onPointerDown={(e) => {
+              e.preventDefault();
               e.stopPropagation();
               startResize(e, event, 'right');
             }}

@@ -1,18 +1,22 @@
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState, useEffect } from 'react';
 import { AnimatePresence, motion, PanInfo, useDragControls } from 'framer-motion';
 import { CalendarEvent } from '@/pages/NeoTimeline';
+import { getHolidayForDate } from '@/lib/indonesian-holidays';
 
 interface CalendarViewProps {
   view: 'month';
   currentDate: Date;
   events: CalendarEvent[];
-  onDateClick: (date: Date) => void;
+  onDateClick: (date: Date, multi?: boolean) => void;
   onEventClick: (event: CalendarEvent) => void;
   onEventDrop: (eventId: string, newStart: Date, newEnd: Date) => void;
   onEventResize?: (eventId: string, newEnd: Date) => void;
   visibleProjectIds?: string[] | null;
   selectedEventIds?: Set<string>;
   onSelectedEventIdsChange?: (next: Set<string>) => void;
+  selectedDates?: Set<string>;
+  onSelectedDatesChange?: (next: Set<string>) => void;
+  showHolidays?: boolean;
 }
 
 export const CalendarView = ({
@@ -26,44 +30,28 @@ export const CalendarView = ({
   visibleProjectIds,
   selectedEventIds,
   onSelectedEventIdsChange,
+  selectedDates,
+  onSelectedDatesChange,
+  showHolidays = true,
 }: CalendarViewProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dragOverSlot, setDragOverSlot] = useState<{ day: number; hour: number } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
 
-  // Resize preview state
-  const [activeResize, setActiveResize] = useState<
-    | null
-    | {
-        eventId: string;
-        mode: 'hours' | 'days';
-        startX: number;
-        startY: number;
-        originalEnd: Date;
-        cellWidth: number;
-        hourHeight: number;
-        eventStart: Date;
-      }
-  >(null);
+  // Resize state
+  const [activeResize, setActiveResize] = useState<null | {
+    eventId: string;
+    startX: number;
+    originalEnd: Date;
+    cellWidth: number;
+    eventStart: Date;
+  }>(null);
   const [resizePreviewEnd, setResizePreviewEnd] = useState<Record<string, Date>>({});
-
-  const hours = Array.from({ length: 24 }, (_, i) => i);
 
   const filteredEvents = useMemo(() => {
     if (!visibleProjectIds) return events;
     return events.filter((e) => visibleProjectIds.includes(e.project_id || 'default'));
   }, [events, visibleProjectIds]);
-
-  const getWeekDates = () => {
-    const start = new Date(currentDate);
-    const day = start.getDay();
-    start.setDate(start.getDate() - day);
-    return Array.from({ length: 7 }, (_, i) => {
-      const date = new Date(start);
-      date.setDate(start.getDate() + i);
-      return date;
-    });
-  };
 
   const getMonthDates = () => {
     const year = currentDate.getFullYear();
@@ -90,24 +78,19 @@ export const CalendarView = ({
     return dates;
   };
 
-  const weekDates = useMemo(() => getWeekDates(), [currentDate]);
   const monthDates = useMemo(() => getMonthDates(), [currentDate]);
 
   const isToday = (date: Date) => date.toDateString() === new Date().toDateString();
 
-  const formatHour = (hour: number) => {
-    if (hour === 0) return '12 AM';
-    if (hour === 12) return '12 PM';
-    return hour < 12 ? `${hour} AM` : `${hour - 12} PM`;
-  };
-
   const getEventsForDate = (date: Date) =>
-    filteredEvents.filter((event) => new Date(event.start_time).toDateString() === date.toDateString());
-
-  const getEventsForHour = (date: Date, hour: number) =>
     filteredEvents.filter((event) => {
-      const eventDate = new Date(event.start_time);
-      return eventDate.toDateString() === date.toDateString() && eventDate.getHours() === hour;
+      const eventStart = new Date(event.start_time);
+      const eventEnd = new Date(event.end_time);
+      const dayStart = new Date(date);
+      dayStart.setHours(0, 0, 0, 0);
+      const dayEnd = new Date(date);
+      dayEnd.setHours(23, 59, 59, 999);
+      return eventStart <= dayEnd && eventEnd >= dayStart;
     });
 
   const springConfig = {
@@ -117,7 +100,15 @@ export const CalendarView = ({
     mass: 0.75,
   };
 
+  const dateToKey = (date: Date) => date.toISOString().split('T')[0];
+
+  const handleDateClick = (date: Date, mouseEvent: React.MouseEvent) => {
+    const multi = mouseEvent.metaKey || mouseEvent.ctrlKey || mouseEvent.shiftKey;
+    onDateClick(date, multi);
+  };
+
   const setSelected = (event: CalendarEvent, mouseEvent: React.MouseEvent) => {
+    mouseEvent.stopPropagation();
     if (!onSelectedEventIdsChange) {
       onEventClick(event);
       return;
@@ -140,7 +131,45 @@ export const CalendarView = ({
     onEventClick(event);
   };
 
-  const startResize = (e: React.PointerEvent, event: CalendarEvent, mode: 'hours' | 'days') => {
+  // Resize handlers with global pointer events
+  useEffect(() => {
+    if (!activeResize) return;
+
+    const handlePointerMove = (e: PointerEvent) => {
+      const deltaX = e.clientX - activeResize.startX;
+      const deltaDays = Math.round(deltaX / Math.max(1, activeResize.cellWidth));
+      const nextEnd = new Date(activeResize.originalEnd);
+      nextEnd.setDate(activeResize.originalEnd.getDate() + deltaDays);
+      // Ensure end is at least same day as start
+      if (nextEnd < activeResize.eventStart) {
+        nextEnd.setTime(activeResize.eventStart.getTime());
+        nextEnd.setHours(23, 59, 59, 999);
+      }
+      setResizePreviewEnd((prev) => ({ ...prev, [activeResize.eventId]: nextEnd }));
+    };
+
+    const handlePointerUp = () => {
+      const preview = resizePreviewEnd[activeResize.eventId];
+      if (preview && onEventResize && preview.getTime() !== activeResize.originalEnd.getTime()) {
+        onEventResize(activeResize.eventId, preview);
+      }
+      setActiveResize(null);
+      setResizePreviewEnd((prev) => {
+        const next = { ...prev };
+        delete next[activeResize.eventId];
+        return next;
+      });
+    };
+
+    window.addEventListener('pointermove', handlePointerMove);
+    window.addEventListener('pointerup', handlePointerUp);
+    return () => {
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', handlePointerUp);
+    };
+  }, [activeResize, resizePreviewEnd, onEventResize]);
+
+  const startResize = (e: React.PointerEvent, event: CalendarEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -149,52 +178,10 @@ export const CalendarView = ({
 
     setActiveResize({
       eventId: event.id,
-      mode,
       startX: e.clientX,
-      startY: e.clientY,
       originalEnd: new Date(event.end_time),
       cellWidth,
-      hourHeight: 56,
       eventStart: new Date(event.start_time),
-    });
-
-    (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
-  };
-
-  const onResizeMove = (e: React.PointerEvent) => {
-    if (!activeResize) return;
-
-    if (activeResize.mode === 'hours') {
-      const deltaY = e.clientY - activeResize.startY;
-      const deltaHours = Math.round(deltaY / activeResize.hourHeight);
-      const minMs = 60 * 60 * 1000;
-      const originalDuration = activeResize.originalEnd.getTime() - activeResize.eventStart.getTime();
-      const nextDuration = Math.max(minMs, originalDuration + deltaHours * minMs);
-      const nextEnd = new Date(activeResize.eventStart.getTime() + nextDuration);
-      setResizePreviewEnd((prev) => ({ ...prev, [activeResize.eventId]: nextEnd }));
-      return;
-    }
-
-    const deltaX = e.clientX - activeResize.startX;
-    const deltaDays = Math.max(0, Math.round(deltaX / Math.max(1, activeResize.cellWidth)));
-    const nextEnd = new Date(activeResize.originalEnd);
-    nextEnd.setDate(activeResize.originalEnd.getDate() + deltaDays);
-    setResizePreviewEnd((prev) => ({ ...prev, [activeResize.eventId]: nextEnd }));
-  };
-
-  const onResizeEnd = () => {
-    if (!activeResize) return;
-    const preview = resizePreviewEnd[activeResize.eventId];
-
-    if (preview && onEventResize && preview.getTime() !== activeResize.originalEnd.getTime()) {
-      onEventResize(activeResize.eventId, preview);
-    }
-
-    setActiveResize(null);
-    setResizePreviewEnd((prev) => {
-      const next = { ...prev };
-      delete next[activeResize.eventId];
-      return next;
     });
   };
 
@@ -206,7 +193,6 @@ export const CalendarView = ({
     const slot = element?.closest('[data-slot]') as HTMLElement | null;
     if (!slot) return;
 
-    const slotHour = parseInt(slot.getAttribute('data-hour') || '0');
     const slotDate = slot.getAttribute('data-date');
     if (!slotDate) return;
 
@@ -214,12 +200,7 @@ export const CalendarView = ({
     const duration = event.end_time.getTime() - event.start_time.getTime();
 
     const newStart = new Date(targetDate);
-    if (view === 'month') {
-      // month is day-level drop
-      newStart.setHours(event.start_time.getHours(), event.start_time.getMinutes(), 0, 0);
-    } else {
-      newStart.setHours(slotHour, 0, 0, 0);
-    }
+    newStart.setHours(event.start_time.getHours(), event.start_time.getMinutes(), 0, 0);
     const newEnd = new Date(newStart.getTime() + duration);
 
     const idsToMove = selectedEventIds && selectedEventIds.has(event.id) ? Array.from(selectedEventIds) : [event.id];
@@ -239,25 +220,21 @@ export const CalendarView = ({
     });
   };
 
-  const EventCard = ({
-    event,
-    compact = false,
-    showResize = false,
-    showMonthResize = false,
-  }: {
-    event: CalendarEvent;
-    compact?: boolean;
-    showResize?: boolean;
-    showMonthResize?: boolean;
-  }) => {
+  const EventCard = ({ event, date }: { event: CalendarEvent; date: Date }) => {
     const dragControls = useDragControls();
     const isSelected = selectedEventIds?.has(event.id) ?? false;
     const endToShow = resizePreviewEnd[event.id] ?? event.end_time;
 
+    const eventStart = new Date(event.start_time);
+    const eventEnd = endToShow;
+    const isFirstDay = eventStart.toDateString() === date.toDateString();
+    const isLastDay = eventEnd.toDateString() === date.toDateString();
+    const isMultiDay = eventStart.toDateString() !== new Date(event.end_time).toDateString();
+
     return (
       <motion.div
         layout
-        layoutId={event.id}
+        layoutId={`${event.id}-${dateToKey(date)}`}
         initial={{ scale: 1, opacity: 1 }}
         whileHover={{ scale: 1.03, zIndex: 10 }}
         whileTap={{ scale: 1.06, zIndex: 20 }}
@@ -267,7 +244,7 @@ export const CalendarView = ({
           boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
           cursor: 'grabbing',
         }}
-        drag={!activeResize}
+        drag={!activeResize && isFirstDay}
         dragControls={dragControls}
         dragListener={false}
         dragMomentum={false}
@@ -275,56 +252,36 @@ export const CalendarView = ({
         onDragStart={() => setIsDragging(true)}
         onDragEnd={(e, info) => handleDragEnd(event, info)}
         transition={springConfig}
-        onClick={(e) => {
-          e.stopPropagation();
-          if (activeResize || isDragging) return;
-          setSelected(event, e);
+        onClick={(e) => setSelected(event, e)}
+        className={`relative rounded-lg px-2 py-1 text-xs text-white select-none group truncate ${
+          isSelected ? 'ring-2 ring-white/60' : ''
+        } ${!isFirstDay ? 'rounded-l-none' : ''} ${!isLastDay ? 'rounded-r-none' : ''}`}
+        style={{
+          backgroundColor: event.color,
+          touchAction: 'none',
+          marginLeft: !isFirstDay ? '-4px' : 0,
+          marginRight: !isLastDay ? '-4px' : 0,
         }}
-        className={`relative rounded-lg px-2 py-1 text-xs text-white select-none group ${
-          compact ? 'truncate' : ''
-        } ${isSelected ? 'ring-2 ring-white/60' : ''}`}
-        style={{ backgroundColor: event.color, touchAction: 'none' }}
       >
         <div
           onPointerDown={(e) => {
-            if (activeResize) return;
+            if (activeResize || !isFirstDay) return;
             e.stopPropagation();
             dragControls.start(e);
           }}
           className="cursor-grab active:cursor-grabbing"
         >
-          <div className="font-medium truncate">{event.title}</div>
-          {!compact && (
-            <div className="text-white/70 text-[10px]">
-              {event.start_time.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
-            </div>
-          )}
-          {compact && (
-            <div className="text-white/70 text-[10px]">
-              {endToShow && endToShow.getTime() !== event.end_time.getTime() ? 'Resizing…' : ''}
-            </div>
-          )}
+          {isFirstDay && <div className="font-medium truncate">{event.title}</div>}
+          {!isFirstDay && isMultiDay && <div className="font-medium truncate opacity-60">↳ {event.title}</div>}
         </div>
 
-        {showResize && (
+        {/* Resize handle - only on last day */}
+        {isLastDay && (
           <div
-            onPointerDown={(e) => startResize(e, event, 'hours')}
-            onPointerMove={onResizeMove}
-            onPointerUp={onResizeEnd}
-            className="absolute bottom-0 left-0 right-0 h-2 cursor-ns-resize opacity-0 group-hover:opacity-100 bg-white/30 rounded-b-lg transition-opacity flex items-center justify-center"
+            onPointerDown={(e) => startResize(e, event)}
+            className="absolute right-0 top-0 bottom-0 w-3 cursor-ew-resize opacity-0 group-hover:opacity-100 bg-white/30 rounded-r-lg transition-opacity flex items-center justify-center"
           >
-            <div className="w-8 h-0.5 bg-white/60 rounded" />
-          </div>
-        )}
-
-        {showMonthResize && (
-          <div
-            onPointerDown={(e) => startResize(e, event, 'days')}
-            onPointerMove={onResizeMove}
-            onPointerUp={onResizeEnd}
-            className="absolute right-0 bottom-0 w-3 h-3 cursor-se-resize opacity-0 group-hover:opacity-100"
-          >
-            <div className="absolute right-1 bottom-1 w-1.5 h-1.5 rounded-sm bg-white/70" />
+            <div className="w-0.5 h-4 bg-white/60 rounded" />
           </div>
         )}
       </motion.div>
@@ -344,6 +301,9 @@ export const CalendarView = ({
           const dayEvents = getEventsForDate(date);
           const isCurrentMonth = date.getMonth() === currentDate.getMonth();
           const isDragOver = dragOverSlot?.day === i;
+          const dateKey = dateToKey(date);
+          const isDateSelected = selectedDates?.has(dateKey) ?? false;
+          const holiday = showHolidays ? getHolidayForDate(date) : undefined;
 
           return (
             <motion.div
@@ -353,23 +313,34 @@ export const CalendarView = ({
               data-hour={0}
               data-date={date.toISOString()}
               animate={{
-                backgroundColor: isDragOver ? 'rgba(59, 130, 246, 0.2)' : 'rgba(255, 255, 255, 0.05)',
+                backgroundColor: isDragOver
+                  ? 'rgba(59, 130, 246, 0.2)'
+                  : isDateSelected
+                  ? 'rgba(59, 130, 246, 0.15)'
+                  : 'rgba(255, 255, 255, 0.05)',
                 scale: isDragOver ? 1.02 : 1,
               }}
               transition={springConfig}
               className={`min-h-24 p-1 hover:bg-white/10 transition-colors ${!isCurrentMonth ? 'opacity-40' : ''} ${
                 isToday(date) ? 'ring-2 ring-blue-500 ring-inset' : ''
-              }`}
+              } ${isDateSelected ? 'ring-2 ring-blue-400 ring-inset' : ''}`}
               onMouseEnter={() => isDragging && setDragOverSlot({ day: i, hour: 0 })}
-              onClick={() => onDateClick(date)}
+              onClick={(e) => handleDateClick(date, e)}
             >
-              <div className={`text-sm mb-1 ${isToday(date) ? 'text-blue-400 font-bold' : 'text-white/80'}`}>
-                {date.getDate()}
+              <div className="flex items-center justify-between mb-1">
+                <span className={`text-sm ${isToday(date) ? 'text-blue-400 font-bold' : 'text-white/80'}`}>
+                  {date.getDate()}
+                </span>
+                {holiday && (
+                  <span className="text-[9px] text-red-400 font-medium truncate max-w-[70%]" title={holiday.nameId}>
+                    {holiday.name}
+                  </span>
+                )}
               </div>
               <AnimatePresence mode="popLayout">
                 <div className="space-y-1">
                   {dayEvents.slice(0, 3).map((event) => (
-                    <EventCard key={event.id} event={event} compact showMonthResize />
+                    <EventCard key={event.id} event={event} date={date} />
                   ))}
                   {dayEvents.length > 3 && (
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[10px] text-white/60">
@@ -385,6 +356,5 @@ export const CalendarView = ({
     );
   }
 
-  // Month view only – no day/week views
   return null;
 };

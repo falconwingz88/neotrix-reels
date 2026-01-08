@@ -70,14 +70,11 @@ export const CalendarView = ({
   }>(null);
   const marqueeContainerRectRef = useRef<DOMRect | null>(null);
 
-  // Get project color for an event - sub-events use their own color
+  // Get event color (explicit event color overrides project color)
   const getEventColor = (event: CalendarEvent) => {
-    // Sub-events have their own color that takes priority
-    if (event.is_sub_event && event.color) {
-      return event.color;
-    }
-    const project = projects.find(p => p.id === event.project_id);
-    return project?.color || event.color || '#3b82f6';
+    if (event.color) return event.color;
+    const project = projects.find((p) => p.id === event.project_id);
+    return project?.color || '#3b82f6';
   };
 
   // Filter events based on visibility and sub-event rules
@@ -599,7 +596,7 @@ export const CalendarView = ({
               
               {/* Show event pills when NOT in blend mode */}
               {!blendMode && (
-                <div className="flex-1 space-y-0.5">
+                <div className="mt-1 space-y-0.5">
                   <AnimatePresence mode="popLayout">
                     {dayEvents.map((event) => (
                       <EventCard key={event.id} event={event} date={date} />
@@ -610,7 +607,7 @@ export const CalendarView = ({
               
               {/* In blend mode: show sub-events as pills (they are the nested events) */}
               {blendMode && (
-                <div className="flex-1 space-y-0.5">
+                <div className="mt-1 space-y-0.5">
                   <AnimatePresence mode="popLayout">
                     {subEvents.map((event) => (
                       <EventCard key={event.id} event={event} date={date} />

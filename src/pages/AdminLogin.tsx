@@ -17,25 +17,17 @@ const AdminLogin = () => {
   useEffect(() => {
     if (!loading && isAuthenticated) {
       // Check if user email matches allowed admin
-      if (user?.email?.toLowerCase() !== ALLOWED_ADMIN_EMAIL.toLowerCase()) {
-        toast({
-          title: "Access denied",
-          description: "Only authorized administrators can access this area.",
-          variant: "destructive",
-        });
-        // Sign out unauthorized user
-        supabase.auth.signOut();
-        return;
-      }
-      
-      if (isAdmin) {
-        navigate('/admin', { replace: true });
+      if (user?.email?.toLowerCase() === ALLOWED_ADMIN_EMAIL.toLowerCase()) {
+        if (isAdmin) {
+          navigate('/admin', { replace: true });
+        }
       } else {
+        // Non-admin users go to homepage
         toast({
-          title: "Access denied", 
-          description: "You don't have admin privileges.",
-          variant: "destructive",
+          title: "Welcome!",
+          description: "You've been logged in successfully.",
         });
+        navigate('/', { replace: true });
       }
     }
   }, [isAuthenticated, isAdmin, loading, navigate, toast, user]);

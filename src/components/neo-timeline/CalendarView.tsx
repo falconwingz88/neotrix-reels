@@ -70,8 +70,12 @@ export const CalendarView = ({
   }>(null);
   const marqueeContainerRectRef = useRef<DOMRect | null>(null);
 
-  // Get project color for an event
+  // Get project color for an event - sub-events use their own color
   const getEventColor = (event: CalendarEvent) => {
+    // Sub-events have their own color that takes priority
+    if (event.is_sub_event && event.color) {
+      return event.color;
+    }
     const project = projects.find(p => p.id === event.project_id);
     return project?.color || event.color || '#3b82f6';
   };
@@ -568,7 +572,7 @@ export const CalendarView = ({
               }}
               transition={springConfig}
               style={blendColors.length > 0 && !isDragOver && !isDateSelected ? blendStyle : undefined}
-              className={`min-h-24 p-1 hover:bg-white/10 transition-colors border-b border-r border-white/5 ${
+              className={`min-h-24 p-1 hover:bg-white/10 transition-colors border-b border-r border-white/5 flex flex-col ${
                 !isCurrentMonth ? 'opacity-40' : ''
               } ${isToday(date) ? 'ring-2 ring-blue-500 ring-inset' : ''} ${
                 isDateSelected ? 'ring-2 ring-blue-400 ring-inset' : ''
@@ -576,7 +580,7 @@ export const CalendarView = ({
               onMouseEnter={() => isDragging && setDragOverSlot({ day: i, hour: 0 })}
               onClick={(e) => handleDateClick(date, e)}
             >
-              <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center justify-between mb-1 flex-shrink-0">
                 <span className={`text-sm ${isToday(date) ? 'text-blue-400 font-bold' : 'text-white/80'}`}>
                   {date.getDate()}
                 </span>
@@ -589,34 +593,24 @@ export const CalendarView = ({
               
               {/* Show event pills when NOT in blend mode */}
               {!blendMode && (
-                <AnimatePresence mode="popLayout">
-                  <div className="space-y-1">
-                    {dayEvents.slice(0, 3).map((event) => (
+                <div className="flex-1 space-y-0.5 overflow-hidden">
+                  <AnimatePresence mode="popLayout">
+                    {dayEvents.map((event) => (
                       <EventCard key={event.id} event={event} date={date} />
                     ))}
-                    {dayEvents.length > 3 && (
-                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[10px] text-white/60 px-1">
-                        +{dayEvents.length - 3} more
-                      </motion.div>
-                    )}
-                  </div>
-                </AnimatePresence>
+                  </AnimatePresence>
+                </div>
               )}
               
               {/* In blend mode: show sub-events as pills (they are the nested events) */}
               {blendMode && (
-                <AnimatePresence mode="popLayout">
-                  <div className="space-y-1">
-                    {subEvents.slice(0, 3).map((event) => (
+                <div className="flex-1 space-y-0.5 overflow-hidden">
+                  <AnimatePresence mode="popLayout">
+                    {subEvents.map((event) => (
                       <EventCard key={event.id} event={event} date={date} />
                     ))}
-                    {subEvents.length > 3 && (
-                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[10px] text-white/60 px-1">
-                        +{subEvents.length - 3} more
-                      </motion.div>
-                    )}
-                  </div>
-                </AnimatePresence>
+                  </AnimatePresence>
+                </div>
               )}
             </motion.div>
           );

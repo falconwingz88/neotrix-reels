@@ -9,14 +9,7 @@ import { CalendarView } from '@/components/neo-timeline/CalendarView';
 import { EventModal } from '@/components/neo-timeline/EventModal';
 import { BackgroundSettings } from '@/components/neo-timeline/BackgroundSettings';
 import { ProjectSidebar, Project } from '@/components/neo-timeline/ProjectSidebar';
-import { 
-  ChevronLeft, 
-  ChevronRight, 
-  Plus, 
-  Settings,
-  Save,
-  Share2
-} from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, Settings, Save, Share2 } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
@@ -51,6 +44,7 @@ const NeoTimeline = () => {
   const [view, setView] = useState<ViewType>('month');
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
+  const [selectedEventIds, setSelectedEventIds] = useState<Set<string>>(new Set());
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newEventStart, setNewEventStart] = useState<Date | null>(null);
   
@@ -80,8 +74,53 @@ const NeoTimeline = () => {
     localStorage.setItem('neo-timeline-theme', JSON.stringify(backgroundGradient));
   }, [backgroundGradient]);
 
+
   // Get visible project IDs
   const visibleProjectIds = projects.filter(p => p.visible).map(p => p.id);
+
+  const eventsStorageKey = `neo-timeline-events:${user?.id ?? 'anon'}`;
+  const projectsStorageKey = `neo-timeline-projects:${user?.id ?? 'anon'}`;
+
+  // Restore cached projects/events immediately (prevents "missing" data on reload while developing)
+  useEffect(() => {
+    try {
+      const cachedProjects = localStorage.getItem(projectsStorageKey);
+      if (cachedProjects) setProjects(JSON.parse(cachedProjects));
+
+      const cachedEvents = localStorage.getItem(eventsStorageKey);
+      if (cachedEvents) {
+        const parsed = JSON.parse(cachedEvents) as any[];
+        setEvents(
+          parsed.map((e) => ({
+            ...e,
+            start_time: new Date(e.start_time),
+            end_time: new Date(e.end_time),
+          }))
+        );
+      }
+    } catch {
+      // ignore cache errors
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectsStorageKey, eventsStorageKey]);
+
+  // Persist projects/events locally (per account)
+  useEffect(() => {
+    localStorage.setItem(projectsStorageKey, JSON.stringify(projects));
+  }, [projects, projectsStorageKey]);
+
+  useEffect(() => {
+    localStorage.setItem(
+      eventsStorageKey,
+      JSON.stringify(
+        events.map((e) => ({
+          ...e,
+          start_time: e.start_time.toISOString(),
+          end_time: e.end_time.toISOString(),
+        }))
+      )
+    );
+  }, [events, eventsStorageKey]);
 
   // Load events from database if authenticated
   useEffect(() => {
@@ -92,23 +131,26 @@ const NeoTimeline = () => {
 
   const loadEvents = async () => {
     if (!user) return;
-    
+
     const { data, error } = await supabase
       .from('calendar_events')
       .select('*')
       .eq('user_id', user.id);
-    
+
     if (error) {
       console.error('Error loading events:', error);
       return;
     }
-    
-    setEvents(data.map(e => ({
-      ...e,
-      start_time: new Date(e.start_time),
-      end_time: new Date(e.end_time)
-    })));
+
+    setEvents(
+      data.map((e) => ({
+        ...e,
+        start_time: new Date(e.start_time),
+        end_time: new Date(e.end_time),
+      }))
+    );
   };
+
 
   const saveEvent = async (event: Omit<CalendarEvent, 'id' | 'user_id'>) => {
     if (!isAuthenticated || !user) {
@@ -227,14 +269,17 @@ const NeoTimeline = () => {
     await updateEvent(updatedEvent);
   }, [events, updateEvent]);
 
+
   const handleDateClick = (date: Date) => {
+    // Select only (no modal)
     setNewEventStart(date);
     setSelectedEvent(null);
-    setIsModalOpen(true);
   };
+
 
   const handleEventClick = (event: CalendarEvent) => {
     setSidebarSelectedEvent(event);
+    setSelectedEventIds((prev) => (prev.has(event.id) ? prev : new Set([event.id])));
   };
 
   const handleEventEdit = (event: CalendarEvent) => {
@@ -267,9 +312,6 @@ const NeoTimeline = () => {
     setCurrentDate(newDate);
   };
 
-  const goToToday = () => {
-    setCurrentDate(new Date());
-  };
 
   const formatDateRange = () => {
     const options: Intl.DateTimeFormatOptions = { month: 'long', year: 'numeric' };
@@ -322,16 +364,7 @@ const NeoTimeline = () => {
           <div className="flex-1 min-w-0">
             {/* Calendar Header */}
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
-              <div className="flex items-center gap-4">
-                <h1 className="text-2xl md:text-3xl font-bold text-white">Neo-Timeline</h1>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={goToToday}
-                  className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-                >
-                  Today
-                </Button>
+              <div className="flex items-center gap-2">
                 <div className="flex items-center gap-1">
                   <Button
                     variant="ghost"
@@ -437,7 +470,6 @@ const NeoTimeline = () => {
 
                 <Button
                   onClick={() => {
-                    setNewEventStart(new Date());
                     setSelectedEvent(null);
                     setIsModalOpen(true);
                   }}
@@ -460,6 +492,8 @@ const NeoTimeline = () => {
                 onEventDrop={handleEventDrop}
                 onEventResize={handleEventResize}
                 visibleProjectIds={selectedProjectId ? [selectedProjectId] : visibleProjectIds}
+                selectedEventIds={selectedEventIds}
+                onSelectedEventIdsChange={setSelectedEventIds}
               />
             </div>
           </div>

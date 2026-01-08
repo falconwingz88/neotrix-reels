@@ -116,8 +116,9 @@ export const ProjectSidebar = ({
       initial={false}
       animate={{ width: isCollapsed ? 48 : 280 }}
       transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-      className="h-full bg-white/10 backdrop-blur-xl border-r border-white/20 flex flex-col overflow-hidden"
+      className="h-full bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 flex flex-col overflow-hidden"
     >
+
       {/* Header */}
       <div className="flex items-center justify-between p-3 border-b border-white/10">
         <AnimatePresence mode="wait">

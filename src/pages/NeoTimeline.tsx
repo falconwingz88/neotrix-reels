@@ -473,7 +473,11 @@ const NeoTimeline = () => {
                     <ChevronRight className="w-5 h-5" />
                   </Button>
                 </div>
-                <span className="text-white text-lg font-medium">{formatDateRange()}</span>
+                <span className="text-white text-lg font-medium">
+                  {selectedProjectId 
+                    ? projects.find(p => p.id === selectedProjectId)?.name || formatDateRange()
+                    : formatDateRange()}
+                </span>
               </div>
               
               <div className="flex items-center gap-2 flex-wrap">

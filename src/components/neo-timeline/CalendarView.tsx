@@ -3,7 +3,7 @@ import { AnimatePresence, motion, PanInfo, useDragControls } from 'framer-motion
 import { CalendarEvent } from '@/pages/NeoTimeline';
 
 interface CalendarViewProps {
-  view: 'day' | 'week' | 'month';
+  view: 'month';
   currentDate: Date;
   events: CalendarEvent[];
   onDateClick: (date: Date) => void;
@@ -385,113 +385,6 @@ export const CalendarView = ({
     );
   }
 
-  if (view === 'day') {
-    return (
-      <div ref={containerRef} className="flex">
-        <div className="w-16 flex-shrink-0 border-r border-white/10">
-          <div className="h-12 border-b border-white/10" />
-          {hours.map((hour) => (
-            <div key={hour} className="h-14 border-b border-white/10 pr-2 text-right">
-              <span className="text-xs text-white/40">{formatHour(hour)}</span>
-            </div>
-          ))}
-        </div>
-
-        <div className="flex-1">
-          <div className={`h-12 border-b border-white/10 p-2 text-center ${isToday(currentDate) ? 'bg-blue-500/20' : ''}`}>
-            <div className="text-white/60 text-xs">{currentDate.toLocaleDateString('en-US', { weekday: 'short' })}</div>
-            <div className={`text-lg font-bold ${isToday(currentDate) ? 'text-blue-400' : 'text-white'}`}>{currentDate.getDate()}</div>
-          </div>
-
-          {hours.map((hour) => {
-            const hourEvents = getEventsForHour(currentDate, hour);
-            const isDragOver = dragOverSlot?.day === 0 && dragOverSlot?.hour === hour;
-
-            return (
-              <motion.div
-                key={hour}
-                data-slot="true"
-                data-day={0}
-                data-hour={hour}
-                data-date={currentDate.toISOString()}
-                animate={{
-                  backgroundColor: isDragOver ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
-                  scale: isDragOver ? 1.01 : 1,
-                }}
-                transition={springConfig}
-                className="h-14 border-b border-white/10 relative hover:bg-white/5"
-                onMouseEnter={() => isDragging && setDragOverSlot({ day: 0, hour })}
-                onClick={() => {
-                  const date = new Date(currentDate);
-                  date.setHours(hour, 0, 0, 0);
-                  onDateClick(date);
-                }}
-              >
-                <AnimatePresence mode="popLayout">
-                  {hourEvents.map((event) => (
-                    <EventCard key={event.id} event={event} showResize />
-                  ))}
-                </AnimatePresence>
-              </motion.div>
-            );
-          })}
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div ref={containerRef} className="flex overflow-x-auto">
-      <div className="w-16 flex-shrink-0 border-r border-white/10">
-        <div className="h-12 border-b border-white/10" />
-        {hours.map((hour) => (
-          <div key={hour} className="h-14 border-b border-white/10 pr-2 text-right">
-            <span className="text-xs text-white/40">{formatHour(hour)}</span>
-          </div>
-        ))}
-      </div>
-
-      {weekDates.map((date, dayIndex) => (
-        <div key={dayIndex} className="flex-1 min-w-[100px] border-r border-white/10 last:border-r-0">
-          <div className={`h-12 border-b border-white/10 p-1 text-center ${isToday(date) ? 'bg-blue-500/20' : ''}`}>
-            <div className="text-white/60 text-xs">{date.toLocaleDateString('en-US', { weekday: 'short' })}</div>
-            <div className={`text-sm font-bold ${isToday(date) ? 'text-blue-400' : 'text-white'}`}>{date.getDate()}</div>
-          </div>
-
-          {hours.map((hour) => {
-            const hourEvents = getEventsForHour(date, hour);
-            const isDragOver = dragOverSlot?.day === dayIndex && dragOverSlot?.hour === hour;
-
-            return (
-              <motion.div
-                key={hour}
-                data-slot="true"
-                data-day={dayIndex}
-                data-hour={hour}
-                data-date={date.toISOString()}
-                animate={{
-                  backgroundColor: isDragOver ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
-                  scale: isDragOver ? 1.01 : 1,
-                }}
-                transition={springConfig}
-                className="h-14 border-b border-white/10 relative hover:bg-white/5 p-0.5"
-                onMouseEnter={() => isDragging && setDragOverSlot({ day: dayIndex, hour })}
-                onClick={() => {
-                  const clickDate = new Date(date);
-                  clickDate.setHours(hour, 0, 0, 0);
-                  onDateClick(clickDate);
-                }}
-              >
-                <AnimatePresence mode="popLayout">
-                  {hourEvents.map((event) => (
-                    <EventCard key={event.id} event={event} showResize />
-                  ))}
-                </AnimatePresence>
-              </motion.div>
-            );
-          })}
-        </div>
-      ))}
-    </div>
-  );
+  // Month view only – no day/week views
+  return null;
 };

@@ -34,7 +34,7 @@ export interface CalendarEvent {
   project_id?: string;
 }
 
-type ViewType = 'day' | 'week' | 'month';
+type ViewType = 'month';
 
 const NeoTimeline = () => {
   const { user, isAuthenticated } = useAuth();
@@ -298,26 +298,13 @@ const NeoTimeline = () => {
 
   const navigateDate = (direction: 'prev' | 'next') => {
     const newDate = new Date(currentDate);
-    switch (view) {
-      case 'day':
-        newDate.setDate(newDate.getDate() + (direction === 'next' ? 1 : -1));
-        break;
-      case 'week':
-        newDate.setDate(newDate.getDate() + (direction === 'next' ? 7 : -7));
-        break;
-      case 'month':
-        newDate.setMonth(newDate.getMonth() + (direction === 'next' ? 1 : -1));
-        break;
-    }
+    newDate.setMonth(newDate.getMonth() + (direction === 'next' ? 1 : -1));
     setCurrentDate(newDate);
   };
 
 
   const formatDateRange = () => {
     const options: Intl.DateTimeFormatOptions = { month: 'long', year: 'numeric' };
-    if (view === 'day') {
-      return currentDate.toLocaleDateString('en-US', { ...options, day: 'numeric', weekday: 'long' });
-    }
     return currentDate.toLocaleDateString('en-US', options);
   };
 
@@ -387,24 +374,6 @@ const NeoTimeline = () => {
               </div>
               
               <div className="flex items-center gap-2 flex-wrap">
-                {/* View Toggle */}
-                <div className="flex bg-white/10 rounded-lg p-1">
-                  {(['day', 'week', 'month'] as ViewType[]).map((v) => (
-                    <Button
-                      key={v}
-                      variant={view === v ? 'default' : 'ghost'}
-                      size="sm"
-                      onClick={() => setView(v)}
-                      className={view === v 
-                        ? 'bg-white/20 text-white' 
-                        : 'text-white/60 hover:text-white hover:bg-white/10'
-                      }
-                    >
-                      {v.charAt(0).toUpperCase() + v.slice(1)}
-                    </Button>
-                  ))}
-                </div>
-
                 {/* Action Buttons */}
                 <TooltipProvider>
                   <Tooltip>

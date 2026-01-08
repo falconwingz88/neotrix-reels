@@ -565,15 +565,19 @@ export const CalendarView = ({
               data-hour={0}
               data-date={date.toISOString()}
               animate={{
+                scale: isDragOver ? 1.02 : 1,
+              }}
+              transition={springConfig}
+              style={{
+                ...blendStyle,
                 backgroundColor: isDragOver
                   ? 'rgba(59, 130, 246, 0.2)'
                   : isDateSelected
                     ? 'rgba(59, 130, 246, 0.15)'
-                    : blendColors.length === 0 ? 'rgba(255, 255, 255, 0.05)' : undefined,
-                scale: isDragOver ? 1.02 : 1,
+                    : blendColors.length > 0
+                      ? undefined // let blendStyle handle it
+                      : 'rgba(255, 255, 255, 0.05)',
               }}
-              transition={springConfig}
-              style={blendColors.length > 0 && !isDragOver && !isDateSelected ? blendStyle : undefined}
               className={`min-h-24 p-1 hover:bg-white/10 transition-colors border-b border-r border-white/5 flex flex-col ${
                 !isCurrentMonth ? 'opacity-40' : ''
               } ${isToday(date) ? 'ring-2 ring-blue-500 ring-inset' : ''} ${
@@ -595,7 +599,7 @@ export const CalendarView = ({
               
               {/* Show event pills when NOT in blend mode */}
               {!blendMode && (
-                <div className="flex-1 space-y-0.5 overflow-hidden">
+                <div className="flex-1 space-y-0.5">
                   <AnimatePresence mode="popLayout">
                     {dayEvents.map((event) => (
                       <EventCard key={event.id} event={event} date={date} />
@@ -606,7 +610,7 @@ export const CalendarView = ({
               
               {/* In blend mode: show sub-events as pills (they are the nested events) */}
               {blendMode && (
-                <div className="flex-1 space-y-0.5 overflow-hidden">
+                <div className="flex-1 space-y-0.5">
                   <AnimatePresence mode="popLayout">
                     {subEvents.map((event) => (
                       <EventCard key={event.id} event={event} date={date} />

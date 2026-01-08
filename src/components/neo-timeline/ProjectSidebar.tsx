@@ -4,6 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import {
   ChevronLeft,
   ChevronRight,
   Plus,
@@ -16,15 +21,17 @@ import {
   FolderOpen,
   Calendar,
   Clock,
-  Flag
+  Flag,
+  Palette
 } from 'lucide-react';
+import { ColorPicker } from './ColorPicker';
 
 export interface Project {
   id: string;
   name: string;
   color: string;
   visible: boolean;
-  isHoliday?: boolean; // Special flag for holiday project
+  isHoliday?: boolean;
 }
 
 export interface CalendarEvent {
@@ -38,6 +45,12 @@ export interface CalendarEvent {
   user_id?: string;
   project_id?: string;
 }
+
+const PROJECT_COLORS = [
+  '#3b82f6', '#ef4444', '#22c55e', '#f59e0b',
+  '#8b5cf6', '#ec4899', '#06b6d4', '#f97316',
+  '#14b8a6', '#6366f1', '#84cc16', '#a855f7'
+];
 
 interface ProjectSidebarProps {
   projects: Project[];
@@ -112,6 +125,18 @@ export const ProjectSidebar = ({
     setEditingName('');
   };
 
+  const handleColorChange = (id: string, newColor: string) => {
+    onProjectsChange(
+      projects.map(p => p.id === id ? { ...p, color: newColor } : p)
+    );
+  };
+
+  // Calculate duration in days
+  const getDurationDays = (start: Date, end: Date) => {
+    const diffTime = Math.abs(end.getTime() - start.getTime());
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+  };
+
   return (
     <motion.div
       initial={false}
@@ -183,12 +208,17 @@ export const ProjectSidebar = ({
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center gap-2 text-white/70">
                     <Calendar className="w-4 h-4" />
-                    <span>{selectedEvent.start_time.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</span>
+                    <span>
+                      {selectedEvent.start_time.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                      {selectedEvent.start_time.toDateString() !== selectedEvent.end_time.toDateString() && (
+                        <> → {selectedEvent.end_time.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</>
+                      )}
+                    </span>
                   </div>
                   <div className="flex items-center gap-2 text-white/70">
                     <Clock className="w-4 h-4" />
                     <span>
-                      {selectedEvent.start_time.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })} - {selectedEvent.end_time.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+                      {getDurationDays(selectedEvent.start_time, selectedEvent.end_time)} day{getDurationDays(selectedEvent.start_time, selectedEvent.end_time) > 1 ? 's' : ''}
                     </span>
                   </div>
                 </div>
@@ -278,11 +308,22 @@ export const ProjectSidebar = ({
                   </div>
                 ) : (
                   <>
-                    <div
-                      className="w-3 h-3 rounded-full cursor-pointer"
-                      style={{ backgroundColor: project.color }}
-                      onClick={(e) => e.stopPropagation()}
-                    />
+                    <Popover>
+                      <PopoverTrigger asChild onClick={(e) => e.stopPropagation()}>
+                        <button
+                          className="w-4 h-4 rounded-full cursor-pointer hover:ring-2 hover:ring-white/40 transition-all"
+                          style={{ backgroundColor: project.color }}
+                          title="Change color"
+                        />
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-3 bg-black/90 border-white/20 backdrop-blur-xl" onClick={(e) => e.stopPropagation()}>
+                        <ColorPicker
+                          colors={PROJECT_COLORS}
+                          selectedColor={project.color}
+                          onChange={(color) => handleColorChange(project.id, color)}
+                        />
+                      </PopoverContent>
+                    </Popover>
                     <span className="text-white text-sm flex-1 truncate">{project.name}</span>
                     <div className="hidden group-hover:flex items-center gap-1">
                       <Button

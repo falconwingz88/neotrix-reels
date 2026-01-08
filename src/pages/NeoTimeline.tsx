@@ -322,13 +322,17 @@ const NeoTimeline = () => {
     setIsModalOpen(true);
   };
 
-  const handleEventResize = useCallback(async (eventId: string, newEnd: Date) => {
+  const handleEventResize = useCallback(async (eventId: string, newStart: Date, newEnd: Date) => {
     const event = events.find(e => e.id === eventId);
     if (!event) return;
     
-    const updatedEvent = { ...event, end_time: newEnd };
+    const updatedEvent = { ...event, start_time: newStart, end_time: newEnd };
     await updateEvent(updatedEvent);
-  }, [events, updateEvent]);
+    // Update sidebar selected event if it's the one being resized
+    if (sidebarSelectedEvent?.id === eventId) {
+      setSidebarSelectedEvent(updatedEvent);
+    }
+  }, [events, updateEvent, sidebarSelectedEvent]);
 
   const navigateDate = (direction: 'prev' | 'next') => {
     const newDate = new Date(currentDate);
@@ -492,6 +496,7 @@ const NeoTimeline = () => {
                 view={view}
                 currentDate={currentDate}
                 events={events}
+                projects={projects}
                 onDateClick={handleDateClick}
                 onEventClick={handleEventClick}
                 onEventDrop={handleEventDrop}

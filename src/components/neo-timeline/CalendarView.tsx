@@ -538,9 +538,12 @@ export const CalendarView = ({
           const isDateSelected = selectedDates?.has(dateKey) ?? false;
           const holiday = showHolidays ? getHolidayForDate(date) : undefined;
 
-          // Calculate blend color from events for this day
-          const blendColors = blendMode && dayEvents.length > 0 
-            ? dayEvents.map(e => getEventColor(e))
+          // Calculate blend color from main events (non-sub-events) for this day
+          const mainEvents = dayEvents.filter(e => !e.is_sub_event);
+          const subEvents = dayEvents.filter(e => e.is_sub_event);
+          
+          const blendColors = blendMode && mainEvents.length > 0 
+            ? mainEvents.map(e => getEventColor(e))
             : [];
           const blendStyle = blendColors.length > 0 
             ? blendColors.length === 1 
@@ -584,7 +587,7 @@ export const CalendarView = ({
                 )}
               </div>
               
-              {/* Show event pills only when NOT in blend mode */}
+              {/* Show event pills when NOT in blend mode */}
               {!blendMode && (
                 <AnimatePresence mode="popLayout">
                   <div className="space-y-1">
@@ -600,27 +603,20 @@ export const CalendarView = ({
                 </AnimatePresence>
               )}
               
-              {/* In blend mode, show count badge if multiple events */}
-              {blendMode && dayEvents.length > 0 && (
-                <div className="flex flex-wrap gap-1 mt-1">
-                  {dayEvents.map((event) => (
-                    <motion.div
-                      key={event.id}
-                      data-event-id={event.id}
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelected(event, e);
-                      }}
-                      className={`w-2 h-2 rounded-full cursor-pointer ${
-                        selectedEventIds?.has(event.id) ? 'ring-2 ring-white' : ''
-                      }`}
-                      style={{ backgroundColor: getEventColor(event) }}
-                      title={event.title}
-                    />
-                  ))}
-                </div>
+              {/* In blend mode: show sub-events as pills (they are the nested events) */}
+              {blendMode && (
+                <AnimatePresence mode="popLayout">
+                  <div className="space-y-1">
+                    {subEvents.slice(0, 3).map((event) => (
+                      <EventCard key={event.id} event={event} date={date} />
+                    ))}
+                    {subEvents.length > 3 && (
+                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[10px] text-white/60 px-1">
+                        +{subEvents.length - 3} more
+                      </motion.div>
+                    )}
+                  </div>
+                </AnimatePresence>
               )}
             </motion.div>
           );

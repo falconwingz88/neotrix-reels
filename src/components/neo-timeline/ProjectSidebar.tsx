@@ -249,69 +249,6 @@ export const ProjectSidebar = ({
               )}
             </AnimatePresence>
 
-            {/* Sub-Events Panel - Visible when project is selected */}
-            <AnimatePresence>
-              {selectedProjectId && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="overflow-hidden"
-                >
-                  <div className="p-3 rounded-xl bg-white/10 border border-white/20 mb-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-white/60 text-xs font-medium uppercase tracking-wide">
-                        Sub-Events
-                      </span>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => onCreateSubEvent?.(selectedProjectId)}
-                        className="h-6 text-white/60 hover:text-white px-2"
-                      >
-                        <Plus className="w-3 h-3 mr-1" />
-                        Add
-                      </Button>
-                    </div>
-                    
-                    {/* List of sub-events for this project */}
-                    <div className="space-y-1 max-h-48 overflow-y-auto">
-                      {events
-                        .filter(e => e.project_id === selectedProjectId && e.is_sub_event)
-                        .map((subEvent) => (
-                          <motion.div
-                            key={subEvent.id}
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            onClick={() => onEventClick?.(subEvent)}
-                            className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer bg-white/5 hover:bg-white/10 ${
-                              selectedEvent?.id === subEvent.id ? 'ring-1 ring-white/40' : ''
-                            }`}
-                          >
-                            <div
-                              className="w-2 h-2 rounded-full flex-shrink-0"
-                              style={{ backgroundColor: subEvent.color }}
-                            />
-                            <span className="text-white text-xs truncate flex-1">
-                              {subEvent.title}
-                            </span>
-                            <span className="text-white/40 text-[10px]">
-                              {subEvent.start_time.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                            </span>
-                          </motion.div>
-                        ))}
-                      
-                      {events.filter(e => e.project_id === selectedProjectId && e.is_sub_event).length === 0 && (
-                        <p className="text-white/40 text-xs text-center py-2">
-                          No sub-events yet
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
             {/* Projects Panel - Always visible */}
             <div className="space-y-3">
               {/* Indonesian Holidays Toggle */}
@@ -360,111 +297,180 @@ export const ProjectSidebar = ({
                 </span>
                 <div className="mt-1 space-y-1">
                   {projects.map((project) => (
-                    <motion.div
-                      key={project.id}
-                      layout
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 10 }}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className={`group flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors ${
-                        selectedProjectId === project.id ? 'bg-white/20' : 'hover:bg-white/10'
-                      } ${!project.visible ? 'opacity-50' : ''}`}
-                      onClick={() => onSelectProject(project.id)}
-                    >
-                      {editingId === project.id ? (
-                        <div className="flex items-center gap-2 w-full" onClick={(e) => e.stopPropagation()}>
-                          <Input
-                            value={editingName}
-                            onChange={(e) => setEditingName(e.target.value)}
-                            className="h-7 bg-white/10 border-white/20 text-white text-sm"
-                            autoFocus
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') handleSaveEdit(project.id);
-                              if (e.key === 'Escape') setEditingId(null);
-                            }}
-                          />
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            onClick={() => handleSaveEdit(project.id)}
-                            className="h-6 w-6 text-green-400 hover:text-green-300"
-                          >
-                            <Check className="w-3 h-3" />
-                          </Button>
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            onClick={() => setEditingId(null)}
-                            className="h-6 w-6 text-red-400 hover:text-red-300"
-                          >
-                            <X className="w-3 h-3" />
-                          </Button>
-                        </div>
-                      ) : (
-                        <>
-                          <Popover>
-                            <PopoverTrigger asChild onClick={(e) => e.stopPropagation()}>
-                              <button
-                                className="w-4 h-4 rounded-full cursor-pointer hover:ring-2 hover:ring-white/40 transition-all flex-shrink-0"
-                                style={{ backgroundColor: project.color }}
-                                title="Change color"
-                              />
-                            </PopoverTrigger>
-                            <PopoverContent
-                              className="w-auto p-3 bg-black/90 border-white/20 backdrop-blur-xl"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <ColorPicker
-                                colors={PROJECT_COLORS}
-                                selectedColor={project.color}
-                                onChange={(color) => handleColorChange(project.id, color)}
-                              />
-                            </PopoverContent>
-                          </Popover>
-                          <span className="text-white text-sm flex-1 truncate">{project.name}</span>
-                          <div className="hidden group-hover:flex items-center gap-1">
+                    <div key={project.id}>
+                      <motion.div
+                        layout
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        className={`group flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors ${
+                          selectedProjectId === project.id ? 'bg-white/20' : 'hover:bg-white/10'
+                        } ${!project.visible ? 'opacity-50' : ''}`}
+                        onClick={() => onSelectProject(project.id)}
+                      >
+                        {editingId === project.id ? (
+                          <div className="flex items-center gap-2 w-full" onClick={(e) => e.stopPropagation()}>
+                            <Input
+                              value={editingName}
+                              onChange={(e) => setEditingName(e.target.value)}
+                              className="h-7 bg-white/10 border-white/20 text-white text-sm"
+                              autoFocus
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleSaveEdit(project.id);
+                                if (e.key === 'Escape') setEditingId(null);
+                              }}
+                            />
                             <Button
                               size="icon"
                               variant="ghost"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleToggleVisibility(project.id);
-                              }}
-                              className="h-6 w-6 text-white/40 hover:text-white"
-                              title={project.visible ? 'Hide project' : 'Show project'}
+                              onClick={() => handleSaveEdit(project.id)}
+                              className="h-6 w-6 text-green-400 hover:text-green-300"
                             >
-                              {project.visible ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
+                              <Check className="w-3 h-3" />
                             </Button>
                             <Button
                               size="icon"
                               variant="ghost"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleStartEdit(project);
-                              }}
-                              className="h-6 w-6 text-white/40 hover:text-white"
+                              onClick={() => setEditingId(null)}
+                              className="h-6 w-6 text-red-400 hover:text-red-300"
                             >
-                              <Edit2 className="w-3 h-3" />
+                              <X className="w-3 h-3" />
                             </Button>
-                            {project.id !== 'default' && (
+                          </div>
+                        ) : (
+                          <>
+                            <Popover>
+                              <PopoverTrigger asChild onClick={(e) => e.stopPropagation()}>
+                                <button
+                                  className="w-4 h-4 rounded-full cursor-pointer hover:ring-2 hover:ring-white/40 transition-all flex-shrink-0"
+                                  style={{ backgroundColor: project.color }}
+                                  title="Change color"
+                                />
+                              </PopoverTrigger>
+                              <PopoverContent
+                                className="w-auto p-3 bg-black/90 border-white/20 backdrop-blur-xl"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <ColorPicker
+                                  colors={PROJECT_COLORS}
+                                  selectedColor={project.color}
+                                  onChange={(color) => handleColorChange(project.id, color)}
+                                />
+                              </PopoverContent>
+                            </Popover>
+                            <span className="text-white text-sm flex-1 truncate">{project.name}</span>
+                            <div className="hidden group-hover:flex items-center gap-1">
                               <Button
                                 size="icon"
                                 variant="ghost"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  handleDeleteProject(project.id);
+                                  handleToggleVisibility(project.id);
                                 }}
-                                className="h-6 w-6 text-white/40 hover:text-red-400"
+                                className="h-6 w-6 text-white/40 hover:text-white"
+                                title={project.visible ? 'Hide project' : 'Show project'}
                               >
-                                <Trash2 className="w-3 h-3" />
+                                {project.visible ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
                               </Button>
-                            )}
-                          </div>
-                        </>
-                      )}
-                    </motion.div>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleStartEdit(project);
+                                }}
+                                className="h-6 w-6 text-white/40 hover:text-white"
+                              >
+                                <Edit2 className="w-3 h-3" />
+                              </Button>
+                              {project.id !== 'default' && (
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteProject(project.id);
+                                  }}
+                                  className="h-6 w-6 text-white/40 hover:text-red-400"
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                </Button>
+                              )}
+                            </div>
+                          </>
+                        )}
+                      </motion.div>
+                      
+                      {/* Sub-Events Panel - Appears under selected project */}
+                      <AnimatePresence>
+                        {selectedProjectId === project.id && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="overflow-hidden ml-4 mt-1"
+                          >
+                            <div className="p-2 rounded-lg bg-white/5 border-l-2" style={{ borderColor: project.color }}>
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="text-white/50 text-[10px] font-medium uppercase tracking-wide">
+                                  Sub-Events
+                                </span>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onCreateSubEvent?.(project.id);
+                                  }}
+                                  className="h-5 text-white/50 hover:text-white px-1 text-[10px]"
+                                >
+                                  <Plus className="w-3 h-3 mr-0.5" />
+                                  Add
+                                </Button>
+                              </div>
+                              
+                              <div className="space-y-1 max-h-32 overflow-y-auto">
+                                {events
+                                  .filter(e => e.project_id === project.id && e.is_sub_event)
+                                  .map((subEvent) => (
+                                    <motion.div
+                                      key={subEvent.id}
+                                      whileHover={{ scale: 1.02 }}
+                                      whileTap={{ scale: 0.98 }}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        onEventClick?.(subEvent);
+                                      }}
+                                      className={`flex items-center gap-2 p-1.5 rounded cursor-pointer bg-white/5 hover:bg-white/10 ${
+                                        selectedEvent?.id === subEvent.id ? 'ring-1 ring-white/40' : ''
+                                      }`}
+                                    >
+                                      <div
+                                        className="w-2 h-2 rounded-full flex-shrink-0"
+                                        style={{ backgroundColor: subEvent.color }}
+                                      />
+                                      <span className="text-white text-[11px] truncate flex-1">
+                                        {subEvent.title}
+                                      </span>
+                                      <span className="text-white/40 text-[9px]">
+                                        {subEvent.start_time.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                                      </span>
+                                    </motion.div>
+                                  ))}
+                                
+                                {events.filter(e => e.project_id === project.id && e.is_sub_event).length === 0 && (
+                                  <p className="text-white/30 text-[10px] text-center py-1">
+                                    No sub-events
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
                   ))}
 
                   {/* Create New Project */}

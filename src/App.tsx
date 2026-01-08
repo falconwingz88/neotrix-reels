@@ -9,6 +9,7 @@ import NotFound from "./pages/NotFound";
 import { Projects } from "./pages/Projects";
 import ProjectDetail from "./pages/ProjectDetail";
 import Contact from "./pages/Contact";
+import Login from "./pages/Login";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import ClientDetail from "./pages/ClientDetail";
@@ -41,6 +42,7 @@ const App = () => (
                 <Route path="/join-us" element={<JoinUs />} />
                 <Route path="/hiring" element={<Hiring />} />
                 <Route path="/neo-timeline" element={<NeoTimeline />} />
+                <Route path="/login" element={<Login />} />
                 <Route path="/admin-login" element={<AdminLogin />} />
                 <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/client/:id" element={<ClientDetail />} />

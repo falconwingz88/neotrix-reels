@@ -12,7 +12,9 @@ import {
   Edit2,
   Check,
   X,
-  FolderOpen
+  FolderOpen,
+  Calendar,
+  Clock
 } from 'lucide-react';
 
 export interface Project {
@@ -22,18 +24,36 @@ export interface Project {
   visible: boolean;
 }
 
+export interface CalendarEvent {
+  id: string;
+  title: string;
+  description?: string;
+  start_time: Date;
+  end_time: Date;
+  color: string;
+  all_day: boolean;
+  user_id?: string;
+  project_id?: string;
+}
+
 interface ProjectSidebarProps {
   projects: Project[];
   onProjectsChange: (projects: Project[]) => void;
   selectedProjectId: string | null;
   onSelectProject: (projectId: string | null) => void;
+  selectedEvent?: CalendarEvent | null;
+  onEventClick?: (event: CalendarEvent) => void;
+  onClearSelectedEvent?: () => void;
 }
 
 export const ProjectSidebar = ({
   projects,
   onProjectsChange,
   selectedProjectId,
-  onSelectProject
+  onSelectProject,
+  selectedEvent,
+  onEventClick,
+  onClearSelectedEvent
 }: ProjectSidebarProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -132,6 +152,56 @@ export const ProjectSidebar = ({
             exit={{ opacity: 0 }}
             className="flex-1 overflow-y-auto p-3 space-y-2"
           >
+            {/* Selected Event Details */}
+            {selectedEvent && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="mb-4 p-3 rounded-xl bg-white/10 border border-white/20"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-white/60 text-xs font-medium uppercase tracking-wide">Event Details</span>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => onClearSelectedEvent?.()}
+                    className="h-6 w-6 text-white/40 hover:text-white"
+                  >
+                    <X className="w-3 h-3" />
+                  </Button>
+                </div>
+                <div
+                  className="w-full h-2 rounded-full mb-3"
+                  style={{ backgroundColor: selectedEvent.color }}
+                />
+                <h3 className="text-white font-semibold text-lg mb-2">{selectedEvent.title}</h3>
+                {selectedEvent.description && (
+                  <p className="text-white/60 text-sm mb-3">{selectedEvent.description}</p>
+                )}
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center gap-2 text-white/70">
+                    <Calendar className="w-4 h-4" />
+                    <span>{selectedEvent.start_time.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-white/70">
+                    <Clock className="w-4 h-4" />
+                    <span>
+                      {selectedEvent.start_time.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })} - {selectedEvent.end_time.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+                    </span>
+                  </div>
+                </div>
+                <Button
+                  size="sm"
+                  onClick={() => onEventClick?.(selectedEvent)}
+                  className="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  <Edit2 className="w-3 h-3 mr-2" />
+                  Edit Event
+                </Button>
+              </motion.div>
+            )}
+
             {/* All Events option */}
             <motion.div
               whileHover={{ scale: 1.02 }}

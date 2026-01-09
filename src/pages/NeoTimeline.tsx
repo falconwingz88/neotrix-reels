@@ -472,6 +472,13 @@ const NeoTimeline = () => {
               setNewEventIsSubEvent(true);
               setIsModalOpen(true);
             }}
+            onProjectColorChange={async (projectId, newColor) => {
+              // Update all events belonging to this project with the new color
+              const projectEvents = events.filter(e => e.project_id === projectId);
+              for (const event of projectEvents) {
+                await updateEvent({ ...event, color: newColor });
+              }
+            }}
           />
 
           {/* Main Calendar Area */}

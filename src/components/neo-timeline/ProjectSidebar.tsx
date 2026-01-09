@@ -65,6 +65,7 @@ interface ProjectSidebarProps {
   onShowHolidaysChange?: (show: boolean) => void;
   events?: CalendarEvent[];
   onCreateSubEvent?: (projectId: string) => void;
+  onProjectColorChange?: (projectId: string, newColor: string) => void;
 }
 
 export const ProjectSidebar = ({
@@ -79,6 +80,7 @@ export const ProjectSidebar = ({
   onShowHolidaysChange,
   events = [],
   onCreateSubEvent,
+  onProjectColorChange,
 }: ProjectSidebarProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -128,6 +130,8 @@ export const ProjectSidebar = ({
 
   const handleColorChange = (id: string, newColor: string) => {
     onProjectsChange(projects.map((p) => (p.id === id ? { ...p, color: newColor } : p)));
+    // Also update all events belonging to this project
+    onProjectColorChange?.(id, newColor);
   };
 
   const getDurationDays = (start: Date, end: Date) => {

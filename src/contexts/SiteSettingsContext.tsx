@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface SiteSettings {
   glassmorphismOpacity: number;
@@ -9,7 +10,7 @@ interface SiteSettings {
 interface SiteSettingsContextType {
   settings: SiteSettings;
   loading: boolean;
-  updateSetting: (key: string, value: string) => void;
+  updateSetting: (key: string, value: string) => Promise<void>;
   refetch: () => void;
 }
 
@@ -19,13 +20,16 @@ const defaultSettings: SiteSettings = {
   toolsVisible: true,
 };
 
-const STORAGE_KEY = 'neo-site-settings';
-
 const SiteSettingsContext = createContext<SiteSettingsContextType | undefined>(undefined);
 
 const hexToHSL = (hex: string): string => {
   // Remove the hash if present
   hex = hex.replace(/^#/, '');
+  
+  // Validate hex length
+  if (hex.length !== 6) {
+    return '0 0% 100%'; // Default to white
+  }
   
   // Parse the hex values
   const r = parseInt(hex.substring(0, 2), 16) / 255;
@@ -63,22 +67,32 @@ export const SiteSettingsProvider = ({ children }: { children: ReactNode }) => {
   const [settings, setSettings] = useState<SiteSettings>(defaultSettings);
   const [loading, setLoading] = useState(true);
 
-  const fetchSettings = () => {
+  const fetchSettings = async () => {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      let loadedSettings = defaultSettings;
-      
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        loadedSettings = {
-          glassmorphismOpacity: parsed.glassmorphism_opacity ?? defaultSettings.glassmorphismOpacity,
-          glassmorphismColor: parsed.glassmorphism_color ?? defaultSettings.glassmorphismColor,
-          toolsVisible: parsed.tools_visible ?? defaultSettings.toolsVisible,
-        };
-        setSettings(loadedSettings);
+      const { data, error } = await supabase
+        .from('site_settings')
+        .select('key, value');
+
+      if (error) {
+        console.error('Error fetching site settings:', error);
+        return;
       }
+
+      const loadedSettings = { ...defaultSettings };
       
-      // Apply CSS variables to document root
+      if (data) {
+        data.forEach((row) => {
+          if (row.key === 'glassmorphism_opacity') {
+            loadedSettings.glassmorphismOpacity = parseFloat(row.value) || defaultSettings.glassmorphismOpacity;
+          } else if (row.key === 'glassmorphism_color') {
+            loadedSettings.glassmorphismColor = row.value || defaultSettings.glassmorphismColor;
+          } else if (row.key === 'tools_visible') {
+            loadedSettings.toolsVisible = row.value === 'true';
+          }
+        });
+      }
+
+      setSettings(loadedSettings);
       applyGlassStyles(loadedSettings.glassmorphismOpacity, loadedSettings.glassmorphismColor);
     } catch (err) {
       console.error('Error loading site settings:', err);
@@ -91,12 +105,31 @@ export const SiteSettingsProvider = ({ children }: { children: ReactNode }) => {
     fetchSettings();
   }, []);
 
-  const updateSetting = (key: string, value: string) => {
+  const updateSetting = async (key: string, value: string) => {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      const current = stored ? JSON.parse(stored) : {};
-      current[key] = value;
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(current));
+      // Check if setting exists
+      const { data: existing } = await supabase
+        .from('site_settings')
+        .select('id')
+        .eq('key', key)
+        .single();
+
+      if (existing) {
+        // Update existing setting
+        const { error } = await supabase
+          .from('site_settings')
+          .update({ value, updated_at: new Date().toISOString() })
+          .eq('key', key);
+
+        if (error) throw error;
+      } else {
+        // Insert new setting
+        const { error } = await supabase
+          .from('site_settings')
+          .insert({ key, value });
+
+        if (error) throw error;
+      }
 
       // Update local state and apply styles
       if (key === 'glassmorphism_opacity') {

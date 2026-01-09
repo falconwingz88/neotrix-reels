@@ -193,15 +193,15 @@ const AdminDashboard = () => {
     setLocalToolsVisible(settings.toolsVisible);
   }, [settings.glassmorphismOpacity, settings.glassmorphismColor, settings.toolsVisible]);
 
-  const handleApplySettings = () => {
+  const handleApplySettings = async () => {
     setIsApplyingSettings(true);
     try {
-      updateSetting('glassmorphism_opacity', localOpacity.toString());
-      updateSetting('glassmorphism_color', localColor);
-      updateSetting('tools_visible', localToolsVisible.toString());
+      await updateSetting('glassmorphism_opacity', localOpacity.toString());
+      await updateSetting('glassmorphism_color', localColor);
+      await updateSetting('tools_visible', localToolsVisible.toString());
       toast({
         title: "Settings applied",
-        description: "Site settings have been updated.",
+        description: "Site settings have been updated for all users.",
       });
     } catch (error) {
       toast({

@@ -83,7 +83,7 @@ interface ClientLogo {
   is_active: boolean;
 }
 
-const TAG_OPTIONS = ['Beauty', 'Liquid', 'VFX', 'Character Animation', 'Non-Character Animation', 'FX', 'AI'];
+const TAG_OPTIONS = ['Beauty', 'Liquid', 'VFX', 'Character Animation', 'Object Animation', 'FX', 'AI'];
 const YEAR_OPTIONS = [2030, 2029, 2028, 2027, 2026, 2025, 2024, 2023, 2022, 2021, 2020];
 
 // Helper function to extract YouTube video ID and generate thumbnail

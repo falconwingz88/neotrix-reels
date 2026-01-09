@@ -14,11 +14,27 @@ interface AuthContextType {
   isAdmin: boolean;
   user: User | null;
   login: (username: string, password: string) => Promise<{ error: string | null }>;
+  signup: (username: string, password: string) => Promise<{ error: string | null }>;
   logout: () => void;
   loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+// Get registered users from localStorage
+const getRegisteredUsers = (): { username: string; password: string }[] => {
+  try {
+    const stored = localStorage.getItem('neo-timeline-users');
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+};
+
+// Save registered users to localStorage
+const saveRegisteredUsers = (users: { username: string; password: string }[]) => {
+  localStorage.setItem('neo-timeline-users', JSON.stringify(users));
+};
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -41,7 +57,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const login = async (username: string, password: string): Promise<{ error: string | null }> => {
-    // Check admin credentials
+    // Check admin credentials first
     if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
       const adminUser: User = {
         id: 'admin-user-id',
@@ -53,7 +69,63 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return { error: null };
     }
     
+    // Check registered users
+    const registeredUsers = getRegisteredUsers();
+    const foundUser = registeredUsers.find(u => u.username === username && u.password === password);
+    
+    if (foundUser) {
+      const loggedInUser: User = {
+        id: `user-${username}`,
+        username: username,
+      };
+      setUser(loggedInUser);
+      setIsAdmin(false); // Only admin/admin123 is admin
+      localStorage.setItem('neo-timeline-user', JSON.stringify(loggedInUser));
+      return { error: null };
+    }
+    
     return { error: 'Invalid username or password' };
+  };
+
+  const signup = async (username: string, password: string): Promise<{ error: string | null }> => {
+    // Validate inputs
+    if (!username.trim() || !password.trim()) {
+      return { error: 'Username and password are required' };
+    }
+    
+    if (username.length < 3) {
+      return { error: 'Username must be at least 3 characters' };
+    }
+    
+    if (password.length < 6) {
+      return { error: 'Password must be at least 6 characters' };
+    }
+    
+    // Check if username is reserved
+    if (username.toLowerCase() === ADMIN_USERNAME) {
+      return { error: 'This username is not available' };
+    }
+    
+    // Check if username already exists
+    const registeredUsers = getRegisteredUsers();
+    if (registeredUsers.some(u => u.username.toLowerCase() === username.toLowerCase())) {
+      return { error: 'Username already exists' };
+    }
+    
+    // Register the user
+    registeredUsers.push({ username, password });
+    saveRegisteredUsers(registeredUsers);
+    
+    // Log them in
+    const newUser: User = {
+      id: `user-${username}`,
+      username: username,
+    };
+    setUser(newUser);
+    setIsAdmin(false);
+    localStorage.setItem('neo-timeline-user', JSON.stringify(newUser));
+    
+    return { error: null };
   };
 
   const logout = () => {
@@ -67,7 +139,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       isAuthenticated: !!user, 
       isAdmin,
       user,
-      login, 
+      login,
+      signup,
       logout, 
       loading 
     }}>

@@ -75,11 +75,20 @@ const NeoTimeline = () => {
     const saved = localStorage.getItem('neo-timeline-show-holidays');
     return saved !== null ? JSON.parse(saved) : true;
   });
+  const [showSubEvents, setShowSubEvents] = useState(() => {
+    const saved = localStorage.getItem('neo-timeline-show-subevents');
+    return saved !== null ? JSON.parse(saved) : false;
+  });
 
   // Save showHolidays preference
   useEffect(() => {
     localStorage.setItem('neo-timeline-show-holidays', JSON.stringify(showHolidays));
   }, [showHolidays]);
+
+  // Save showSubEvents preference
+  useEffect(() => {
+    localStorage.setItem('neo-timeline-show-subevents', JSON.stringify(showSubEvents));
+  }, [showSubEvents]);
 
   // Save theme to localStorage when it changes
   useEffect(() => {
@@ -321,6 +330,8 @@ const NeoTimeline = () => {
             onClearSelectedEvent={() => setSidebarSelectedEvent(null)}
             showHolidays={showHolidays}
             onShowHolidaysChange={setShowHolidays}
+            showSubEvents={showSubEvents}
+            onShowSubEventsChange={setShowSubEvents}
             events={events}
             onCreateSubEvent={(projectId) => {
               // Create a sub-event for the selected project
@@ -499,18 +510,21 @@ const NeoTimeline = () => {
                   </PopoverContent>
                 </Popover>
 
-                <Button
-                  onClick={() => {
-                    setSelectedEvent(null);
-                    setNewEventStart(new Date());
-                    setNewEventIsSubEvent(false);
-                    setIsModalOpen(true);
-                  }}
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Event
-                </Button>
+                {/* Only show Add Event button when a project is selected */}
+                {selectedProjectId && (
+                  <Button
+                    onClick={() => {
+                      setSelectedEvent(null);
+                      setNewEventStart(new Date());
+                      setNewEventIsSubEvent(false);
+                      setIsModalOpen(true);
+                    }}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Event
+                  </Button>
+                )}
               </div>
             </div>
 
@@ -533,6 +547,7 @@ const NeoTimeline = () => {
                 showHolidays={showHolidays}
                 selectedProjectId={selectedProjectId}
                 blendMode={!!selectedProjectId}
+                showSubEvents={showSubEvents}
               />
             </div>
           </div>

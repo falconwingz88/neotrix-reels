@@ -27,6 +27,7 @@ interface CalendarViewProps {
   showHolidays?: boolean;
   selectedProjectId?: string | null;
   blendMode?: boolean; // When true, events color the day background instead of showing pills
+  showSubEvents?: boolean; // When true in all events view, show sub-events from all projects
 }
 
 export const CalendarView = ({
@@ -46,6 +47,7 @@ export const CalendarView = ({
   showHolidays = true,
   selectedProjectId,
   blendMode = false,
+  showSubEvents = false,
 }: CalendarViewProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dragOverSlot, setDragOverSlot] = useState<{ day: number; hour: number } | null>(null);
@@ -88,14 +90,14 @@ export const CalendarView = ({
       filtered = filtered.filter((e) => visibleProjectIds.includes(e.project_id || 'default'));
     }
     
-    // Sub-events: only show when their parent project is selected
-    // If no project is selected (all events view), hide sub-events
-    if (!selectedProjectId) {
+    // Sub-events: only show when their parent project is selected OR showSubEvents is enabled
+    // If no project is selected (all events view), hide sub-events unless showSubEvents is true
+    if (!selectedProjectId && !showSubEvents) {
       filtered = filtered.filter((e) => !e.is_sub_event);
     }
     
     return filtered;
-  }, [events, visibleProjectIds, selectedProjectId]);
+  }, [events, visibleProjectIds, selectedProjectId, showSubEvents]);
 
   const getMonthDates = () => {
     const year = currentDate.getFullYear();

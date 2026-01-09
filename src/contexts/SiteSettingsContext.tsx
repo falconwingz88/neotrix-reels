@@ -67,6 +67,22 @@ export const SiteSettingsProvider = ({ children }: { children: ReactNode }) => {
   const [settings, setSettings] = useState<SiteSettings>(defaultSettings);
   const [loading, setLoading] = useState(true);
 
+  const processSettingsData = (data: { key: string; value: string }[]) => {
+    const loadedSettings = { ...defaultSettings };
+    
+    data.forEach((row) => {
+      if (row.key === 'glassmorphism_opacity') {
+        loadedSettings.glassmorphismOpacity = parseFloat(row.value) || defaultSettings.glassmorphismOpacity;
+      } else if (row.key === 'glassmorphism_color') {
+        loadedSettings.glassmorphismColor = row.value || defaultSettings.glassmorphismColor;
+      } else if (row.key === 'tools_visible') {
+        loadedSettings.toolsVisible = row.value === 'true';
+      }
+    });
+
+    return loadedSettings;
+  };
+
   const fetchSettings = async () => {
     try {
       const { data, error } = await supabase
@@ -78,22 +94,11 @@ export const SiteSettingsProvider = ({ children }: { children: ReactNode }) => {
         return;
       }
 
-      const loadedSettings = { ...defaultSettings };
-      
       if (data) {
-        data.forEach((row) => {
-          if (row.key === 'glassmorphism_opacity') {
-            loadedSettings.glassmorphismOpacity = parseFloat(row.value) || defaultSettings.glassmorphismOpacity;
-          } else if (row.key === 'glassmorphism_color') {
-            loadedSettings.glassmorphismColor = row.value || defaultSettings.glassmorphismColor;
-          } else if (row.key === 'tools_visible') {
-            loadedSettings.toolsVisible = row.value === 'true';
-          }
-        });
+        const loadedSettings = processSettingsData(data);
+        setSettings(loadedSettings);
+        applyGlassStyles(loadedSettings.glassmorphismOpacity, loadedSettings.glassmorphismColor);
       }
-
-      setSettings(loadedSettings);
-      applyGlassStyles(loadedSettings.glassmorphismOpacity, loadedSettings.glassmorphismColor);
     } catch (err) {
       console.error('Error loading site settings:', err);
     } finally {
@@ -103,6 +108,48 @@ export const SiteSettingsProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     fetchSettings();
+
+    // Subscribe to realtime changes on site_settings table
+    const channel = supabase
+      .channel('site-settings-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'site_settings'
+        },
+        (payload) => {
+          console.log('Site settings changed:', payload);
+          
+          // Handle the update
+          const newRecord = payload.new as { key: string; value: string } | undefined;
+          
+          if (newRecord && newRecord.key && newRecord.value !== undefined) {
+            setSettings(prev => {
+              let updated = { ...prev };
+              
+              if (newRecord.key === 'glassmorphism_opacity') {
+                updated.glassmorphismOpacity = parseFloat(newRecord.value) || defaultSettings.glassmorphismOpacity;
+              } else if (newRecord.key === 'glassmorphism_color') {
+                updated.glassmorphismColor = newRecord.value || defaultSettings.glassmorphismColor;
+              } else if (newRecord.key === 'tools_visible') {
+                updated.toolsVisible = newRecord.value === 'true';
+              }
+              
+              // Apply glass styles immediately for visual changes
+              applyGlassStyles(updated.glassmorphismOpacity, updated.glassmorphismColor);
+              
+              return updated;
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const updateSetting = async (key: string, value: string) => {
@@ -131,25 +178,7 @@ export const SiteSettingsProvider = ({ children }: { children: ReactNode }) => {
         if (error) throw error;
       }
 
-      // Update local state and apply styles
-      if (key === 'glassmorphism_opacity') {
-        const opacityValue = parseFloat(value) || 0.1;
-        setSettings(prev => {
-          applyGlassStyles(opacityValue, prev.glassmorphismColor);
-          return { ...prev, glassmorphismOpacity: opacityValue };
-        });
-      } else if (key === 'glassmorphism_color') {
-        const colorValue = value || '#ffffff';
-        setSettings(prev => {
-          applyGlassStyles(prev.glassmorphismOpacity, colorValue);
-          return { ...prev, glassmorphismColor: colorValue };
-        });
-      } else if (key === 'tools_visible') {
-        setSettings(prev => ({
-          ...prev,
-          toolsVisible: value === 'true',
-        }));
-      }
+      // Local state will be updated via realtime subscription
     } catch (err) {
       console.error('Error saving site settings:', err);
       throw err;

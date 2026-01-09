@@ -22,6 +22,7 @@ import {
   Calendar,
   Clock,
   Flag,
+  Layers,
 } from 'lucide-react';
 import { ColorPicker } from './ColorPicker';
 
@@ -66,6 +67,8 @@ interface ProjectSidebarProps {
   events?: CalendarEvent[];
   onCreateSubEvent?: (projectId: string) => void;
   onProjectColorChange?: (projectId: string, newColor: string) => void;
+  showSubEvents?: boolean;
+  onShowSubEventsChange?: (show: boolean) => void;
 }
 
 export const ProjectSidebar = ({
@@ -81,6 +84,8 @@ export const ProjectSidebar = ({
   events = [],
   onCreateSubEvent,
   onProjectColorChange,
+  showSubEvents = false,
+  onShowSubEventsChange,
 }: ProjectSidebarProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -292,6 +297,25 @@ export const ProjectSidebar = ({
                   <div className="w-3 h-3 rounded-full bg-gradient-to-r from-blue-500 to-purple-500" />
                   <span className="text-white text-sm flex-1">All Events</span>
                 </motion.div>
+                
+                {/* View Sub-Events Toggle - Only shown when All Events is selected */}
+                {selectedProjectId === null && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    className="flex items-center justify-between p-2 mt-1 rounded-lg bg-purple-500/10 border border-purple-500/20"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Layers className="w-4 h-4 text-purple-400" />
+                      <span className="text-white text-sm">View Sub-Events</span>
+                    </div>
+                    <Switch
+                      checked={showSubEvents}
+                      onCheckedChange={onShowSubEventsChange}
+                      className="data-[state=checked]:bg-purple-500"
+                    />
+                  </motion.div>
+                )}
               </div>
 
               {/* Custom Projects */}

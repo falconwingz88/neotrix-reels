@@ -9,9 +9,10 @@ import { useToast } from '@/hooks/use-toast';
 
 const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const [email, setEmail] = useState('');
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const { isAuthenticated, loading, login } = useAuth();
+  const { isAuthenticated, loading, login, signup } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -25,23 +26,25 @@ const Login = () => {
     }
   }, [isAuthenticated, loading, navigate, toast]);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
     try {
-      const { error } = await login(email, password);
+      const result = isSignUp 
+        ? await signup(username, password)
+        : await login(username, password);
       
-      if (error) {
+      if (result.error) {
         toast({
-          title: "Login failed",
-          description: error,
+          title: isSignUp ? "Sign up failed" : "Login failed",
+          description: result.error,
           variant: "destructive",
         });
       }
     } catch (err) {
       toast({
-        title: "Login failed",
+        title: "Error",
         description: "An unexpected error occurred",
         variant: "destructive",
       });
@@ -87,20 +90,23 @@ const Login = () => {
           </div>
           
           <h1 className="text-2xl font-bold text-white text-center mb-2">
-            Sign In
+            {isSignUp ? 'Create Account' : 'Sign In'}
           </h1>
           <p className="text-white/60 text-center mb-8">
-            Sign in to save your calendar events and access all tools
+            {isSignUp 
+              ? 'Create an account to save your calendar events'
+              : 'Sign in to save your calendar events and access all tools'
+            }
           </p>
 
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-white/80">Username</Label>
+              <Label htmlFor="username" className="text-white/80">Username</Label>
               <Input
-                id="email"
+                id="username"
                 type="text"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 placeholder="Enter your username"
                 className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
                 required
@@ -114,7 +120,7 @@ const Login = () => {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
+                placeholder={isSignUp ? "Min 6 characters" : "Enter your password"}
                 className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
                 required
               />
@@ -125,9 +131,19 @@ const Login = () => {
               disabled={isLoading}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-6"
             >
-              {isLoading ? 'Signing in...' : 'Sign In'}
+              {isLoading ? (isSignUp ? 'Creating account...' : 'Signing in...') : (isSignUp ? 'Create Account' : 'Sign In')}
             </Button>
           </form>
+
+          <div className="mt-6 text-center">
+            <button
+              type="button"
+              onClick={() => setIsSignUp(!isSignUp)}
+              className="text-white/60 hover:text-white text-sm transition-colors"
+            >
+              {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
+            </button>
+          </div>
         </div>
       </div>
     </div>

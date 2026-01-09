@@ -112,7 +112,7 @@ export const SiteSettingsProvider = ({ children }: { children: ReactNode }) => {
         .from('site_settings')
         .select('id')
         .eq('key', key)
-        .single();
+        .maybeSingle();
 
       if (existing) {
         // Update existing setting

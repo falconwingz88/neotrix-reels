@@ -125,6 +125,7 @@ const AdminDashboard = () => {
   // Site settings state
   const [localOpacity, setLocalOpacity] = useState(settings.glassmorphismOpacity);
   const [localColor, setLocalColor] = useState(settings.glassmorphismColor);
+  const [localToolsVisible, setLocalToolsVisible] = useState(settings.toolsVisible);
   const [isApplyingSettings, setIsApplyingSettings] = useState(false);
 
   const [showForm, setShowForm] = useState(false);
@@ -189,16 +190,18 @@ const AdminDashboard = () => {
   useEffect(() => {
     setLocalOpacity(settings.glassmorphismOpacity);
     setLocalColor(settings.glassmorphismColor);
-  }, [settings.glassmorphismOpacity, settings.glassmorphismColor]);
+    setLocalToolsVisible(settings.toolsVisible);
+  }, [settings.glassmorphismOpacity, settings.glassmorphismColor, settings.toolsVisible]);
 
   const handleApplySettings = () => {
     setIsApplyingSettings(true);
     try {
       updateSetting('glassmorphism_opacity', localOpacity.toString());
       updateSetting('glassmorphism_color', localColor);
+      updateSetting('tools_visible', localToolsVisible.toString());
       toast({
         title: "Settings applied",
-        description: "Glassmorphism settings have been updated site-wide.",
+        description: "Site settings have been updated.",
       });
     } catch (error) {
       toast({
@@ -211,7 +214,9 @@ const AdminDashboard = () => {
     }
   };
 
-  const hasSettingsChanged = localOpacity !== settings.glassmorphismOpacity || localColor !== settings.glassmorphismColor;
+  const hasSettingsChanged = localOpacity !== settings.glassmorphismOpacity || 
+    localColor !== settings.glassmorphismColor || 
+    localToolsVisible !== settings.toolsVisible;
 
   // Redirect if not authenticated or not admin
   useEffect(() => {
@@ -1842,6 +1847,23 @@ const AdminDashboard = () => {
               <h2 className="text-xl font-semibold text-white mb-6">Site Settings</h2>
               
               <div className="space-y-8">
+                {/* Tools Visibility Toggle */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label className="text-white text-base">Show Tools Menu</Label>
+                      <p className="text-white/60 text-sm mt-1">
+                        Toggle visibility of the Tools dropdown menu in the header for all users.
+                      </p>
+                    </div>
+                    <Switch
+                      checked={localToolsVisible}
+                      onCheckedChange={setLocalToolsVisible}
+                    />
+                  </div>
+                </div>
+
+                <div className="border-t border-white/10" />
                 {/* Glassmorphism Color */}
                 <div className="space-y-4">
                   <div>

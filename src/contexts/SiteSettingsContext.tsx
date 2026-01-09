@@ -3,6 +3,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 interface SiteSettings {
   glassmorphismOpacity: number;
   glassmorphismColor: string;
+  toolsVisible: boolean;
 }
 
 interface SiteSettingsContextType {
@@ -15,6 +16,7 @@ interface SiteSettingsContextType {
 const defaultSettings: SiteSettings = {
   glassmorphismOpacity: 0.1,
   glassmorphismColor: '#ffffff',
+  toolsVisible: true,
 };
 
 const STORAGE_KEY = 'neo-site-settings';
@@ -33,6 +35,7 @@ export const SiteSettingsProvider = ({ children }: { children: ReactNode }) => {
         setSettings({
           glassmorphismOpacity: parsed.glassmorphism_opacity ?? defaultSettings.glassmorphismOpacity,
           glassmorphismColor: parsed.glassmorphism_color ?? defaultSettings.glassmorphismColor,
+          toolsVisible: parsed.tools_visible ?? defaultSettings.toolsVisible,
         });
       }
     } catch (err) {
@@ -63,6 +66,11 @@ export const SiteSettingsProvider = ({ children }: { children: ReactNode }) => {
         setSettings(prev => ({
           ...prev,
           glassmorphismColor: value || '#ffffff',
+        }));
+      } else if (key === 'tools_visible') {
+        setSettings(prev => ({
+          ...prev,
+          toolsVisible: value === 'true',
         }));
       }
     } catch (err) {

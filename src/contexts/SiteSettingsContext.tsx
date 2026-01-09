@@ -117,29 +117,26 @@ export const SiteSettingsProvider = ({ children }: { children: ReactNode }) => {
         {
           event: '*',
           schema: 'public',
-          table: 'site_settings'
+          table: 'site_settings',
         },
         (payload) => {
           console.log('Site settings changed:', payload);
-          
-          // Handle the update
+
           const newRecord = payload.new as { key: string; value: string } | undefined;
-          
           if (newRecord && newRecord.key && newRecord.value !== undefined) {
-            setSettings(prev => {
-              let updated = { ...prev };
-              
+            setSettings((prev) => {
+              const updated = { ...prev };
+
               if (newRecord.key === 'glassmorphism_opacity') {
-                updated.glassmorphismOpacity = parseFloat(newRecord.value) || defaultSettings.glassmorphismOpacity;
+                updated.glassmorphismOpacity =
+                  parseFloat(newRecord.value) || defaultSettings.glassmorphismOpacity;
               } else if (newRecord.key === 'glassmorphism_color') {
                 updated.glassmorphismColor = newRecord.value || defaultSettings.glassmorphismColor;
               } else if (newRecord.key === 'tools_visible') {
                 updated.toolsVisible = newRecord.value === 'true';
               }
-              
-              // Apply glass styles immediately for visual changes
+
               applyGlassStyles(updated.glassmorphismOpacity, updated.glassmorphismColor);
-              
               return updated;
             });
           }
@@ -147,7 +144,14 @@ export const SiteSettingsProvider = ({ children }: { children: ReactNode }) => {
       )
       .subscribe();
 
+    // Fallback sync: some browsers/networks drop realtime websockets.
+    // This keeps "everyone" (including not logged in) in sync without manual refresh.
+    const pollId = window.setInterval(() => {
+      fetchSettings();
+    }, 5000);
+
     return () => {
+      window.clearInterval(pollId);
       supabase.removeChannel(channel);
     };
   }, []);

@@ -1,20 +1,23 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 
 interface SiteSettings {
   glassmorphismOpacity: number;
+  glassmorphismColor: string;
 }
 
 interface SiteSettingsContextType {
   settings: SiteSettings;
   loading: boolean;
-  updateSetting: (key: string, value: string) => Promise<void>;
-  refetch: () => Promise<void>;
+  updateSetting: (key: string, value: string) => void;
+  refetch: () => void;
 }
 
 const defaultSettings: SiteSettings = {
   glassmorphismOpacity: 0.1,
+  glassmorphismColor: '#ffffff',
 };
+
+const STORAGE_KEY = 'neo-site-settings';
 
 const SiteSettingsContext = createContext<SiteSettingsContextType | undefined>(undefined);
 
@@ -22,27 +25,18 @@ export const SiteSettingsProvider = ({ children }: { children: ReactNode }) => {
   const [settings, setSettings] = useState<SiteSettings>(defaultSettings);
   const [loading, setLoading] = useState(true);
 
-  const fetchSettings = async () => {
+  const fetchSettings = () => {
     try {
-      const { data, error } = await supabase
-        .from('site_settings')
-        .select('key, value');
-
-      if (error) {
-        console.error('Error fetching site settings:', error);
-        return;
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        setSettings({
+          glassmorphismOpacity: parsed.glassmorphism_opacity ?? defaultSettings.glassmorphismOpacity,
+          glassmorphismColor: parsed.glassmorphism_color ?? defaultSettings.glassmorphismColor,
+        });
       }
-
-      const newSettings = { ...defaultSettings };
-      data?.forEach((setting: { key: string; value: string }) => {
-        if (setting.key === 'glassmorphism_opacity') {
-          newSettings.glassmorphismOpacity = parseFloat(setting.value) || 0.1;
-        }
-      });
-
-      setSettings(newSettings);
     } catch (err) {
-      console.error('Error in fetchSettings:', err);
+      console.error('Error loading site settings:', err);
     } finally {
       setLoading(false);
     }
@@ -52,27 +46,34 @@ export const SiteSettingsProvider = ({ children }: { children: ReactNode }) => {
     fetchSettings();
   }, []);
 
-  const updateSetting = async (key: string, value: string) => {
-    const { error } = await supabase
-      .from('site_settings')
-      .upsert({ key, value }, { onConflict: 'key' });
+  const updateSetting = (key: string, value: string) => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      const current = stored ? JSON.parse(stored) : {};
+      current[key] = value;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(current));
 
-    if (error) {
-      throw error;
-    }
-
-    // Update local state
-    if (key === 'glassmorphism_opacity') {
-      setSettings(prev => ({
-        ...prev,
-        glassmorphismOpacity: parseFloat(value) || 0.1,
-      }));
+      // Update local state
+      if (key === 'glassmorphism_opacity') {
+        setSettings(prev => ({
+          ...prev,
+          glassmorphismOpacity: parseFloat(value) || 0.1,
+        }));
+      } else if (key === 'glassmorphism_color') {
+        setSettings(prev => ({
+          ...prev,
+          glassmorphismColor: value || '#ffffff',
+        }));
+      }
+    } catch (err) {
+      console.error('Error saving site settings:', err);
+      throw err;
     }
   };
 
-  const refetch = async () => {
+  const refetch = () => {
     setLoading(true);
-    await fetchSettings();
+    fetchSettings();
   };
 
   return (

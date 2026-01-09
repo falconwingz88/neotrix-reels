@@ -116,6 +116,8 @@ const NeoTimeline = () => {
             ...e,
             start_time: new Date(e.start_time),
             end_time: new Date(e.end_time),
+            is_sub_event: e.is_sub_event === true, // Ensure boolean, default to false
+            project_id: e.project_id || 'default',
           }))
         );
       }

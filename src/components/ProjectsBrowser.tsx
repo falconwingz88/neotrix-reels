@@ -108,44 +108,63 @@ export const ProjectsBrowser = () => {
           </div>
           <Button onClick={() => setShowFilters(!showFilters)} variant="outline" className="bg-white/5 border-white/40 text-white hover:bg-white/10">
             <Filter className="w-4 h-4 mr-2" />
-            Filters
+            More Filters
           </Button>
         </div>
 
-        {/* Filter Panel */}
-        {showFilters && <div className="bg-white/5 backdrop-blur-sm rounded-lg p-6 space-y-4">
-            {/* Tag Filters */}
-            <div>
-              <h3 className="text-white font-medium mb-3 flex items-center gap-2">
-                <Layers className="w-4 h-4" />
-                Categories
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {TAG_OPTIONS.map(tag => <Badge key={tag} variant={selectedTags.includes(tag) ? "default" : "outline"} className={`cursor-pointer transition-colors ${selectedTags.includes(tag) ? "bg-white text-black hover:bg-white/90" : "border-white/20 text-white hover:bg-white/10"}`} onClick={() => toggleTag(tag)}>
-                    {tag}
-                  </Badge>)}
-              </div>
-            </div>
+        {/* Category Filters - Always visible */}
+        <div className="flex flex-wrap gap-2 md:gap-3">
+          {TAG_OPTIONS.map(tag => (
+            <Button
+              key={tag}
+              variant={selectedTags.includes(tag) ? "default" : "outline"}
+              className={`px-4 py-2 md:px-6 md:py-3 text-sm md:text-base font-medium transition-colors ${
+                selectedTags.includes(tag) 
+                  ? "bg-white text-black hover:bg-white/90" 
+                  : "border-white/30 text-white hover:bg-white/10 bg-white/5"
+              }`}
+              onClick={() => toggleTag(tag)}
+            >
+              {tag}
+            </Button>
+          ))}
+        </div>
 
-            {/* Year Filter */}
+        {/* Year Filter Panel - Only shown when More Filters is clicked */}
+        {showFilters && (
+          <div className="bg-white/5 backdrop-blur-sm rounded-lg p-6 space-y-4">
             <div>
               <h3 className="text-white font-medium mb-3 flex items-center gap-2">
                 <Calendar className="w-4 h-4" />
                 Year
               </h3>
               <div className="flex flex-wrap gap-2">
-                {YEAR_OPTIONS.map(year => <Badge key={year} variant={selectedYear === year ? "default" : "outline"} className={`cursor-pointer transition-colors ${selectedYear === year ? "bg-white text-black hover:bg-white/90" : "border-white/20 text-white hover:bg-white/10"}`} onClick={() => setSelectedYear(selectedYear === year ? null : year)}>
+                {YEAR_OPTIONS.map(year => (
+                  <Badge 
+                    key={year} 
+                    variant={selectedYear === year ? "default" : "outline"} 
+                    className={`cursor-pointer transition-colors text-sm px-3 py-1 ${
+                      selectedYear === year 
+                        ? "bg-white text-black hover:bg-white/90" 
+                        : "border-white/20 text-white hover:bg-white/10"
+                    }`} 
+                    onClick={() => setSelectedYear(selectedYear === year ? null : year)}
+                  >
                     {year}
-                  </Badge>)}
+                  </Badge>
+                ))}
               </div>
             </div>
 
             {/* Clear Filters */}
-            {(selectedTags.length > 0 || selectedYear !== null || searchTerm) && <Button onClick={clearFilters} variant="ghost" className="text-white hover:bg-white/10">
+            {(selectedTags.length > 0 || selectedYear !== null || searchTerm) && (
+              <Button onClick={clearFilters} variant="ghost" className="text-white hover:bg-white/10">
                 <X className="w-4 h-4 mr-2" />
                 Clear all filters
-              </Button>}
-          </div>}
+              </Button>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Results Summary */}

@@ -200,9 +200,19 @@ All colors MUST be HSL.
   
   /* Global Glassmorphism Panel Styles */
   .glass-panel {
-    background-color: hsla(var(--glass-color), var(--glass-opacity));
+    background-color: hsla(var(--glass-color), var(--glass-opacity)) !important;
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
+  }
+}
+
+/* Global override for all glassmorphism panels - applies admin settings */
+@layer components {
+  .bg-white\/10[class*="backdrop-blur"],
+  [class*="backdrop-blur"].bg-white\/10,
+  .bg-white\/5[class*="backdrop-blur"],
+  [class*="backdrop-blur"].bg-white\/5 {
+    background-color: hsla(var(--glass-color), var(--glass-opacity)) !important;
   }
 }
 

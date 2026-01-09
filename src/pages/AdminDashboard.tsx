@@ -124,6 +124,7 @@ const AdminDashboard = () => {
   
   // Site settings state
   const [localOpacity, setLocalOpacity] = useState(settings.glassmorphismOpacity);
+  const [localColor, setLocalColor] = useState(settings.glassmorphismColor);
   const [isApplyingSettings, setIsApplyingSettings] = useState(false);
 
   const [showForm, setShowForm] = useState(false);
@@ -184,18 +185,20 @@ const AdminDashboard = () => {
     })
   );
 
-  // Sync local opacity with settings
+  // Sync local settings with context settings
   useEffect(() => {
     setLocalOpacity(settings.glassmorphismOpacity);
-  }, [settings.glassmorphismOpacity]);
+    setLocalColor(settings.glassmorphismColor);
+  }, [settings.glassmorphismOpacity, settings.glassmorphismColor]);
 
-  const handleApplySettings = async () => {
+  const handleApplySettings = () => {
     setIsApplyingSettings(true);
     try {
-      await updateSetting('glassmorphism_opacity', localOpacity.toString());
+      updateSetting('glassmorphism_opacity', localOpacity.toString());
+      updateSetting('glassmorphism_color', localColor);
       toast({
         title: "Settings applied",
-        description: "Glassmorphism opacity has been updated site-wide.",
+        description: "Glassmorphism settings have been updated site-wide.",
       });
     } catch (error) {
       toast({
@@ -207,6 +210,8 @@ const AdminDashboard = () => {
       setIsApplyingSettings(false);
     }
   };
+
+  const hasSettingsChanged = localOpacity !== settings.glassmorphismOpacity || localColor !== settings.glassmorphismColor;
 
   // Redirect if not authenticated or not admin
   useEffect(() => {
@@ -1837,12 +1842,44 @@ const AdminDashboard = () => {
               <h2 className="text-xl font-semibold text-white mb-6">Site Settings</h2>
               
               <div className="space-y-8">
+                {/* Glassmorphism Color */}
+                <div className="space-y-4">
+                  <div>
+                    <Label className="text-white text-base">Glassmorphism Panel Color</Label>
+                    <p className="text-white/60 text-sm mt-1">
+                      Choose the base color for all glassmorphism panels across the site.
+                    </p>
+                  </div>
+                  
+                  <div className="flex items-center gap-4">
+                    <div className="flex gap-2">
+                      {['#ffffff', '#000000', '#3b82f6', '#8b5cf6', '#06b6d4', '#22c55e', '#f59e0b', '#ef4444'].map((color) => (
+                        <button
+                          key={color}
+                          onClick={() => setLocalColor(color)}
+                          className={`w-8 h-8 rounded-full border-2 transition-all ${
+                            localColor === color ? 'border-white scale-110' : 'border-white/20 hover:border-white/40'
+                          }`}
+                          style={{ backgroundColor: color }}
+                        />
+                      ))}
+                    </div>
+                    <Input
+                      type="color"
+                      value={localColor}
+                      onChange={(e) => setLocalColor(e.target.value)}
+                      className="w-12 h-8 p-0 border-white/20 rounded cursor-pointer"
+                    />
+                    <span className="text-white/60 font-mono text-sm">{localColor}</span>
+                  </div>
+                </div>
+
                 {/* Glassmorphism Opacity */}
                 <div className="space-y-4">
                   <div>
                     <Label className="text-white text-base">Glassmorphism Panel Opacity</Label>
                     <p className="text-white/60 text-sm mt-1">
-                      Adjust the opacity of all glassmorphism panels across the site. This setting applies to everyone when they refresh the page.
+                      Adjust the opacity of all glassmorphism panels across the site.
                     </p>
                   </div>
                   
@@ -1861,16 +1898,20 @@ const AdminDashboard = () => {
                       <span className="text-white font-mono text-lg">{Math.round(localOpacity * 100)}%</span>
                     </div>
                   </div>
-                  
-                  {/* Preview */}
-                  <div className="mt-4">
-                    <p className="text-white/60 text-sm mb-2">Preview:</p>
-                    <div 
-                      className="p-4 rounded-xl border border-white/20 backdrop-blur-xl"
-                      style={{ backgroundColor: `rgba(255, 255, 255, ${localOpacity})` }}
-                    >
-                      <p className="text-white">This is how the glassmorphism panels will look.</p>
-                    </div>
+                </div>
+                
+                {/* Preview */}
+                <div className="space-y-2">
+                  <p className="text-white/60 text-sm">Preview:</p>
+                  <div 
+                    className="p-4 rounded-xl border border-white/20 backdrop-blur-xl"
+                    style={{ 
+                      backgroundColor: localColor.startsWith('#') 
+                        ? `${localColor}${Math.round(localOpacity * 255).toString(16).padStart(2, '0')}`
+                        : `rgba(255, 255, 255, ${localOpacity})`
+                    }}
+                  >
+                    <p className="text-white">This is how the glassmorphism panels will look.</p>
                   </div>
                 </div>
                 
@@ -1878,8 +1919,8 @@ const AdminDashboard = () => {
                 <div className="flex justify-end pt-4 border-t border-white/10">
                   <Button
                     onClick={handleApplySettings}
-                    disabled={isApplyingSettings || localOpacity === settings.glassmorphismOpacity}
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    disabled={isApplyingSettings || !hasSettingsChanged}
+                    className="bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
                   >
                     {isApplyingSettings ? 'Applying...' : 'Apply Changes'}
                   </Button>

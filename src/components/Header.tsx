@@ -27,7 +27,7 @@ export const Header = () => {
     <header className="absolute top-0 left-0 right-0 z-50 px-4 py-4">
       <div className="max-w-7xl mx-auto">
         {/* Desktop - Pill-shaped navigation bar */}
-        <nav className="hidden lg:flex items-center justify-between bg-white/10 backdrop-blur-md rounded-full border border-white/20 px-2 py-2">
+        <nav className="hidden lg:flex items-center justify-between glass-panel rounded-full border border-white/20 px-2 py-2">
           {/* Left side - Home + Admin Dashboard */}
           <div className="flex items-center gap-1">
             <Button
@@ -147,7 +147,7 @@ export const Header = () => {
         </nav>
 
         {/* Mobile & Tablet Navigation */}
-        <div className="flex lg:hidden items-center justify-between bg-white/10 backdrop-blur-md rounded-full border border-white/20 px-2 py-2 relative">
+        <div className="flex lg:hidden items-center justify-between glass-panel rounded-full border border-white/20 px-2 py-2 relative">
           <div className="flex items-center gap-1 z-10">
             <Button
               variant="ghost"
@@ -192,7 +192,7 @@ export const Header = () => {
 
       {/* Mobile & Tablet Menu Dropdown */}
       {mobileMenuOpen && (
-        <div className="lg:hidden mt-2 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-4 mx-2">
+        <div className="lg:hidden mt-2 glass-panel rounded-2xl border border-white/20 p-4 mx-2">
           <div className="flex flex-col gap-2">
             {/* Admin Dashboard - Mobile Menu */}
             {isAdmin && (

@@ -22,7 +22,7 @@ const Login = () => {
         title: "Welcome!",
         description: "You're logged in successfully.",
       });
-      navigate('/neo-timeline', { replace: true });
+      navigate('/', { replace: true });
     }
   }, [isAuthenticated, loading, navigate, toast]);
 

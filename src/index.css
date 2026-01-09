@@ -43,7 +43,10 @@ All colors MUST be HSL.
 
     --radius: 0.5rem;
 
-    --sidebar-background: 0 0% 98%;
+    /* Glassmorphism settings - controlled by admin */
+    --glass-opacity: 0.1;
+    --glass-color: 0 0% 100%;
+
 
     --sidebar-foreground: 240 5.3% 26.1%;
 
@@ -193,6 +196,13 @@ All colors MUST be HSL.
   
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
+  }
+  
+  /* Global Glassmorphism Panel Styles */
+  .glass-panel {
+    background-color: hsla(var(--glass-color), var(--glass-opacity));
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
   }
 }
 

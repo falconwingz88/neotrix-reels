@@ -227,26 +227,12 @@ export const EventModal = ({
             >
               Cancel
             </Button>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span>
-                    <Button
-                      type="submit"
-                      className="bg-blue-600 hover:bg-blue-700"
-                      disabled={!isAuthenticated && !event}
-                    >
-                      {event ? 'Update' : 'Create'}
-                    </Button>
-                  </span>
-                </TooltipTrigger>
-                {!isAuthenticated && event && (
-                  <TooltipContent className="bg-black/90 text-white border-white/20">
-                    <p>Login first to save changes</p>
-                  </TooltipContent>
-                )}
-              </Tooltip>
-            </TooltipProvider>
+            <Button
+              type="submit"
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              {event ? 'Update' : 'Create'}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

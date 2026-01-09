@@ -1,15 +1,20 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
+
+// Hardcoded admin credentials
+const ADMIN_USERNAME = 'admin';
+const ADMIN_PASSWORD = 'admin123';
+
+interface User {
+  id: string;
+  username: string;
+}
 
 interface AuthContextType {
   isAuthenticated: boolean;
   isAdmin: boolean;
   user: User | null;
-  session: Session | null;
-  login: (email: string, password: string) => Promise<{ error: string | null }>;
-  signup: (email: string, password: string) => Promise<{ error: string | null }>;
-  logout: () => Promise<void>;
+  login: (username: string, password: string) => Promise<{ error: string | null }>;
+  logout: () => void;
   loading: boolean;
 }
 
@@ -17,125 +22,52 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Check if user has admin role
-  const checkAdminRole = async (userId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', userId)
-        .eq('role', 'admin')
-        .maybeSingle();
-      
-      if (error) {
-        console.error('Error checking admin role:', error);
-        return false;
-      }
-      
-      return !!data;
-    } catch (err) {
-      console.error('Error in checkAdminRole:', err);
-      return false;
-    }
-  };
-
+  // Restore session from localStorage on mount
   useEffect(() => {
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        // Defer admin check with setTimeout to avoid Supabase deadlock
-        if (session?.user) {
-          setTimeout(async () => {
-            const adminStatus = await checkAdminRole(session.user.id);
-            setIsAdmin(adminStatus);
-            setLoading(false);
-          }, 0);
-        } else {
-          setIsAdmin(false);
-          setLoading(false);
-        }
+    const storedUser = localStorage.getItem('neo-timeline-user');
+    if (storedUser) {
+      try {
+        const parsed = JSON.parse(storedUser);
+        setUser(parsed);
+        setIsAdmin(parsed.username === ADMIN_USERNAME);
+      } catch {
+        localStorage.removeItem('neo-timeline-user');
       }
-    );
-
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        checkAdminRole(session.user.id).then((adminStatus) => {
-          setIsAdmin(adminStatus);
-          setLoading(false);
-        });
-      } else {
-        setLoading(false);
-      }
-    });
-
-    return () => subscription.unsubscribe();
+    }
+    setLoading(false);
   }, []);
 
-  const login = async (email: string, password: string): Promise<{ error: string | null }> => {
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      
-      if (error) {
-        return { error: error.message };
-      }
-      
+  const login = async (username: string, password: string): Promise<{ error: string | null }> => {
+    // Check admin credentials
+    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+      const adminUser: User = {
+        id: 'admin-user-id',
+        username: ADMIN_USERNAME,
+      };
+      setUser(adminUser);
+      setIsAdmin(true);
+      localStorage.setItem('neo-timeline-user', JSON.stringify(adminUser));
       return { error: null };
-    } catch (err) {
-      return { error: 'An unexpected error occurred' };
     }
+    
+    return { error: 'Invalid username or password' };
   };
 
-  const signup = async (email: string, password: string): Promise<{ error: string | null }> => {
-    try {
-      const redirectUrl = `${window.location.origin}/`;
-      
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: redirectUrl,
-        },
-      });
-      
-      if (error) {
-        return { error: error.message };
-      }
-      
-      return { error: null };
-    } catch (err) {
-      return { error: 'An unexpected error occurred' };
-    }
-  };
-
-  const logout = async () => {
-    await supabase.auth.signOut();
+  const logout = () => {
     setUser(null);
-    setSession(null);
     setIsAdmin(false);
+    localStorage.removeItem('neo-timeline-user');
   };
 
   return (
     <AuthContext.Provider value={{ 
-      isAuthenticated: !!session, 
+      isAuthenticated: !!user, 
       isAdmin,
       user,
-      session,
       login, 
-      signup,
       logout, 
       loading 
     }}>

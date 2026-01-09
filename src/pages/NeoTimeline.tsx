@@ -3,7 +3,6 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { CalendarView } from '@/components/neo-timeline/CalendarView';
 import { EventModal } from '@/components/neo-timeline/EventModal';
@@ -135,108 +134,16 @@ const NeoTimeline = () => {
     );
   }, [events, eventsStorageKey]);
 
-  // Load events from database if authenticated
-  useEffect(() => {
-    if (isAuthenticated && user) {
-      loadEvents();
-    }
-  }, [isAuthenticated, user]);
-
-  // Import shared snapshot from URL hash
-  useEffect(() => {
-    const hash = window.location.hash;
-    if (!hash.startsWith('#share=')) return;
-
-    try {
-      const encoded = hash.replace('#share=', '');
-      const json = decodeURIComponent(escape(window.atob(encoded)));
-      const payload = JSON.parse(json) as { projects?: any[]; events?: any[] };
-
-      if (payload.projects && Array.isArray(payload.projects)) {
-        setProjects(payload.projects);
-      }
-
-      if (payload.events && Array.isArray(payload.events)) {
-        setEvents(
-          payload.events.map((e) => ({
-            ...e,
-            start_time: new Date(e.start_time),
-            end_time: new Date(e.end_time),
-          }))
-        );
-      }
-
-      toast({ title: 'Loaded shared timeline' });
-    } catch {
-      toast({ title: 'Invalid share link', variant: 'destructive' });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const loadEvents = async () => {
-    if (!user) return;
-
-    const { data, error } = await supabase.from('calendar_events').select('*').eq('user_id', user.id);
-
-    if (error) {
-      console.error('Error loading events:', error);
-      return;
-    }
-
-    setEvents(
-      data.map((e) => ({
-        ...e,
-        start_time: new Date(e.start_time),
-        end_time: new Date(e.end_time),
-        project_id: e.project_id || 'default',
-        is_sub_event: e.is_sub_event || false,
-      }))
-    );
-  };
+  // Events are already loaded from localStorage above, no need for database loading
 
 
-  const saveEvent = async (event: Omit<CalendarEvent, 'id' | 'user_id'>) => {
-    if (!isAuthenticated || !user) {
-      toast({
-        title: "Login Required",
-        description: "Please login to save your events.",
-        variant: "destructive"
-      });
-      return null;
-    }
-
-    const { data, error } = await supabase
-      .from('calendar_events')
-      .insert({
-        title: event.title,
-        description: event.description,
-        start_time: event.start_time.toISOString(),
-        end_time: event.end_time.toISOString(),
-        color: event.color,
-        all_day: event.all_day,
-        user_id: user.id,
-        project_id: event.project_id || 'default',
-        is_sub_event: event.is_sub_event || false,
-      })
-      .select()
-      .single();
-    
-    if (error) {
-      console.error('Error saving event:', error);
-      toast({
-        title: "Error",
-        description: "Failed to save event.",
-        variant: "destructive"
-      });
-      return null;
-    }
-    
+  const saveEvent = (event: Omit<CalendarEvent, 'id' | 'user_id'>) => {
     const newEvent: CalendarEvent = {
-      ...data,
-      start_time: new Date(data.start_time),
-      end_time: new Date(data.end_time),
-      project_id: data.project_id,
-      is_sub_event: data.is_sub_event,
+      ...event,
+      id: `event-${Date.now()}`,
+      user_id: user?.id,
+      project_id: event.project_id || 'default',
+      is_sub_event: event.is_sub_event || false,
     };
     
     setEvents(prev => [...prev, newEvent]);
@@ -247,62 +154,12 @@ const NeoTimeline = () => {
     return newEvent;
   };
 
-  const updateEvent = async (event: CalendarEvent) => {
-    if (!isAuthenticated || !user) {
-      setEvents(prev => prev.map(e => e.id === event.id ? event : e));
-      return event;
-    }
-
-    const { error } = await supabase
-      .from('calendar_events')
-      .update({
-        title: event.title,
-        description: event.description,
-        start_time: event.start_time.toISOString(),
-        end_time: event.end_time.toISOString(),
-        color: event.color,
-        all_day: event.all_day,
-        project_id: event.project_id || 'default',
-        is_sub_event: event.is_sub_event || false,
-      })
-      .eq('id', event.id)
-      .eq('user_id', user.id);
-    
-    if (error) {
-      console.error('Error updating event:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update event.",
-        variant: "destructive"
-      });
-      return null;
-    }
-    
+  const updateEvent = (event: CalendarEvent) => {
     setEvents(prev => prev.map(e => e.id === event.id ? event : e));
     return event;
   };
 
-  const deleteEvent = async (eventId: string) => {
-    if (!isAuthenticated || !user) {
-      setEvents(prev => prev.filter(e => e.id !== eventId));
-      return;
-    }
-
-    const { error } = await supabase
-      .from('calendar_events')
-      .delete()
-      .eq('id', eventId)
-      .eq('user_id', user.id);
-    
-    if (error) {
-      toast({
-        title: "Error",
-        description: "Failed to delete event.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
+  const deleteEvent = (eventId: string) => {
     setEvents(prev => prev.filter(e => e.id !== eventId));
     toast({
       title: "Success",
@@ -310,7 +167,7 @@ const NeoTimeline = () => {
     });
   };
 
-  const handleEventDrop = useCallback(async (eventId: string, newStart: Date, newEnd: Date) => {
+  const handleEventDrop = useCallback((eventId: string, newStart: Date, newEnd: Date) => {
     const event = events.find(e => e.id === eventId);
     if (!event) return;
     
@@ -320,7 +177,7 @@ const NeoTimeline = () => {
       end_time: newEnd
     };
     
-    await updateEvent(updatedEvent);
+    updateEvent(updatedEvent);
   }, [events, updateEvent]);
 
 
@@ -366,12 +223,12 @@ const NeoTimeline = () => {
     setIsModalOpen(true);
   };
 
-  const handleEventResize = useCallback(async (eventId: string, newStart: Date, newEnd: Date) => {
+  const handleEventResize = useCallback((eventId: string, newStart: Date, newEnd: Date) => {
     const event = events.find(e => e.id === eventId);
     if (!event) return;
     
     const updatedEvent = { ...event, start_time: newStart, end_time: newEnd };
-    await updateEvent(updatedEvent);
+    updateEvent(updatedEvent);
     // Update sidebar selected event if it's the one being resized
     if (sidebarSelectedEvent?.id === eventId) {
       setSidebarSelectedEvent(updatedEvent);
@@ -472,11 +329,11 @@ const NeoTimeline = () => {
               setNewEventIsSubEvent(true);
               setIsModalOpen(true);
             }}
-            onProjectColorChange={async (projectId, newColor) => {
+            onProjectColorChange={(projectId, newColor) => {
               // Update all events belonging to this project with the new color
               const projectEvents = events.filter(e => e.project_id === projectId);
               for (const event of projectEvents) {
-                await updateEvent({ ...event, color: newColor });
+                updateEvent({ ...event, color: newColor });
               }
             }}
           />

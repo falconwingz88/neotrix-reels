@@ -98,37 +98,97 @@ export const MediaUpload = ({ value, onChange, hasError }: MediaUploadProps) => 
     }
   };
 
-  const processFile = (file: File) => {
-    if (!file.type.startsWith('image/')) {
-      toast({
-        title: "Invalid file type",
-        description: "Please select an image file.",
-        variant: "destructive",
+  const uploadImageDirect = async (file: File) => {
+    const extension = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+    const fileName = `media-${Date.now()}-${Math.random().toString(36).substring(7)}.${extension}`;
+    
+    const { error: uploadError } = await supabase.storage
+      .from('project-thumbnails')
+      .upload(fileName, file, {
+        contentType: file.type,
+        upsert: false
       });
+
+    if (uploadError) throw uploadError;
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('project-thumbnails')
+      .getPublicUrl(fileName);
+
+    return publicUrl;
+  };
+
+  const processFiles = async (files: File[]) => {
+    const validFiles = files.filter(file => {
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Invalid file type",
+          description: `${file.name} is not an image file.`,
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      if (file.size > 10 * 1024 * 1024) {
+        toast({
+          title: "File too large",
+          description: `${file.name} is over 10MB.`,
+          variant: "destructive",
+        });
+        return false;
+      }
+      return true;
+    });
+
+    if (validFiles.length === 0) return;
+
+    // For single file, use cropper
+    if (validFiles.length === 1) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImageToCrop(e.target?.result as string);
+        setShowCropper(true);
+      };
+      reader.readAsDataURL(validFiles[0]);
       return;
     }
 
-    if (file.size > 10 * 1024 * 1024) {
-      toast({
-        title: "File too large",
-        description: "Please select an image under 10MB.",
-        variant: "destructive",
-      });
-      return;
+    // For bulk upload, upload directly without cropping
+    setIsUploading(true);
+    const uploadedUrls: string[] = [];
+    let failCount = 0;
+
+    for (const file of validFiles) {
+      try {
+        const url = await uploadImageDirect(file);
+        uploadedUrls.push(url);
+      } catch (error) {
+        console.error('Upload error:', error);
+        failCount++;
+      }
     }
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setImageToCrop(e.target?.result as string);
-      setShowCropper(true);
-    };
-    reader.readAsDataURL(file);
+    if (uploadedUrls.length > 0) {
+      onChange([...value, ...uploadedUrls]);
+      toast({
+        title: "Images uploaded",
+        description: `${uploadedUrls.length} image(s) uploaded successfully${failCount > 0 ? `, ${failCount} failed` : ''}.`,
+      });
+    } else {
+      toast({
+        title: "Upload failed",
+        description: "Failed to upload images. Please try again.",
+        variant: "destructive",
+      });
+    }
+
+    setIsUploading(false);
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      processFile(file);
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      processFiles(files);
     }
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -138,11 +198,11 @@ export const MediaUpload = ({ value, onChange, hasError }: MediaUploadProps) => 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setDragOver(false);
-    const file = e.dataTransfer.files[0];
-    if (file) {
-      processFile(file);
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length > 0) {
+      processFiles(files);
     }
-  }, []);
+  }, [value, onChange]);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -346,12 +406,13 @@ export const MediaUpload = ({ value, onChange, hasError }: MediaUploadProps) => 
             ref={fileInputRef}
             type="file"
             accept="image/*"
+            multiple
             onChange={handleFileSelect}
             className="hidden"
           />
           <Upload className="w-8 h-8 mx-auto mb-2 text-white/40" />
           <p className="text-white/60 text-sm mb-2">
-            {isUploading ? 'Uploading...' : 'Drag & drop an image or'}
+            {isUploading ? 'Uploading...' : 'Drag & drop images or'}
           </p>
           <Button
             type="button"
@@ -364,7 +425,7 @@ export const MediaUpload = ({ value, onChange, hasError }: MediaUploadProps) => 
             <Image className="w-4 h-4 mr-2" />
             Browse Images
           </Button>
-          <p className="text-white/40 text-xs mt-2">Max 10MB • JPG, PNG, GIF, WebP</p>
+          <p className="text-white/40 text-xs mt-2">Max 10MB per file • JPG, PNG, GIF, WebP • Multiple files supported</p>
         </div>
       </div>
 

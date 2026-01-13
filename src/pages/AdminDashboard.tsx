@@ -56,6 +56,7 @@ import { useToast } from '@/hooks/use-toast';
 import UndoNotification, { UndoNotificationItem } from '@/components/UndoNotification';
 import { ThumbnailUpload } from '@/components/ThumbnailUpload';
 import { SortableProjectItem } from '@/components/SortableProjectItem';
+import { MediaUpload } from '@/components/MediaUpload';
 import { ClientLogoSelector } from '@/components/ClientLogoSelector';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
@@ -133,7 +134,7 @@ const AdminDashboard = () => {
   const [projectName, setProjectName] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
-  const [links, setLinks] = useState('');
+  const [mediaLinks, setMediaLinks] = useState<string[]>([]);
   const [description, setDescription] = useState('');
   const [credits, setCredits] = useState('');
   const [client, setClient] = useState('');
@@ -254,7 +255,7 @@ const AdminDashboard = () => {
         setProjectName(projectToEdit.title);
         setSelectedTags(projectToEdit.tags);
         setSelectedYear(projectToEdit.year || new Date().getFullYear());
-        setLinks(projectToEdit.links.join('\n'));
+        setMediaLinks(projectToEdit.links);
         setDescription(projectToEdit.description);
         setCredits(projectToEdit.credits);
         setClient(projectToEdit.client || '');
@@ -304,11 +305,10 @@ const AdminDashboard = () => {
     }
   }, [isAdmin]);
 
-  // Parse links and validate - must be before early return to maintain hook order
-  const parsedLinks = links.split('\n').map(l => l.trim()).filter(l => l);
-  const invalidLinks = parsedLinks.filter(link => !isValidUrl(link));
-  const hasInvalidLinks = invalidLinks.length > 0 && parsedLinks.length > 0;
-  const firstValidLink = parsedLinks.find(link => isValidUrl(link)) || '';
+  // Validate links - must be before early return to maintain hook order
+  const invalidLinks = mediaLinks.filter(link => !isValidUrl(link));
+  const hasInvalidLinks = invalidLinks.length > 0 && mediaLinks.length > 0;
+  const firstValidLink = mediaLinks.find(link => isValidUrl(link)) || '';
   
   // Validate file link
   const fileLinkTrimmed = fileLink.trim();
@@ -350,7 +350,7 @@ const AdminDashboard = () => {
     setProjectName('');
     setSelectedTags([]);
     setSelectedYear(new Date().getFullYear());
-    setLinks('');
+    setMediaLinks([]);
     setDescription('');
     setCredits('');
     setClient('');
@@ -389,7 +389,7 @@ const AdminDashboard = () => {
       title: projectName.trim(),
       description: description.trim(),
       tags: selectedTags,
-      links: parsedLinks.filter(link => isValidUrl(link)),
+      links: mediaLinks.filter(link => isValidUrl(link)),
       credits: credits.trim(),
       thumbnail: thumbnailTrimmed || undefined,
       fileLink: fileLinkTrimmed || undefined,
@@ -430,7 +430,7 @@ const AdminDashboard = () => {
     setProjectName(project.title);
     setSelectedTags(project.tags);
     setSelectedYear(project.year || new Date().getFullYear());
-    setLinks(project.links.join('\n'));
+    setMediaLinks(project.links);
     setDescription(project.description);
     setCredits(project.credits);
     setClient(project.client || '');
@@ -1120,30 +1120,11 @@ const AdminDashboard = () => {
                 hasError={hasInvalidThumbnail}
               />
 
-              <div className="space-y-2">
-                <Label htmlFor="links" className="text-white flex items-center gap-2">
-                  <Link2 className="w-4 h-4" />
-                  Video/Project Links
-                </Label>
-                <Textarea
-                  id="links"
-                  value={links}
-                  onChange={(e) => setLinks(e.target.value)}
-                  className={`bg-white/10 border-white/20 text-white placeholder:text-white/40 min-h-[100px] ${
-                    hasInvalidLinks ? 'border-red-500' : ''
-                  }`}
-                  placeholder="Enter video/project links (one per line)&#10;e.g. https://youtu.be/abc123"
-                />
-                {hasInvalidLinks && (
-                  <div className="flex items-start gap-2 text-red-400 text-sm">
-                    <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                    <span>
-                      Invalid URL(s): {invalidLinks.map(l => `"${l}"`).join(', ')}. 
-                      Please enter valid URLs starting with http:// or https://
-                    </span>
-                  </div>
-                )}
-              </div>
+              <MediaUpload
+                value={mediaLinks}
+                onChange={setMediaLinks}
+                hasError={hasInvalidLinks}
+              />
 
               <div className="space-y-2">
                 <Label htmlFor="fileLink" className="text-white flex items-center gap-2">
@@ -1401,7 +1382,7 @@ const AdminDashboard = () => {
                       title: projectName.trim(),
                       description: description.trim(),
                       tags: selectedTags,
-                      links: parsedLinks.filter(link => isValidUrl(link)),
+                      links: mediaLinks.filter(link => isValidUrl(link)),
                       credits: credits.trim(),
                       thumbnail: thumbnailTrimmed || undefined,
                       fileLink: fileLinkTrimmed || undefined,
@@ -1508,16 +1489,11 @@ const AdminDashboard = () => {
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="restrictedLinks" className="text-yellow-400">Video Links (one per line)</Label>
-                    <Textarea
-                      id="restrictedLinks"
-                      value={links}
-                      onChange={(e) => setLinks(e.target.value)}
-                      placeholder="https://youtube.com/watch?v=..."
-                      className="bg-white/10 border-yellow-500/30 text-white min-h-[100px]"
-                    />
-                  </div>
+                  <MediaUpload
+                    value={mediaLinks}
+                    onChange={setMediaLinks}
+                    hasError={hasInvalidLinks}
+                  />
 
                   <div className="space-y-2">
                     <Label htmlFor="restrictedDescription" className="text-yellow-400">Description</Label>

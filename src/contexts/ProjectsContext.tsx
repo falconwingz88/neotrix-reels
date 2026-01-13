@@ -16,6 +16,7 @@ export interface CustomProject {
   deliveryDate?: string;
   createdAt: string;
   sortOrder?: number;
+  isRestricted?: boolean;
 }
 
 interface ProjectsContextType {
@@ -654,6 +655,7 @@ const transformDbToProject = (row: any): CustomProject => ({
   deliveryDate: row.delivery_date,
   createdAt: row.created_at,
   sortOrder: row.sort_order,
+  isRestricted: row.is_restricted || false,
 });
 
 // Transform CustomProject to database format

@@ -140,8 +140,10 @@ const AdminDashboard = () => {
   const [thumbnailUrl, setThumbnailUrl] = useState('');
   const [fileLink, setFileLink] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [restrictedSearchTerm, setRestrictedSearchTerm] = useState('');
   const [projectStartDate, setProjectStartDate] = useState<Date | undefined>(undefined);
   const [deliveryDate, setDeliveryDate] = useState<Date | undefined>(undefined);
+  const [showRestrictedForm, setShowRestrictedForm] = useState(false);
   
   // Delete confirmation state
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -522,6 +524,31 @@ const AdminDashboard = () => {
     }
   };
 
+  const handlePublishProject = async (projectId: string, projectTitle: string) => {
+    try {
+      const { error } = await supabase
+        .from('projects')
+        .update({ is_restricted: false })
+        .eq('id', projectId);
+
+      if (error) throw error;
+      
+      toast({
+        title: "Project published",
+        description: `"${projectTitle}" is now visible in the public projects section.`,
+      });
+      
+      // Refetch projects to update the list
+      await refetchProjects();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to publish project.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const toggleTag = (tag: string) => {
     setSelectedTags(prev =>
       prev.includes(tag)
@@ -541,13 +568,22 @@ const AdminDashboard = () => {
     return 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400';
   };
 
-  // Filter projects (exclude restricted ones - they're shown in a separate page)
+  // Filter projects (exclude restricted ones - they're shown in a separate tab)
   const filteredProjects = customProjects
     .filter(project => !project.isRestricted)
     .filter(project =>
       project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
       project.credits.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+  // Filter restricted projects
+  const filteredRestrictedProjects = customProjects
+    .filter(project => project.isRestricted)
+    .filter(project =>
+      project.title.toLowerCase().includes(restrictedSearchTerm.toLowerCase()) ||
+      project.description.toLowerCase().includes(restrictedSearchTerm.toLowerCase()) ||
+      project.credits.toLowerCase().includes(restrictedSearchTerm.toLowerCase())
     );
 
   // Handle drag end for reordering
@@ -902,6 +938,10 @@ const AdminDashboard = () => {
               <FolderKanban className="w-4 h-4 mr-1 sm:mr-2" />
               <span className="hidden sm:inline">Projects</span> ({customProjects.filter(p => !p.isRestricted).length})
             </TabsTrigger>
+            <TabsTrigger value="restricted" className="data-[state=active]:bg-yellow-500/30 text-yellow-400 flex-1 sm:flex-none text-xs sm:text-sm">
+              <Lock className="w-4 h-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Restricted</span> ({customProjects.filter(p => p.isRestricted).length})
+            </TabsTrigger>
             <TabsTrigger value="logos" className="data-[state=active]:bg-white/20 text-white flex-1 sm:flex-none text-xs sm:text-sm">
               <Image className="w-4 h-4 mr-1 sm:mr-2" />
               <span className="hidden sm:inline">Client Logos</span> ({clientLogos.length})
@@ -922,18 +962,6 @@ const AdminDashboard = () => {
 
           {/* Projects Tab */}
           <TabsContent value="projects">
-            {/* Restricted Projects Button */}
-            <div className="mb-6">
-              <Button
-                onClick={() => navigate('/admin/restricted')}
-                variant="outline"
-                className="bg-yellow-500/10 border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/20 hover:text-yellow-300"
-              >
-                <Lock className="w-4 h-4 mr-2" />
-                Restricted Projects ({customProjects.filter(p => p.isRestricted).length})
-              </Button>
-            </div>
-
             {/* Search and New Project */}
             <div className="flex flex-col md:flex-row gap-4 mb-8">
               <Input
@@ -1313,6 +1341,315 @@ const AdminDashboard = () => {
             )}
           </div>
         )}
+          </TabsContent>
+
+          {/* Restricted Projects Tab */}
+          <TabsContent value="restricted">
+            {/* Search and New Restricted Project */}
+            <div className="flex flex-col md:flex-row gap-4 mb-8">
+              <Input
+                placeholder="Search restricted projects..."
+                value={restrictedSearchTerm}
+                onChange={(e) => setRestrictedSearchTerm(e.target.value)}
+                className="bg-yellow-500/10 border-yellow-500/30 text-white placeholder:text-yellow-400/60 flex-1"
+              />
+              {!showRestrictedForm && (
+                <Button
+                  onClick={() => setShowRestrictedForm(true)}
+                  className="bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 border border-yellow-500/30"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  New Restricted Project
+                </Button>
+              )}
+            </div>
+
+            {/* New Restricted Project Form */}
+            {showRestrictedForm && (
+              <div className="bg-yellow-500/10 backdrop-blur-md rounded-2xl border border-yellow-500/30 p-6 md:p-8 mb-8">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-semibold text-yellow-400 flex items-center gap-2">
+                    <Lock className="w-5 h-5" />
+                    {editingProject ? 'Edit Restricted Project' : 'Add New Restricted Project'}
+                  </h2>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => {
+                      resetForm();
+                      setShowRestrictedForm(false);
+                    }}
+                    className="text-yellow-400 hover:bg-yellow-500/20"
+                  >
+                    <X className="w-5 h-5" />
+                  </Button>
+                </div>
+
+                <form onSubmit={async (e) => {
+                  e.preventDefault();
+                  if (!projectName.trim()) {
+                    toast({
+                      title: "Error",
+                      description: "Project name is required.",
+                      variant: "destructive",
+                    });
+                    return;
+                  }
+                  setIsSaving(true);
+                  try {
+                    const projectData = {
+                      title: projectName.trim(),
+                      description: description.trim(),
+                      tags: selectedTags,
+                      links: parsedLinks.filter(link => isValidUrl(link)),
+                      credits: credits.trim(),
+                      thumbnail: thumbnailTrimmed || undefined,
+                      fileLink: fileLinkTrimmed || undefined,
+                      year: selectedYear,
+                      client: client.trim() || 'Neotrix',
+                      projectStartDate: projectStartDate?.toISOString(),
+                      deliveryDate: deliveryDate?.toISOString(),
+                    };
+                    
+                    if (editingProject) {
+                      await updateProject(editingProject.id, projectData);
+                      toast({
+                        title: "Project updated!",
+                        description: `"${projectName}" has been updated.`,
+                      });
+                    } else {
+                      // Add as restricted project directly
+                      const { error } = await supabase
+                        .from('projects')
+                        .insert([{
+                          title: projectData.title,
+                          description: projectData.description,
+                          tags: projectData.tags,
+                          links: projectData.links,
+                          credits: projectData.credits,
+                          thumbnail: projectData.thumbnail || (projectData.links[0] ? getYouTubeThumbnail(projectData.links[0]) : null),
+                          file_link: projectData.fileLink,
+                          year: projectData.year?.toString(),
+                          client: projectData.client,
+                          project_start_date: projectData.projectStartDate || null,
+                          delivery_date: projectData.deliveryDate || null,
+                          is_restricted: true,
+                        }]);
+                      if (error) throw error;
+                      await refetchProjects();
+                      toast({
+                        title: "Restricted project added!",
+                        description: `"${projectName}" has been added as a restricted project.`,
+                      });
+                    }
+                    resetForm();
+                    setShowRestrictedForm(false);
+                  } catch (error) {
+                    toast({
+                      title: "Error",
+                      description: "Failed to save project. Please try again.",
+                      variant: "destructive",
+                    });
+                  } finally {
+                    setIsSaving(false);
+                  }
+                }} className="space-y-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="restrictedProjectName" className="text-yellow-400">Project Name *</Label>
+                    <Input
+                      id="restrictedProjectName"
+                      type="text"
+                      value={projectName}
+                      onChange={(e) => setProjectName(e.target.value)}
+                      placeholder="Enter project name"
+                      className="bg-white/10 border-yellow-500/30 text-white"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-yellow-400">Tags</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {TAG_OPTIONS.map((tag) => (
+                        <Badge
+                          key={tag}
+                          variant={selectedTags.includes(tag) ? "default" : "outline"}
+                          className={cn(
+                            "cursor-pointer transition-colors",
+                            selectedTags.includes(tag)
+                              ? "bg-yellow-500 text-black hover:bg-yellow-400"
+                              : "border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/20"
+                          )}
+                          onClick={() => toggleTag(tag)}
+                        >
+                          {tag}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-yellow-400">Year</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {YEAR_OPTIONS.map((year) => (
+                        <Badge
+                          key={year}
+                          variant={selectedYear === year ? "default" : "outline"}
+                          className={cn(
+                            "cursor-pointer transition-colors",
+                            selectedYear === year
+                              ? "bg-yellow-500 text-black hover:bg-yellow-400"
+                              : "border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/20"
+                          )}
+                          onClick={() => setSelectedYear(year)}
+                        >
+                          {year}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="restrictedLinks" className="text-yellow-400">Video Links (one per line)</Label>
+                    <Textarea
+                      id="restrictedLinks"
+                      value={links}
+                      onChange={(e) => setLinks(e.target.value)}
+                      placeholder="https://youtube.com/watch?v=..."
+                      className="bg-white/10 border-yellow-500/30 text-white min-h-[100px]"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="restrictedDescription" className="text-yellow-400">Description</Label>
+                    <Textarea
+                      id="restrictedDescription"
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      placeholder="Project description..."
+                      className="bg-white/10 border-yellow-500/30 text-white"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="restrictedCredits" className="text-yellow-400">Credits</Label>
+                      <Input
+                        id="restrictedCredits"
+                        value={credits}
+                        onChange={(e) => setCredits(e.target.value)}
+                        placeholder="Production credits..."
+                        className="bg-white/10 border-yellow-500/30 text-white"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="restrictedClient" className="text-yellow-400">Client</Label>
+                      <Input
+                        id="restrictedClient"
+                        value={client}
+                        onChange={(e) => setClient(e.target.value)}
+                        placeholder="Client name..."
+                        className="bg-white/10 border-yellow-500/30 text-white"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex gap-4">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        resetForm();
+                        setShowRestrictedForm(false);
+                      }}
+                      className="flex-1 border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/20"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      disabled={isSaving || !projectName.trim()}
+                      className="flex-1 bg-yellow-500 hover:bg-yellow-400 text-black"
+                    >
+                      {isSaving ? 'Saving...' : (editingProject ? 'Update Project' : 'Add Restricted Project')}
+                    </Button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            {/* Restricted Projects List */}
+            {filteredRestrictedProjects.length === 0 ? (
+              <div className="bg-yellow-500/10 backdrop-blur-md rounded-2xl border border-yellow-500/30 p-8 text-center">
+                <Lock className="w-12 h-12 text-yellow-400/40 mx-auto mb-4" />
+                <p className="text-yellow-400/60">
+                  {restrictedSearchTerm ? 'No restricted projects found.' : 'No restricted projects yet.'}
+                </p>
+                <p className="text-yellow-400/40 text-sm mt-2">
+                  Restricted projects are hidden from public view and only accessible by admins.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {filteredRestrictedProjects.map((project) => (
+                  <div
+                    key={project.id}
+                    className="bg-yellow-500/10 rounded-lg border border-yellow-500/30 hover:border-yellow-500/50 transition-all"
+                  >
+                    <div className="flex items-center gap-2 p-3">
+                      {/* Thumbnail */}
+                      <div className="w-16 h-10 rounded overflow-hidden bg-yellow-500/20 flex-shrink-0">
+                        <img
+                          src={getProjectThumbnail(project)}
+                          alt={project.title}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.src = 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=100';
+                          }}
+                        />
+                      </div>
+
+                      {/* Project Info */}
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-yellow-400 font-medium truncate text-sm">{project.title}</h3>
+                        <span className="text-yellow-400/60 text-xs">({project.year || 'N/A'})</span>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex gap-1 flex-shrink-0 items-center">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handlePublishProject(project.id, project.title)}
+                          className="text-green-400 hover:text-green-300 hover:bg-green-500/20 text-xs px-2"
+                        >
+                          <FolderKanban className="w-3.5 h-3.5 mr-1" />
+                          Publish
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            handleEdit(project);
+                            setShowRestrictedForm(true);
+                          }}
+                          className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/20 w-7 h-7"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => openDeleteDialog(project.id, project.title)}
+                          className="text-red-400 hover:text-red-300 hover:bg-red-500/20 w-7 h-7"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </TabsContent>
 
           {/* Contacts Tab */}

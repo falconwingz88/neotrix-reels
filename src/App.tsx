@@ -13,7 +13,6 @@ import Login from "./pages/Login";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import ClientDetail from "./pages/ClientDetail";
-import RestrictedProjects from "./pages/RestrictedProjects";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ProjectsProvider } from "./contexts/ProjectsContext";
 import { ContactsProvider } from "./contexts/ContactsContext";
@@ -50,7 +49,6 @@ const App = () => (
                   <Route path="/login" element={<Login />} />
                   <Route path="/admin-login" element={<AdminLogin />} />
                   <Route path="/admin" element={<AdminDashboard />} />
-                  <Route path="/admin/restricted" element={<RestrictedProjects />} />
                   <Route path="/client/:id" element={<ClientDetail />} />
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />

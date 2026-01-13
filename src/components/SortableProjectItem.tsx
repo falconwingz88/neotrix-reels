@@ -1,6 +1,6 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, Edit2, Trash2, ExternalLink } from 'lucide-react';
+import { GripVertical, Edit2, Trash2, ExternalLink, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { CustomProject } from '@/contexts/ProjectsContext';
@@ -10,6 +10,7 @@ interface SortableProjectItemProps {
   thumbnail: string;
   onEdit: (project: CustomProject) => void;
   onDelete: (id: string, title: string) => void;
+  onRestrict?: (id: string, title: string) => void;
   isCompact?: boolean;
 }
 
@@ -18,6 +19,7 @@ export const SortableProjectItem = ({
   thumbnail, 
   onEdit, 
   onDelete,
+  onRestrict,
   isCompact = true,
 }: SortableProjectItemProps) => {
   const {
@@ -87,6 +89,17 @@ export const SortableProjectItem = ({
 
           {/* Actions */}
           <div className="flex gap-1 flex-shrink-0 items-center">
+            {onRestrict && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => onRestrict(project.id, project.title)}
+                className="text-yellow-400 hover:text-yellow-300 hover:bg-yellow-500/20 w-7 h-7"
+                title="Move to Restricted"
+              >
+                <Lock className="w-3.5 h-3.5" />
+              </Button>
+            )}
             <Button
               variant="ghost"
               size="icon"
@@ -165,6 +178,17 @@ export const SortableProjectItem = ({
 
         {/* Actions */}
         <div className="flex flex-col gap-1 flex-shrink-0">
+          {onRestrict && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onRestrict(project.id, project.title)}
+              className="text-yellow-400 hover:text-yellow-300 hover:bg-yellow-500/20 w-8 h-8"
+              title="Move to Restricted"
+            >
+              <Lock className="w-4 h-4" />
+            </Button>
+          )}
           <Button
             variant="ghost"
             size="icon"

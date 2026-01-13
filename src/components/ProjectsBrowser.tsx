@@ -51,7 +51,10 @@ export const ProjectsBrowser = () => {
   const [showFilters, setShowFilters] = useState(false);
 
   // Convert custom projects to Project format (already sorted by sort_order from context)
-  const allProjects: Project[] = customProjects.map(cp => ({
+  // Filter out restricted projects from public view
+  const allProjects: Project[] = customProjects
+    .filter(cp => !(cp as any).isRestricted)
+    .map(cp => ({
     id: cp.id,
     title: cp.title,
     description: cp.description,

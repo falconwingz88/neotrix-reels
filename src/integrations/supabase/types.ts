@@ -191,6 +191,7 @@ export type Database = {
           description: string | null
           file_link: string | null
           id: string
+          is_restricted: boolean | null
           links: string[] | null
           project_start_date: string | null
           sort_order: number | null
@@ -208,6 +209,7 @@ export type Database = {
           description?: string | null
           file_link?: string | null
           id?: string
+          is_restricted?: boolean | null
           links?: string[] | null
           project_start_date?: string | null
           sort_order?: number | null
@@ -225,6 +227,7 @@ export type Database = {
           description?: string | null
           file_link?: string | null
           id?: string
+          is_restricted?: boolean | null
           links?: string[] | null
           project_start_date?: string | null
           sort_order?: number | null

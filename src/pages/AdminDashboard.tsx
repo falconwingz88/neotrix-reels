@@ -50,7 +50,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { useProjects, CustomProject } from '@/contexts/ProjectsContext';
 import { useContacts } from '@/contexts/ContactsContext';
-import { ArrowLeft, Plus, LogOut, X, Trash2, Edit2, Users, AlertCircle, Check, Link2, FolderOpen, RefreshCw, CalendarIcon, FolderKanban, MessageSquare, MapPin, Clock, ExternalLink, GripVertical, List, LayoutGrid, Briefcase, Image, Search, Settings } from 'lucide-react';
+import { ArrowLeft, Plus, LogOut, X, Trash2, Edit2, Users, AlertCircle, Check, Link2, FolderOpen, RefreshCw, CalendarIcon, FolderKanban, MessageSquare, MapPin, Clock, ExternalLink, GripVertical, List, LayoutGrid, Briefcase, Image, Search, Settings, Lock } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import UndoNotification, { UndoNotificationItem } from '@/components/UndoNotification';
@@ -112,7 +112,7 @@ const isValidUrl = (string: string): boolean => {
 const AdminDashboard = () => {
   // UI-only check - actual security enforced by RLS policies on database tables
   const { isAuthenticated, isAdmin, logout, loading: authLoading } = useAuth();
-  const { customProjects, addProject, updateProject, deleteProject, reorderProjectsByIds, initializeDefaultProjects, loading: projectsLoading } = useProjects();
+  const { customProjects, addProject, updateProject, deleteProject, reorderProjectsByIds, initializeDefaultProjects, loading: projectsLoading, refetch: refetchProjects } = useProjects();
   const { contacts, deleteContact, clearAllContacts, loading: contactsLoading } = useContacts();
   const { settings, updateSetting } = useSiteSettings();
   const navigate = useNavigate();
@@ -497,6 +497,31 @@ const AdminDashboard = () => {
     setUndoNotifications(prev => prev.filter(n => n.id !== id));
   }, []);
 
+  const handleRestrictProject = async (projectId: string, projectTitle: string) => {
+    try {
+      const { error } = await supabase
+        .from('projects')
+        .update({ is_restricted: true })
+        .eq('id', projectId);
+
+      if (error) throw error;
+      
+      toast({
+        title: "Project restricted",
+        description: `"${projectTitle}" has been moved to restricted projects.`,
+      });
+      
+      // Refetch projects to update the list
+      await refetchProjects();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to restrict project.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const toggleTag = (tag: string) => {
     setSelectedTags(prev =>
       prev.includes(tag)
@@ -516,12 +541,14 @@ const AdminDashboard = () => {
     return 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400';
   };
 
-  // Filter projects
-  const filteredProjects = customProjects.filter(project =>
-    project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    project.credits.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Filter projects (exclude restricted ones - they're shown in a separate page)
+  const filteredProjects = customProjects
+    .filter(project => !project.isRestricted)
+    .filter(project =>
+      project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.credits.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
   // Handle drag end for reordering
   const handleDragEnd = async (event: DragEndEvent) => {
@@ -870,10 +897,10 @@ const AdminDashboard = () => {
 
         {/* Tab Navigation */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="bg-white/10 border border-white/20 mb-6 w-full sm:w-auto flex">
+          <TabsList className="bg-white/10 border border-white/20 mb-6 w-full sm:w-auto flex flex-wrap">
             <TabsTrigger value="projects" className="data-[state=active]:bg-white/20 text-white flex-1 sm:flex-none text-xs sm:text-sm">
               <FolderKanban className="w-4 h-4 mr-1 sm:mr-2" />
-              <span className="hidden sm:inline">Projects</span> ({customProjects.length})
+              <span className="hidden sm:inline">Projects</span> ({customProjects.filter(p => !p.isRestricted).length})
             </TabsTrigger>
             <TabsTrigger value="logos" className="data-[state=active]:bg-white/20 text-white flex-1 sm:flex-none text-xs sm:text-sm">
               <Image className="w-4 h-4 mr-1 sm:mr-2" />
@@ -895,6 +922,18 @@ const AdminDashboard = () => {
 
           {/* Projects Tab */}
           <TabsContent value="projects">
+            {/* Restricted Projects Button */}
+            <div className="mb-6">
+              <Button
+                onClick={() => navigate('/admin/restricted')}
+                variant="outline"
+                className="bg-yellow-500/10 border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/20 hover:text-yellow-300"
+              >
+                <Lock className="w-4 h-4 mr-2" />
+                Restricted Projects ({customProjects.filter(p => p.isRestricted).length})
+              </Button>
+            </div>
+
             {/* Search and New Project */}
             <div className="flex flex-col md:flex-row gap-4 mb-8">
               <Input
@@ -1264,6 +1303,7 @@ const AdminDashboard = () => {
                         thumbnail={getProjectThumbnail(project)}
                         onEdit={handleEdit}
                         onDelete={openDeleteDialog}
+                        onRestrict={handleRestrictProject}
                         isCompact={isCompactView}
                       />
                     ))}

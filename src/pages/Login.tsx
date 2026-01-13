@@ -10,7 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { isAuthenticated, loading, login, signup } = useAuth();
   const navigate = useNavigate();
@@ -32,8 +32,8 @@ const Login = () => {
     
     try {
       const result = isSignUp 
-        ? await signup(username, password)
-        : await login(username, password);
+        ? await signup(email, password)
+        : await login(email, password);
       
       if (result.error) {
         toast({
@@ -101,13 +101,13 @@ const Login = () => {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="username" className="text-white/80">Username</Label>
+              <Label htmlFor="email" className="text-white/80">Email</Label>
               <Input
-                id="username"
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="Enter your username"
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
                 className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
                 required
               />

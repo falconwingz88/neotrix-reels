@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 
 const AdminLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { isAuthenticated, isAdmin, loading, login } = useAuth();
   const navigate = useNavigate();
@@ -35,7 +35,7 @@ const AdminLogin = () => {
     setIsLoading(true);
     
     try {
-      const { error } = await login(username, password);
+      const { error } = await login(email, password);
       
       if (error) {
         toast({
@@ -100,13 +100,13 @@ const AdminLogin = () => {
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="username" className="text-white/80">Username</Label>
+              <Label htmlFor="email" className="text-white/80">Email</Label>
               <Input
-                id="username"
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="Enter username"
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your admin email"
                 className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
                 required
               />

@@ -217,7 +217,7 @@ export const ProjectsBrowser = () => {
                       <span className="hidden md:inline">
                         {project.description.length > 100 ? <>
                             {project.description.slice(0, 100)}...
-                            <span className="text-blue-300 hover:underline ml-1">see more</span>
+                            <span className="text-blue-300 hover:underline ml-1 opacity-100">see more</span>
                           </> : project.description}
                       </span>
                     </> : project.description}

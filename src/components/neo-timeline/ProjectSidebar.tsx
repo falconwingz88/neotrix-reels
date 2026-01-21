@@ -32,6 +32,8 @@ export interface Project {
   color: string;
   visible: boolean;
   isHoliday?: boolean;
+  startDate?: Date;
+  endDate?: Date;
 }
 
 export interface CalendarEvent {
@@ -69,6 +71,7 @@ interface ProjectSidebarProps {
   onProjectColorChange?: (projectId: string, newColor: string) => void;
   showSubEvents?: boolean;
   onShowSubEventsChange?: (show: boolean) => void;
+  onEditProject?: (project: Project) => void;
 }
 
 export const ProjectSidebar = ({
@@ -86,6 +89,7 @@ export const ProjectSidebar = ({
   onProjectColorChange,
   showSubEvents = false,
   onShowSubEventsChange,
+  onEditProject,
 }: ProjectSidebarProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -407,9 +411,10 @@ export const ProjectSidebar = ({
                                 variant="ghost"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  handleStartEdit(project);
+                                  onEditProject?.(project);
                                 }}
                                 className="h-6 w-6 text-white/40 hover:text-white"
+                                title="Edit project"
                               >
                                 <Edit2 className="w-3 h-3" />
                               </Button>

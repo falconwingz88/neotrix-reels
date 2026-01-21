@@ -8,7 +8,9 @@ import { CalendarView } from '@/components/neo-timeline/CalendarView';
 import { EventModal } from '@/components/neo-timeline/EventModal';
 import { BackgroundSettings } from '@/components/neo-timeline/BackgroundSettings';
 import { ProjectSidebar, Project } from '@/components/neo-timeline/ProjectSidebar';
-import { ChevronLeft, ChevronRight, Plus, Settings, Save, Share2, X } from 'lucide-react';
+import { ProjectEditModal } from '@/components/neo-timeline/ProjectEditModal';
+import { DownloadPdfModal } from '@/components/neo-timeline/DownloadPdfModal';
+import { ChevronLeft, ChevronRight, Plus, Settings, Save, Share2, X, FileDown } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
@@ -79,6 +81,13 @@ const NeoTimeline = () => {
     const saved = localStorage.getItem('neo-timeline-show-subevents');
     return saved !== null ? JSON.parse(saved) : false;
   });
+  
+  // Project edit modal state
+  const [isProjectEditModalOpen, setIsProjectEditModalOpen] = useState(false);
+  const [editingProject, setEditingProject] = useState<Project | null>(null);
+  
+  // PDF download modal state
+  const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
 
   // Save showHolidays preference
   useEffect(() => {
@@ -303,6 +312,33 @@ const NeoTimeline = () => {
     return newEvent;
   };
 
+  const handleEditProject = (project: Project) => {
+    setEditingProject(project);
+    setIsProjectEditModalOpen(true);
+  };
+
+  const handleSaveProject = (updatedProject: Project) => {
+    setProjects(prev => prev.map(p => p.id === updatedProject.id ? updatedProject : p));
+    // Also update all events belonging to this project with the new color
+    if (editingProject && editingProject.color !== updatedProject.color) {
+      const projectEvents = events.filter(e => e.project_id === updatedProject.id);
+      for (const event of projectEvents) {
+        updateEvent({ ...event, color: updatedProject.color });
+      }
+    }
+  };
+
+  const handleDeleteProjectFromModal = () => {
+    if (editingProject && editingProject.id !== 'default') {
+      setProjects(prev => prev.filter(p => p.id !== editingProject.id));
+      if (selectedProjectId === editingProject.id) {
+        setSelectedProjectId(null);
+      }
+      setIsProjectEditModalOpen(false);
+      setEditingProject(null);
+    }
+  };
+
   return (
     <div 
       className="min-h-screen relative overflow-hidden"
@@ -349,6 +385,7 @@ const NeoTimeline = () => {
                 updateEvent({ ...event, color: newColor });
               }
             }}
+            onEditProject={handleEditProject}
           />
 
           {/* Main Calendar Area */}
@@ -482,6 +519,24 @@ const NeoTimeline = () => {
                       <Button
                         variant="outline"
                         size="icon"
+                        onClick={() => setIsPdfModalOpen(true)}
+                        className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                      >
+                        <FileDown className="w-4 h-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent className="bg-black/90 text-white border-white/20">
+                      <p>Download as PDF</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="icon"
                         onClick={handleShareSnapshot}
                         className="bg-white/10 border-white/20 text-white hover:bg-white/20"
                       >
@@ -594,6 +649,28 @@ const NeoTimeline = () => {
         isAuthenticated={isAuthenticated}
         isSubEvent={newEventIsSubEvent}
         projectColor={projects.find(p => p.id === selectedProjectId)?.color || '#3b82f6'}
+      />
+
+      {/* Project Edit Modal */}
+      <ProjectEditModal
+        isOpen={isProjectEditModalOpen}
+        onClose={() => {
+          setIsProjectEditModalOpen(false);
+          setEditingProject(null);
+        }}
+        project={editingProject}
+        onSave={handleSaveProject}
+        onDelete={handleDeleteProjectFromModal}
+      />
+
+      {/* PDF Download Modal */}
+      <DownloadPdfModal
+        isOpen={isPdfModalOpen}
+        onClose={() => setIsPdfModalOpen(false)}
+        projects={projects}
+        events={events}
+        selectedProjectId={selectedProjectId}
+        currentDate={currentDate}
       />
     </div>
   );

@@ -90,9 +90,14 @@ export const CalendarView = ({
       filtered = filtered.filter((e) => visibleProjectIds.includes(e.project_id || 'default'));
     }
     
-    // Sub-events: only show when their parent project is selected OR showSubEvents is enabled
-    // If no project is selected (all events view), hide sub-events unless showSubEvents is true
-    if (!selectedProjectId && !showSubEvents) {
+    // Sub-events visibility logic:
+    // - If a specific project is selected, show ALL its events (including sub-events)
+    // - If no project is selected (all events view), hide sub-events unless showSubEvents is true
+    if (selectedProjectId) {
+      // When a project is selected, show all events including sub-events
+      // No additional filtering needed
+    } else if (!showSubEvents) {
+      // In all events view without showSubEvents, hide sub-events
       filtered = filtered.filter((e) => !e.is_sub_event);
     }
     
@@ -494,7 +499,7 @@ export const CalendarView = ({
           e.stopPropagation();
           dragControls.start(e);
         }}
-        className={`relative text-xs text-white select-none group cursor-grab active:cursor-grabbing ${
+        className={`relative text-xs text-white select-none group cursor-grab active:cursor-grabbing overflow-hidden ${
           isSelected ? 'ring-2 ring-white/60 ring-inset' : ''
         } ${isSingleDay ? 'rounded-lg mx-1 px-2 py-1' : ''} ${
           isMultiDay && isFirstDay ? 'rounded-l-lg rounded-r-none ml-1 pl-2 pr-0 py-1' : ''
@@ -613,7 +618,7 @@ export const CalendarView = ({
               data-date={date.toISOString()}
               transition={springConfig}
               style={dayStyle}
-              className={`min-h-24 p-1 hover:bg-white/10 transition-colors border-b border-r border-white/5 flex flex-col ${
+              className={`min-h-24 p-1 hover:bg-white/10 transition-colors border-b border-r border-white/5 flex flex-col overflow-hidden ${
                 !isCurrentMonth ? 'opacity-40' : ''
               } ${isToday(date) ? 'ring-2 ring-blue-500 ring-inset' : ''} ${
                 isDateSelected ? 'ring-2 ring-blue-400 ring-inset' : ''
@@ -633,7 +638,7 @@ export const CalendarView = ({
               
               {/* Show event pills when NOT in blend mode */}
               {!blendMode && (
-                <div className="mt-1 flex flex-col gap-0.5">
+                <div className="mt-1 flex flex-col gap-0.5 overflow-hidden flex-1">
                   {dayEvents.map((event) => (
                     <EventCard key={event.id} event={event} date={date} />
                   ))}
@@ -642,7 +647,7 @@ export const CalendarView = ({
               
               {/* In blend mode: show sub-events as pills (they are the nested events) */}
               {blendMode && (
-                <div className="mt-1 flex flex-col gap-0.5">
+                <div className="mt-1 flex flex-col gap-0.5 overflow-hidden flex-1">
                   {subEvents.map((event) => (
                     <EventCard key={event.id} event={event} date={date} />
                   ))}

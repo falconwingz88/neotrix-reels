@@ -194,17 +194,17 @@ export const ProjectsBrowser = () => {
           layout: {
             duration: 0.4
           }
-        }} className="group cursor-pointer bg-white/5 backdrop-blur-sm rounded-md md:rounded-lg overflow-hidden border border-white/20 md:border-white/10 md:hover:border-white/20 relative" whileHover={{
+        }} className="group cursor-pointer bg-white/5 backdrop-blur-sm rounded-md md:rounded-lg overflow-hidden border border-white/10 hover:border-white/20 relative" whileHover={{
           scale: 1.03
         }} onClick={() => navigate(`/projects/${project.id}`)}>
               <div className="aspect-[4/3] md:aspect-video bg-gray-800 overflow-hidden">
-                <img src={project.thumbnail || "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400"} alt={project.title} className="w-full h-full object-cover scale-110 md:scale-100 md:group-hover:scale-110 transition-transform duration-300" onError={e => {
+                <img src={project.thumbnail || "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400"} alt={project.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" onError={e => {
               e.currentTarget.src = "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400";
             }} />
               </div>
               <div className="p-1 md:p-4 space-y-0.5 md:space-y-3">
                 <div className="flex items-start justify-between gap-1">
-                  <h3 className="font-semibold text-blue-300 md:text-white md:group-hover:text-blue-300 transition-colors line-clamp-1 text-xs md:text-base">
+                  <h3 className="font-semibold text-white group-hover:text-blue-300 transition-colors line-clamp-1 text-xs md:text-base">
                     {project.title}
                   </h3>
                   <span className="hidden md:block text-xs text-white/60 bg-white/10 px-2 py-1 rounded-full whitespace-nowrap">

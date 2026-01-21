@@ -191,10 +191,10 @@ const Index = () => {
             <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/30 to-transparent pointer-events-none" />
 
             {/* Always visible overlay with subtle transparency and text */}
-            <div className="absolute inset-0 flex items-center justify-center transition-all duration-500 bg-black/15 group-hover:bg-black/40">
+            <div className="absolute inset-0 flex items-center justify-center transition-all duration-500 bg-black/40 md:bg-black/15 md:group-hover:bg-black/40">
               <div className="text-center">
-                <h3 className="text-white text-3xl md:text-5xl font-bold mb-2 opacity-30 group-hover:opacity-100 transition-opacity duration-500">See More</h3>
-                <p className="text-white/80 text-sm md:text-lg flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                <h3 className="text-white text-3xl md:text-5xl font-bold mb-2 opacity-100 md:opacity-30 md:group-hover:opacity-100 transition-opacity duration-500">See More</h3>
+                <p className="text-white/80 text-sm md:text-lg flex items-center justify-center gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-500">
                   Explore All Projects
                   <ArrowRight className="w-5 h-5" />
                 </p>

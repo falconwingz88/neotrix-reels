@@ -102,6 +102,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     await supabase.auth.signOut({ scope: 'global' });
     setUser(null);
     setIsAdmin(false);
+    setIsAccountExecutive(false);
   };
 
   return (

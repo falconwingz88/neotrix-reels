@@ -66,10 +66,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (sessionUser) {
         const nextUser: User = { id: sessionUser.id, email: sessionUser.email };
         setUser(nextUser);
-        await refreshAdminFlag(sessionUser.id);
+        await refreshRoles(sessionUser.id);
       } else {
         setUser(null);
         setIsAdmin(false);
+        setIsAccountExecutive(false);
       }
 
       setLoading(false);

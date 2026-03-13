@@ -49,7 +49,9 @@ const Index = () => {
   const { customProjects } = useProjects();
 
   // Get more projects for scrolling preview (18 projects for 6 rows of 3)
+  // Filter out restricted projects from public view
   const previewProjects = customProjects
+    .filter((cp) => !cp.isRestricted)
     .map((cp) => ({
       id: cp.id,
       title: cp.title,

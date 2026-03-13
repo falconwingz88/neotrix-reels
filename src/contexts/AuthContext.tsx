@@ -22,21 +22,18 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isAccountExecutive, setIsAccountExecutive] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const isAuthenticated = useMemo(() => !!user, [user]);
 
-  const refreshAdminFlag = async (userId: string) => {
-    const { data, error } = await supabase.rpc('has_role', {
-      _user_id: userId,
-      _role: 'admin',
-    });
-    if (error) {
-      // Fail closed
-      setIsAdmin(false);
-      return;
-    }
-    setIsAdmin(data === true);
+  const refreshRoles = async (userId: string) => {
+    const [adminResult, aeResult] = await Promise.all([
+      supabase.rpc('has_role', { _user_id: userId, _role: 'admin' }),
+      supabase.rpc('has_role', { _user_id: userId, _role: 'account_executive' as any }),
+    ]);
+    setIsAdmin(adminResult.error ? false : adminResult.data === true);
+    setIsAccountExecutive(aeResult.error ? false : aeResult.data === true);
   };
 
   useEffect(() => {

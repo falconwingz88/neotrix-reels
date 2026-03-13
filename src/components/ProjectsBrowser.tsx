@@ -237,8 +237,8 @@ export const ProjectsBrowser = () => {
                 </div>
               </div>
               
-              {/* Admin File Access Button */}
-              {isAdmin && (project.fileLink ? <a href={project.fileLink} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="absolute bottom-2 right-2 md:bottom-4 md:right-4 flex items-center gap-1 px-2 py-1 md:px-3 md:py-1.5 bg-green-600 hover:bg-green-500 text-white text-xs font-medium rounded-md transition-colors">
+              {/* File Access Button - visible to Admin and Account Executive */}
+              {(isAdmin || isAccountExecutive) && (project.fileLink ? <a href={project.fileLink} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="absolute bottom-2 right-2 md:bottom-4 md:right-4 flex items-center gap-1 px-2 py-1 md:px-3 md:py-1.5 bg-green-600 hover:bg-green-500 text-white text-xs font-medium rounded-md transition-colors">
                     <FolderOpen className="w-3 h-3" />
                     <span className="hidden md:inline">Access Files</span>
                   </a> : <div className="absolute bottom-2 right-2 md:bottom-4 md:right-4 flex items-center gap-1 px-2 py-1 md:px-3 md:py-1.5 bg-gray-600 text-white/50 text-xs font-medium rounded-md cursor-not-allowed">

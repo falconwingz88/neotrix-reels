@@ -43,7 +43,8 @@ export const ProjectsBrowser = () => {
     loading
   } = useProjects();
   const {
-    isAdmin
+    isAdmin,
+    isAccountExecutive
   } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);

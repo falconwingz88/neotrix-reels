@@ -9,6 +9,7 @@ interface User {
 interface AuthContextType {
   isAuthenticated: boolean;
   isAdmin: boolean;
+  isAccountExecutive: boolean;
   user: User | null;
   login: (email: string, password: string) => Promise<{ error: string | null }>;
   signup: (email: string, password: string) => Promise<{ error: string | null }>;

@@ -46,7 +46,7 @@ const getYouTubeThumbnail = (url: string): string => {
 
 const Index = () => {
   const navigate = useNavigate();
-  const { customProjects } = useProjects();
+  const { customProjects, loading: projectsLoading } = useProjects();
 
   // Get more projects for scrolling preview (18 projects for 6 rows of 3)
   // Filter out restricted projects from public view

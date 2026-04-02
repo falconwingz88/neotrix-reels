@@ -70,7 +70,7 @@ const Index = () => {
     .slice(0, 18);
 
   // Duplicate projects for seamless infinite scroll
-  const duplicatedProjects = [...previewProjects, ...previewProjects];
+  const duplicatedProjects = previewProjects.length > 0 ? [...previewProjects, ...previewProjects] : [];
   const isPreviewLoading = projectsLoading && previewProjects.length === 0;
 
   return (
@@ -170,8 +170,8 @@ const Index = () => {
           >
             {/* Scrolling Project Grid */}
             <div
-              className="animate-scroll-vertical-slow transition-opacity duration-500 group-hover:opacity-40"
-              style={{ animationDuration: "100s" }}
+              className={isPreviewLoading ? "transition-opacity duration-500 group-hover:opacity-40" : "animate-scroll-vertical-slow transition-opacity duration-500 group-hover:opacity-40"}
+              style={isPreviewLoading ? undefined : { animationDuration: "100s" }}
             >
               <div className="grid grid-cols-3 gap-1 p-1">
                 {isPreviewLoading

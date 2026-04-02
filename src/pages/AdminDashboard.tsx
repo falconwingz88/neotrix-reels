@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { format } from 'date-fns';
 import {
@@ -284,15 +284,12 @@ const AdminDashboard = () => {
   const hasInvalidThumbnail = thumbnailTrimmed && !isValidUrl(thumbnailTrimmed);
   
   // Generate preview thumbnail (priority: custom thumbnail > youtube thumbnail > placeholder)
-  const previewThumbnail = useMemo(() => {
-    if (thumbnailTrimmed && isValidUrl(thumbnailTrimmed)) {
-      return thumbnailTrimmed;
-    }
-    return getYouTubeThumbnail(firstValidLink);
-  }, [thumbnailTrimmed, firstValidLink]);
+  const previewThumbnail = thumbnailTrimmed && isValidUrl(thumbnailTrimmed)
+    ? thumbnailTrimmed
+    : getYouTubeThumbnail(firstValidLink);
 
   // Check if form is valid for submission
-  const isFormValid = projectName.trim() && !hasInvalidLinks && !hasInvalidFileLink && !hasInvalidThumbnail;
+  const isFormValid = Boolean(projectName.trim() && !hasInvalidLinks && !hasInvalidFileLink && !hasInvalidThumbnail);
 
   const handleLogout = async () => {
     await logout();
@@ -321,6 +318,8 @@ const AdminDashboard = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (isSaving) return;
 
     if (!projectName.trim()) {
       toast({
@@ -372,9 +371,16 @@ const AdminDashboard = () => {
       }
       resetForm();
     } catch (error) {
+      const message =
+        typeof error === 'object' && error && 'message' in error
+          ? String((error as { message?: unknown }).message || 'Failed to save project. Please try again.')
+          : error instanceof Error
+            ? error.message
+            : 'Failed to save project. Please try again.';
+
       toast({
         title: "Error",
-        description: "Failed to save project. Please try again.",
+        description: message,
         variant: "destructive",
       });
     } finally {
@@ -452,9 +458,9 @@ const AdminDashboard = () => {
     setProjectToDelete(null);
   };
 
-  const dismissUndoNotification = useCallback((id: string) => {
+  const dismissUndoNotification = (id: string) => {
     setUndoNotifications(prev => prev.filter(n => n.id !== id));
-  }, []);
+  };
 
   const toggleTag = (tag: string) => {
     setSelectedTags(prev =>
@@ -1150,14 +1156,22 @@ const AdminDashboard = () => {
 
               <Button
                 type="submit"
-                disabled={!isFormValid}
+                disabled={isSaving || !isFormValid}
+                aria-busy={isSaving}
                 className={`w-full ${
-                  isFormValid
-                    ? 'bg-green-500/80 hover:bg-green-500 text-white'
-                    : 'bg-gray-500/50 text-white/50 cursor-not-allowed'
+                  isSaving
+                    ? 'bg-blue-500/80 text-white cursor-wait'
+                    : isFormValid
+                      ? 'bg-green-500/80 hover:bg-green-500 text-white'
+                      : 'bg-gray-500/50 text-white/50 cursor-not-allowed'
                 }`}
               >
-                {isFormValid ? (
+                {isSaving ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                    Saving...
+                  </>
+                ) : isFormValid ? (
                   <>
                     <Check className="w-4 h-4 mr-2" />
                     {editingProject ? 'Update Project' : 'Confirm & Add Project'}

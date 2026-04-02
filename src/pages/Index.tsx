@@ -71,6 +71,7 @@ const Index = () => {
 
   // Duplicate projects for seamless infinite scroll
   const duplicatedProjects = [...previewProjects, ...previewProjects];
+  const isPreviewLoading = projectsLoading && previewProjects.length === 0;
 
   return (
     <div className="min-h-screen bg-black p-3 md:p-6 relative overflow-auto scrollbar-glassmorphism">
@@ -173,18 +174,22 @@ const Index = () => {
               style={{ animationDuration: "100s" }}
             >
               <div className="grid grid-cols-3 gap-1 p-1">
-                {duplicatedProjects.map((project, index) => (
-                  <div key={`${project.id}-${index}`} className="aspect-video overflow-hidden">
-                    <img
-                      src={project.thumbnail || "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400"}
-                      alt={project.title}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        e.currentTarget.src = "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400";
-                      }}
-                    />
-                  </div>
-                ))}
+                {isPreviewLoading
+                  ? Array.from({ length: 18 }).map((_, index) => (
+                      <div key={`preview-skeleton-${index}`} className="aspect-video overflow-hidden rounded-sm bg-white/10 animate-pulse" />
+                    ))
+                  : duplicatedProjects.map((project, index) => (
+                      <div key={`${project.id}-${index}`} className="aspect-video overflow-hidden">
+                        <img
+                          src={project.thumbnail || "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400"}
+                          alt={project.title}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.src = "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400";
+                          }}
+                        />
+                      </div>
+                    ))}
               </div>
             </div>
 

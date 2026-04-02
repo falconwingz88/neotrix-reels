@@ -43,8 +43,7 @@ export const ProjectsBrowser = () => {
     loading
   } = useProjects();
   const {
-    isAdmin,
-    isAccountExecutive
+    isAdmin
   } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -93,7 +92,6 @@ export const ProjectsBrowser = () => {
     setSelectedYear(null);
     setSearchTerm("");
   };
-
   return <div className="space-y-6">
       {/* Header */}
       <div className="text-center space-y-4">
@@ -176,16 +174,7 @@ export const ProjectsBrowser = () => {
       
 
       {/* Projects Grid with animations */}
-      {loading && allProjects.length === 0 ? <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-1 md:gap-6">
-          {Array.from({ length: 6 }).map((_, index) => <div key={index} className="bg-white/5 backdrop-blur-sm rounded-md md:rounded-lg overflow-hidden border border-white/10 animate-pulse">
-              <div className="aspect-[4/3] md:aspect-video bg-white/10" />
-              <div className="p-3 md:p-4 space-y-2">
-                <div className="h-4 bg-white/10 rounded w-2/3" />
-                <div className="h-3 bg-white/10 rounded w-full" />
-                <div className="h-3 bg-white/10 rounded w-3/4" />
-              </div>
-            </div>)}
-        </div> : <motion.div layout className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-1 md:gap-6">
+      <motion.div layout className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-1 md:gap-6">
         <AnimatePresence mode="popLayout">
           {filteredProjects.map(project => <motion.div key={project.id} layout initial={{
           opacity: 0,
@@ -247,8 +236,8 @@ export const ProjectsBrowser = () => {
                 </div>
               </div>
               
-              {/* File Access Button - visible to Admin and Account Executive */}
-              {(isAdmin || isAccountExecutive) && (project.fileLink ? <a href={project.fileLink} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="absolute bottom-2 right-2 md:bottom-4 md:right-4 flex items-center gap-1 px-2 py-1 md:px-3 md:py-1.5 bg-green-600 hover:bg-green-500 text-white text-xs font-medium rounded-md transition-colors">
+              {/* Admin File Access Button */}
+              {isAdmin && (project.fileLink ? <a href={project.fileLink} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="absolute bottom-2 right-2 md:bottom-4 md:right-4 flex items-center gap-1 px-2 py-1 md:px-3 md:py-1.5 bg-green-600 hover:bg-green-500 text-white text-xs font-medium rounded-md transition-colors">
                     <FolderOpen className="w-3 h-3" />
                     <span className="hidden md:inline">Access Files</span>
                   </a> : <div className="absolute bottom-2 right-2 md:bottom-4 md:right-4 flex items-center gap-1 px-2 py-1 md:px-3 md:py-1.5 bg-gray-600 text-white/50 text-xs font-medium rounded-md cursor-not-allowed">
@@ -257,10 +246,10 @@ export const ProjectsBrowser = () => {
                   </div>)}
             </motion.div>)}
         </AnimatePresence>
-      </motion.div>}
+      </motion.div>
 
       {/* No Results */}
-      {!loading && filteredProjects.length === 0 && <div className="text-center py-12">
+      {filteredProjects.length === 0 && <div className="text-center py-12">
           <p className="text-white/60">No projects found matching your criteria.</p>
           <Button onClick={clearFilters} variant="ghost" className="mt-4 text-white hover:bg-white/10">
             Clear filters

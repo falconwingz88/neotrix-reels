@@ -48,11 +48,11 @@ export const Header = () => {
           </div>
 
           {/* Center - Logo */}
-          <div className="absolute left-1/2 transform -translate-x-1/2 pointer-events-none">
+          <div className="absolute left-1/2 transform -translate-x-1/2">
             <img 
               src={neotrixLogo} 
               alt="Neotrix Logo" 
-              className="h-6 w-auto object-contain cursor-pointer pointer-events-auto"
+              className="h-6 w-auto object-contain cursor-pointer"
               onClick={() => navigate('/')}
             />
           </div>
@@ -133,11 +133,11 @@ export const Header = () => {
           </div>
           
           {/* Center - Logo */}
-          <div className="absolute left-1/2 transform -translate-x-1/2 pointer-events-none">
+          <div className="absolute left-1/2 transform -translate-x-1/2">
             <img 
               src={neotrixLogo} 
               alt="Neotrix Logo" 
-              className="h-5 w-auto object-contain cursor-pointer pointer-events-auto"
+              className="h-5 w-auto object-contain cursor-pointer"
               onClick={() => navigate('/')}
             />
           </div>

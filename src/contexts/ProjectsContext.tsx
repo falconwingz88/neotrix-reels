@@ -639,16 +639,6 @@ const DEFAULT_PROJECTS: Omit<CustomProject, 'id' | 'createdAt'>[] = [
   },
 ];
 
-const createFallbackProjects = (): CustomProject[] =>
-  DEFAULT_PROJECTS.map((project, index) => ({
-    ...project,
-    id: `fallback-${index + 1}`,
-    createdAt: new Date(project.year ?? 2020, 0, 1).toISOString(),
-    sortOrder: index + 1,
-    isRestricted: false,
-    thumbnail: project.thumbnail || (project.links[0] ? getYouTubeThumbnail(project.links[0]) : undefined),
-  }));
-
 // Transform database row to CustomProject format
 const transformDbToProject = (row: any): CustomProject => ({
   id: row.id,
@@ -689,27 +679,17 @@ export const ProjectsProvider = ({ children }: { children: ReactNode }) => {
 
   const fetchProjects = async () => {
     setLoading(true);
+    const { data, error } = await supabase
+      .from('projects')
+      .select('*')
+      .order('sort_order', { ascending: true });
 
-    try {
-      const { data, error } = await supabase
-        .from('projects')
-        .select('*')
-        .order('sort_order', { ascending: true });
-
-      if (error) {
-        console.error('Error fetching projects:', error);
-        setCustomProjects(createFallbackProjects());
-        return;
-      }
-
-      const projects = (data || []).map(transformDbToProject);
-      setCustomProjects(projects.length > 0 ? projects : createFallbackProjects());
-    } catch (error) {
-      console.error('Unexpected error fetching projects:', error);
-      setCustomProjects(createFallbackProjects());
-    } finally {
-      setLoading(false);
+    if (error) {
+      console.error('Error fetching projects:', error);
+    } else {
+      setCustomProjects((data || []).map(transformDbToProject));
     }
+    setLoading(false);
   };
 
   useEffect(() => {

@@ -46,12 +46,10 @@ const getYouTubeThumbnail = (url: string): string => {
 
 const Index = () => {
   const navigate = useNavigate();
-  const { customProjects, loading: projectsLoading } = useProjects();
+  const { customProjects } = useProjects();
 
   // Get more projects for scrolling preview (18 projects for 6 rows of 3)
-  // Filter out restricted projects from public view
   const previewProjects = customProjects
-    .filter((cp) => !cp.isRestricted)
     .map((cp) => ({
       id: cp.id,
       title: cp.title,
@@ -70,8 +68,7 @@ const Index = () => {
     .slice(0, 18);
 
   // Duplicate projects for seamless infinite scroll
-  const duplicatedProjects = previewProjects.length > 0 ? [...previewProjects, ...previewProjects] : [];
-  const isPreviewLoading = projectsLoading && previewProjects.length === 0;
+  const duplicatedProjects = [...previewProjects, ...previewProjects];
 
   return (
     <div className="min-h-screen bg-black p-3 md:p-6 relative overflow-auto scrollbar-glassmorphism">
@@ -170,26 +167,22 @@ const Index = () => {
           >
             {/* Scrolling Project Grid */}
             <div
-              className={isPreviewLoading ? "transition-opacity duration-500 group-hover:opacity-40" : "animate-scroll-vertical-slow transition-opacity duration-500 group-hover:opacity-40"}
-              style={isPreviewLoading ? undefined : { animationDuration: "100s" }}
+              className="animate-scroll-vertical-slow transition-opacity duration-500 group-hover:opacity-40"
+              style={{ animationDuration: "100s" }}
             >
               <div className="grid grid-cols-3 gap-1 p-1">
-                {isPreviewLoading
-                  ? Array.from({ length: 18 }).map((_, index) => (
-                      <div key={`preview-skeleton-${index}`} className="aspect-video overflow-hidden rounded-sm bg-white/10 animate-pulse" />
-                    ))
-                  : duplicatedProjects.map((project, index) => (
-                      <div key={`${project.id}-${index}`} className="aspect-video overflow-hidden">
-                        <img
-                          src={project.thumbnail || "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400"}
-                          alt={project.title}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            e.currentTarget.src = "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400";
-                          }}
-                        />
-                      </div>
-                    ))}
+                {duplicatedProjects.map((project, index) => (
+                  <div key={`${project.id}-${index}`} className="aspect-video overflow-hidden">
+                    <img
+                      src={project.thumbnail || "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400"}
+                      alt={project.title}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.src = "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400";
+                      }}
+                    />
+                  </div>
+                ))}
               </div>
             </div>
 

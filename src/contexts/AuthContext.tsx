@@ -9,7 +9,6 @@ interface User {
 interface AuthContextType {
   isAuthenticated: boolean;
   isAdmin: boolean;
-  isAccountExecutive: boolean;
   user: User | null;
   login: (email: string, password: string) => Promise<{ error: string | null }>;
   signup: (email: string, password: string) => Promise<{ error: string | null }>;
@@ -22,18 +21,21 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [isAccountExecutive, setIsAccountExecutive] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const isAuthenticated = useMemo(() => !!user, [user]);
 
-  const refreshRoles = async (userId: string) => {
-    const [adminResult, aeResult] = await Promise.all([
-      supabase.rpc('has_role', { _user_id: userId, _role: 'admin' }),
-      supabase.rpc('has_role', { _user_id: userId, _role: 'account_executive' as any }),
-    ]);
-    setIsAdmin(adminResult.error ? false : adminResult.data === true);
-    setIsAccountExecutive(aeResult.error ? false : aeResult.data === true);
+  const refreshAdminFlag = async (userId: string) => {
+    const { data, error } = await supabase.rpc('has_role', {
+      _user_id: userId,
+      _role: 'admin',
+    });
+    if (error) {
+      // Fail closed
+      setIsAdmin(false);
+      return;
+    }
+    setIsAdmin(data === true);
   };
 
   useEffect(() => {
@@ -47,11 +49,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (sessionUser) {
         const nextUser: User = { id: sessionUser.id, email: sessionUser.email };
         setUser(nextUser);
-        await refreshRoles(sessionUser.id);
+        await refreshAdminFlag(sessionUser.id);
       } else {
         setUser(null);
         setIsAdmin(false);
-        setIsAccountExecutive(false);
       }
 
       setLoading(false);
@@ -66,11 +67,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (sessionUser) {
         const nextUser: User = { id: sessionUser.id, email: sessionUser.email };
         setUser(nextUser);
-        await refreshRoles(sessionUser.id);
+        await refreshAdminFlag(sessionUser.id);
       } else {
         setUser(null);
         setIsAdmin(false);
-        setIsAccountExecutive(false);
       }
 
       setLoading(false);
@@ -99,10 +99,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = async () => {
-    await supabase.auth.signOut({ scope: 'local' });
+    await supabase.auth.signOut({ scope: 'global' });
     setUser(null);
     setIsAdmin(false);
-    setIsAccountExecutive(false);
   };
 
   return (
@@ -110,7 +109,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       value={{
         isAuthenticated,
         isAdmin,
-        isAccountExecutive,
         user,
         login,
         signup,

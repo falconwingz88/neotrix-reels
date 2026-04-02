@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Calendar, Users, Clock, FolderOpen, Share2, Edit2 } from "lucide-react";
+import { ArrowLeft, Calendar, Users, Clock, FolderOpen, Link as LinkIcon, Edit2, Check, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Header } from "@/components/Header";
@@ -36,6 +36,7 @@ const ProjectDetail = () => {
   const { customProjects, loading } = useProjects();
   const { isAuthenticated, isAdmin } = useAuth();
   const [clientLogo, setClientLogo] = useState<ClientLogo | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const project = customProjects.find((p) => p.id === id);
 
@@ -58,11 +59,13 @@ const ProjectDetail = () => {
     fetchClientLogo();
   }, [project?.client]);
 
-  const handleShare = async () => {
+  const handleCopyLink = async () => {
     const url = window.location.href;
     try {
       await navigator.clipboard.writeText(url);
+      setCopied(true);
       toast.success("Link copied to clipboard!");
+      setTimeout(() => setCopied(false), 2000);
     } catch {
       toast.error("Failed to copy link");
     }
@@ -154,12 +157,21 @@ const ProjectDetail = () => {
               </Button>
             )}
             <Button
-              onClick={handleShare}
+              onClick={handleCopyLink}
               variant="ghost"
-              className="text-white hover:bg-white/10 bg-white/5"
+              className="text-white hover:bg-white/10 bg-white/5 gap-2"
             >
-              <Share2 className="w-4 h-4 mr-2" />
-              Share
+              {copied ? (
+                <>
+                  <Check className="w-4 h-4 text-green-400" />
+                  Copied!
+                </>
+              ) : (
+                <>
+                  <Copy className="w-4 h-4" />
+                  Copy Link
+                </>
+              )}
             </Button>
           </div>
         </div>

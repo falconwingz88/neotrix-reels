@@ -22,6 +22,7 @@ import JoinUs from "./pages/JoinUs";
 import Hiring from "./pages/Hiring";
 import NeoTimeline from "./pages/NeoTimeline";
 import NeoTimelineView from "./pages/NeoTimelineView";
+import RestrictedProjects from "./pages/RestrictedProjects";
 
 const queryClient = new QueryClient();
 
@@ -46,6 +47,7 @@ const App = () => (
                   <Route path="/hiring" element={<Hiring />} />
                   <Route path="/neo-timeline" element={<NeoTimeline />} />
                   <Route path="/neo-timeline/view" element={<NeoTimelineView />} />
+                  <Route path="/r" element={<RestrictedProjects />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/admin-login" element={<AdminLogin />} />
                   <Route path="/admin" element={<AdminDashboard />} />

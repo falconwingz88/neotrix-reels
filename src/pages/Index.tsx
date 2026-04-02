@@ -203,24 +203,6 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Secondary Videos - Liquid and Beauty Reels in one row */}
-        <div className="flex flex-col gap-4 md:gap-6 max-w-7xl mx-auto w-full mb-8 md:mb-12">
-          <h2 className="text-xl md:text-3xl font-bold text-white text-center mb-4 md:mb-6 px-4">
-            More From Our Portfolio
-          </h2>
-
-          <div className="flex flex-col md:flex-row gap-4 md:gap-6 max-w-7xl mx-auto w-full">
-            {/* Liquid Reels */}
-            <div className="flex-1 aspect-video bg-white/10 backdrop-blur-sm rounded-3xl border border-white/20 overflow-hidden shadow-2xl hover:bg-white/15 transition-all duration-500">
-              <VideoPlayer src={REELS[1].src} title={REELS[1].title} author={REELS[1].author} isActive={true} />
-            </div>
-
-            {/* Beauty Reels */}
-            <div className="flex-1 aspect-video bg-white/10 backdrop-blur-sm rounded-3xl border border-white/20 overflow-hidden shadow-2xl hover:bg-white/15 transition-all duration-500">
-              <VideoPlayer src={REELS[2].src} title={REELS[2].title} author={REELS[2].author} isActive={true} />
-            </div>
-          </div>
-        </div>
 
         {/* Client Logos */}
         <div className="max-w-7xl mx-auto w-full py-8">

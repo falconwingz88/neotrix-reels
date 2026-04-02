@@ -182,7 +182,7 @@ export const Contact = () => {
                 </div>
               </div>}
 
-            {/* Step 2 - Project Status */}
+            {/*  Step 2 - Project Status */}
             {currentStep === 2 && <div className="space-y-6 animate-fade-in">
                 <div className="space-y-2">
                   <label className="text-white font-medium text-lg">Do you come here with a project already?</label>

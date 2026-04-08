@@ -679,21 +679,47 @@ export const ProjectsProvider = ({ children }: { children: ReactNode }) => {
 
   const fetchProjects = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('projects')
-      .select('*')
-      .order('sort_order', { ascending: true });
 
-    if (error) {
-      console.error('Error fetching projects:', error);
-    } else {
+    try {
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .order('sort_order', { ascending: true });
+
+      if (error) {
+        console.error('Error fetching projects:', error);
+        return;
+      }
+
       setCustomProjects((data || []).map(transformDbToProject));
+    } catch (error) {
+      console.error('Unexpected error fetching projects:', error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => {
-    fetchProjects();
+    void fetchProjects();
+
+    const channel = supabase
+      .channel('projects-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'projects',
+        },
+        () => {
+          void fetchProjects();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const initializeDefaultProjects = async () => {
@@ -706,10 +732,9 @@ export const ProjectsProvider = ({ children }: { children: ReactNode }) => {
 
     if (count && count > 0) {
       setLoading(false);
-      return; // Projects already initialized
+      return;
     }
 
-    // Insert all default projects
     const projectsToInsert = DEFAULT_PROJECTS.map(transformProjectToDb);
     
     const { error } = await supabase
@@ -786,11 +811,9 @@ export const ProjectsProvider = ({ children }: { children: ReactNode }) => {
     const currentProject = customProjects[currentIndex];
     const targetProject = customProjects[targetIndex];
 
-    // Swap sort_order values
     const currentSortOrder = currentProject.sortOrder ?? currentIndex;
     const targetSortOrder = targetProject.sortOrder ?? targetIndex;
 
-    // Update both projects in the database
     const { error: error1 } = await supabase
       .from('projects')
       .update({ sort_order: targetSortOrder })
@@ -810,7 +833,6 @@ export const ProjectsProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const reorderProjectsByIds = async (orderedIds: string[]) => {
-    // Update sort_order for all projects based on new order
     const updates = orderedIds.map((id, index) => 
       supabase
         .from('projects')

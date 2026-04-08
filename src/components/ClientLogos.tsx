@@ -14,24 +14,30 @@ export const ClientLogos = () => {
   const [logos, setLogos] = useState<ClientLogo[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch logos from database
   useEffect(() => {
     const fetchLogos = async () => {
-      const { data, error } = await supabase
-        .from('client_logos')
-        .select('*')
-        .eq('is_active', true)
-        .order('sort_order', { ascending: true });
-      
-      if (!error && data) {
-        setLogos(data as ClientLogo[]);
+      try {
+        const { data, error } = await supabase
+          .from('client_logos')
+          .select('*')
+          .eq('is_active', true)
+          .order('sort_order', { ascending: true });
+
+        if (error) {
+          console.error('Error fetching client logos:', error);
+          return;
+        }
+
+        setLogos((data || []) as ClientLogo[]);
+      } catch (error) {
+        console.error('Unexpected error fetching client logos:', error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
-    fetchLogos();
+    void fetchLogos();
 
-    // Subscribe to realtime changes
     const channel = supabase
       .channel('client_logos_changes')
       .on(
@@ -42,7 +48,7 @@ export const ClientLogos = () => {
           table: 'client_logos'
         },
         () => {
-          fetchLogos();
+          void fetchLogos();
         }
       )
       .subscribe();
@@ -52,7 +58,6 @@ export const ClientLogos = () => {
     };
   }, []);
 
-  // Create 3 rows with infinite continuous looping
   const createLogoRows = () => {
     if (logos.length === 0) return [];
     
@@ -64,14 +69,12 @@ export const ClientLogos = () => {
       const endIndex = Math.min(startIndex + logosPerRow, logos.length);
       let rowLogos = logos.slice(startIndex, endIndex);
       
-      // If row is short, fill it with logos from the beginning to ensure seamless loop
       while (rowLogos.length < logosPerRow) {
         const remainingCount = logosPerRow - rowLogos.length;
         const fillLogos = logos.slice(0, Math.min(remainingCount, logos.length));
         rowLogos = [...rowLogos, ...fillLogos];
       }
       
-      // Create 6 duplicates for truly seamless infinite scrolling with no gaps
       const duplicatedRow = [
         ...rowLogos, ...rowLogos, ...rowLogos, 
         ...rowLogos, ...rowLogos, ...rowLogos
@@ -83,7 +86,6 @@ export const ClientLogos = () => {
 
   const logoRows = createLogoRows();
 
-  // Add horizontal scroll functionality
   useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
       if (scrollRef.current) {

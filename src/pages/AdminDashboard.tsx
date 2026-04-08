@@ -306,8 +306,9 @@ const AdminDashboard = () => {
   }, [isAdmin]);
 
   // Validate links - must be before early return to maintain hook order
-  const invalidLinks = mediaLinks.filter(link => !isValidUrl(link));
-  const hasInvalidLinks = invalidLinks.length > 0 && mediaLinks.length > 0;
+  const nonEmptyLinks = mediaLinks.filter(link => link.trim() !== '');
+  const invalidLinks = nonEmptyLinks.filter(link => !isValidUrl(link));
+  const hasInvalidLinks = invalidLinks.length > 0;
   const firstValidLink = mediaLinks.find(link => isValidUrl(link)) || '';
   
   // Validate file link

@@ -273,29 +273,41 @@ const AdminDashboard = () => {
   // Fetch job openings
   const fetchJobOpenings = async () => {
     setJobsLoading(true);
-    const { data, error } = await supabase
-      .from('job_openings')
-      .select('*')
-      .order('sort_order', { ascending: true });
-    
-    if (!error && data) {
-      setJobOpenings(data as JobOpening[]);
+    try {
+      const { data, error } = await supabase
+        .from('job_openings')
+        .select('*')
+        .order('sort_order', { ascending: true });
+      
+      if (error) {
+        console.error('Error fetching job openings:', error);
+        return;
+      }
+
+      setJobOpenings((data || []) as JobOpening[]);
+    } finally {
+      setJobsLoading(false);
     }
-    setJobsLoading(false);
   };
 
   // Fetch client logos
   const fetchClientLogos = async () => {
     setLogosLoading(true);
-    const { data, error } = await supabase
-      .from('client_logos')
-      .select('*')
-      .order('sort_order', { ascending: true });
-    
-    if (!error && data) {
-      setClientLogos(data as ClientLogo[]);
+    try {
+      const { data, error } = await supabase
+        .from('client_logos')
+        .select('*')
+        .order('sort_order', { ascending: true });
+      
+      if (error) {
+        console.error('Error fetching client logos:', error);
+        return;
+      }
+
+      setClientLogos((data || []) as ClientLogo[]);
+    } finally {
+      setLogosLoading(false);
     }
-    setLogosLoading(false);
   };
 
   useEffect(() => {

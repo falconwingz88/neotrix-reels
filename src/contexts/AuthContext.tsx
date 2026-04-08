@@ -18,6 +18,11 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const mapSessionUser = (sessionUser: { id: string; email?: string | null } | null): User | null => {
+  if (!sessionUser) return null;
+  return { id: sessionUser.id, email: sessionUser.email ?? null };
+};
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -30,55 +35,49 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       _user_id: userId,
       _role: 'admin',
     });
+
     if (error) {
-      // Fail closed
-      setIsAdmin(false);
-      return;
+      console.error('Error checking admin role:', error);
+      return false;
     }
-    setIsAdmin(data === true);
+
+    return data === true;
   };
 
   useEffect(() => {
     let mounted = true;
 
-    const init = async () => {
-      const { data } = await supabase.auth.getSession();
+    const applySession = async (sessionUser: { id: string; email?: string | null } | null) => {
       if (!mounted) return;
 
-      const sessionUser = data.session?.user ?? null;
-      if (sessionUser) {
-        const nextUser: User = { id: sessionUser.id, email: sessionUser.email };
-        setUser(nextUser);
-        await refreshAdminFlag(sessionUser.id);
-      } else {
+      if (!sessionUser) {
         setUser(null);
         setIsAdmin(false);
+        setLoading(false);
+        return;
       }
 
+      setUser(mapSessionUser(sessionUser));
+      const admin = await refreshAdminFlag(sessionUser.id);
+      if (!mounted) return;
+      setIsAdmin(admin);
       setLoading(false);
     };
 
-    init();
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      void applySession(session?.user ?? null);
+    });
 
-    const { data: sub } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      const sessionUser = session?.user ?? null;
-      if (!mounted) return;
-
-      if (sessionUser) {
-        const nextUser: User = { id: sessionUser.id, email: sessionUser.email };
-        setUser(nextUser);
-        await refreshAdminFlag(sessionUser.id);
-      } else {
-        setUser(null);
-        setIsAdmin(false);
+    void supabase.auth.getSession().then(({ data, error }) => {
+      if (error) {
+        console.error('Error restoring session:', error);
       }
-
-      setLoading(false);
+      void applySession(data.session?.user ?? null);
     });
 
     return () => {
       mounted = false;
-      sub.subscription.unsubscribe();
+      authListener.subscription.unsubscribe();
     };
   }, []);
 
@@ -99,9 +98,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = async () => {
-    await supabase.auth.signOut({ scope: 'local' });
+    const { error } = await supabase.auth.signOut({ scope: 'local' });
+    if (error) {
+      console.error('Error signing out:', error);
+      throw error;
+    }
     setUser(null);
     setIsAdmin(false);
+    setLoading(false);
   };
 
   return (

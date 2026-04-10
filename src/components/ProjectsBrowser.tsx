@@ -222,10 +222,6 @@ export const ProjectsBrowser = () => {
                       </span>
                     </> : project.description}
                 </p>
-                <div className="hidden md:flex items-center gap-2 text-xs text-white/60">
-                  <Users className="w-3 h-3" />
-                  <span className="line-clamp-1">{project.client}</span>
-                </div>
                 <div className="flex flex-wrap gap-0.5 md:gap-1">
                   {project.tags.slice(0, 2).map((tag, index) => <Badge key={index} variant="secondary" className="text-[8px] md:text-xs bg-white/10 text-white/80 hover:bg-white/20 px-1 py-0 md:px-2 md:py-0.5">
                       {tag}

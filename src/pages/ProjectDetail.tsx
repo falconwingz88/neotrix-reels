@@ -281,32 +281,6 @@ const ProjectDetail = () => {
             <p className="text-white/80 text-lg leading-relaxed">{projectData.description}</p>
           </div>
 
-          {/* Client Information */}
-          {projectData.client && (
-            <div>
-              <h2 className="text-2xl font-semibold text-white mb-4 flex items-center gap-2">
-                <Users className="w-6 h-6" />
-                Client
-              </h2>
-              <div className="bg-white/5 rounded-lg p-4 border border-white/10">
-                {clientLogo ? (
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 flex items-center justify-center bg-white/10 rounded-lg">
-                      <img
-                        src={clientLogo.url}
-                        alt={clientLogo.name}
-                        className={`max-w-full max-h-full object-contain filter brightness-0 invert ${getScaleClass(clientLogo.scale)}`}
-                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                      />
-                    </div>
-                    <span className="text-white font-medium">{clientLogo.name}</span>
-                  </div>
-                ) : (
-                  <div className="text-white/80">{projectData.client}</div>
-                )}
-              </div>
-            </div>
-          )}
 
           {/* Credits */}
           {projectData.credits && (

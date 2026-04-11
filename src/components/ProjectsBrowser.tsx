@@ -59,18 +59,31 @@ export const ProjectsBrowser = () => {
   });
   const [showFilters, setShowFilters] = useState(() => !!searchParams.get("year"));
 
-  // Sync state to URL params
   const updateSearchParams = useCallback((search: string, tags: string[], year: number | null) => {
-    const params = new URLSearchParams();
+    const params = new URLSearchParams(searchParams);
     if (search) params.set("q", search);
+    else params.delete("q");
+
     if (tags.length > 0) params.set("tags", tags.join(","));
+    else params.delete("tags");
+
     if (year !== null) params.set("year", String(year));
-    setSearchParams(params, { replace: true });
-  }, [setSearchParams]);
+    else params.delete("year");
+
+    setSearchParams(params);
+  }, [searchParams, setSearchParams]);
 
   useEffect(() => {
-    updateSearchParams(searchTerm, selectedTags, selectedYear);
-  }, [searchTerm, selectedTags, selectedYear, updateSearchParams]);
+    const nextSearch = searchParams.get("q") || "";
+    const nextTags = (searchParams.get("tags") || "").split(",").filter(Boolean);
+    const nextYear = searchParams.get("year");
+    const parsedYear = nextYear ? parseInt(nextYear, 10) : null;
+
+    setSearchTerm(prev => prev === nextSearch ? prev : nextSearch);
+    setSelectedTags(prev => JSON.stringify(prev) === JSON.stringify(nextTags) ? prev : nextTags);
+    setSelectedYear(prev => prev === parsedYear ? prev : parsedYear);
+    setShowFilters(!!nextYear);
+  }, [searchParams]);
 
   // Convert custom projects to Project format (already sorted by sort_order from context)
   // Filter out restricted projects from public view
@@ -107,12 +120,15 @@ export const ProjectsBrowser = () => {
   }, [allProjects, searchTerm, selectedTags, selectedYear]);
   const filteredProjects = allProjects.filter(project => filteredProjectIds.has(project.id));
   const toggleTag = (tag: string) => {
-    setSelectedTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]);
+    const nextTags = selectedTags.includes(tag) ? selectedTags.filter(t => t !== tag) : [...selectedTags, tag];
+    setSelectedTags(nextTags);
+    updateSearchParams(searchTerm, nextTags, selectedYear);
   };
   const clearFilters = () => {
     setSelectedTags([]);
     setSelectedYear(null);
     setSearchTerm("");
+    updateSearchParams("", [], null);
   };
   return <div className="space-y-6">
       {/* Header */}

@@ -38,6 +38,7 @@ export const TAG_OPTIONS = ["Beauty", "Liquid", "VFX", "Character Animation", "O
 const YEAR_OPTIONS = [2026, 2025, 2024, 2023, 2022, 2021, 2020];
 export const ProjectsBrowser = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const {
     customProjects,
     loading
@@ -45,10 +46,31 @@ export const ProjectsBrowser = () => {
   const {
     isAdmin
   } = useAuth();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [selectedYear, setSelectedYear] = useState<number | null>(null);
-  const [showFilters, setShowFilters] = useState(false);
+
+  // Initialize state from URL params
+  const [searchTerm, setSearchTerm] = useState(() => searchParams.get("q") || "");
+  const [selectedTags, setSelectedTags] = useState<string[]>(() => {
+    const tags = searchParams.get("tags");
+    return tags ? tags.split(",").filter(Boolean) : [];
+  });
+  const [selectedYear, setSelectedYear] = useState<number | null>(() => {
+    const year = searchParams.get("year");
+    return year ? parseInt(year, 10) : null;
+  });
+  const [showFilters, setShowFilters] = useState(() => !!searchParams.get("year"));
+
+  // Sync state to URL params
+  const updateSearchParams = useCallback((search: string, tags: string[], year: number | null) => {
+    const params = new URLSearchParams();
+    if (search) params.set("q", search);
+    if (tags.length > 0) params.set("tags", tags.join(","));
+    if (year !== null) params.set("year", String(year));
+    setSearchParams(params, { replace: true });
+  }, [setSearchParams]);
+
+  useEffect(() => {
+    updateSearchParams(searchTerm, selectedTags, selectedYear);
+  }, [searchTerm, selectedTags, selectedYear, updateSearchParams]);
 
   // Convert custom projects to Project format (already sorted by sort_order from context)
   // Filter out restricted projects from public view

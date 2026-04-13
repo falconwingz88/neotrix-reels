@@ -225,7 +225,7 @@ const ProjectDetail = () => {
           {projectData.allVideos.length > 1 && (
             <div>
               <h2 className="text-2xl md:text-3xl font-bold text-white mb-6">Additional Videos</h2>
-              <div className="space-y-6">
+              <div className={projectData.allVideos.length === 2 ? "space-y-6" : "grid grid-cols-1 md:grid-cols-2 gap-4"}>
                 {projectData.allVideos.slice(1).map((videoUrl, index) => (
                   <div
                     key={index}

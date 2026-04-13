@@ -224,12 +224,12 @@ const ProjectDetail = () => {
           {/* Additional Videos */}
           {projectData.allVideos.length > 1 && (
             <div>
-              <h3 className="text-xl font-semibold text-white mb-3">Additional Videos</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <h2 className="text-2xl md:text-3xl font-bold text-white mb-6">Additional Videos</h2>
+              <div className="space-y-6">
                 {projectData.allVideos.slice(1).map((videoUrl, index) => (
                   <div
                     key={index}
-                    className="aspect-video bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 overflow-hidden"
+                    className="aspect-video bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 overflow-hidden shadow-xl"
                   >
                     <iframe
                       src={getEmbedUrl(videoUrl)}

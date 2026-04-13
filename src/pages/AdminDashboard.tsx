@@ -1962,17 +1962,16 @@ const AdminDashboard = () => {
                           </div>
                         </div>
                         <div className="flex items-center gap-2 flex-shrink-0">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => toggleJobActive(job)}
-                            className={cn(
-                              "text-white hover:bg-white/10",
-                              job.is_active ? "text-green-400" : "text-white/40"
-                            )}
-                          >
-                            {job.is_active ? 'Published' : 'Hidden'}
-                          </Button>
+                          <div className="flex items-center gap-2">
+                            <Switch
+                              checked={job.is_active}
+                              onCheckedChange={() => toggleJobActive(job)}
+                              className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-white/20"
+                            />
+                            <span className={cn("text-xs font-medium", job.is_active ? "text-green-400" : "text-white/40")}>
+                              {job.is_active ? 'Active' : 'Inactive'}
+                            </span>
+                          </div>
                           <Button
                             variant="ghost"
                             size="icon"

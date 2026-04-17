@@ -15,7 +15,7 @@ interface Reel {
 const DEMO_REELS: Reel[] = [
   {
     id: '1',
-    src: 'https://youtu.be/tlpjTqTaj_Y',
+    src: 'https://www.youtube.com/watch?v=G-DcAogDbUY',
     title: 'Neotrix Reels 2024',
     author: 'neotrix.asia'
   },

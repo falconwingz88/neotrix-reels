@@ -20,10 +20,11 @@ const isYouTubeUrl = (url: string): boolean => {
   return getYouTubeVideoId(url) !== null;
 };
 
-const getYouTubeEmbedUrl = (url: string): string => {
+const getYouTubeEmbedUrl = (url: string, muted: boolean): string => {
   const videoId = getYouTubeVideoId(url);
   if (!videoId) return url;
-  return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&showinfo=0&rel=0&modestbranding=1&hd=1&vq=hd2160&quality=hd2160&fmt=37&maxres=1`;
+  const muteParam = muted ? 1 : 0;
+  return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=${muteParam}&loop=1&playlist=${videoId}&controls=0&showinfo=0&rel=0&modestbranding=1&hd=1&vq=hd2160&quality=hd2160&fmt=37&maxres=1&enablejsapi=1`;
 };
 
 interface VideoPlayerProps {
@@ -31,11 +32,14 @@ interface VideoPlayerProps {
   title: string;
   author: string;
   isActive: boolean;
+  /** Start unmuted with a low volume (0-100). YouTube only; subject to browser autoplay policy. */
+  unmutedDefault?: boolean;
+  initialVolume?: number;
 }
 
-export const VideoPlayer = ({ src, title, author, isActive }: VideoPlayerProps) => {
+export const VideoPlayer = ({ src, title, author, isActive, unmutedDefault = false, initialVolume = 20 }: VideoPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(true);
+  const [isMuted, setIsMuted] = useState(!unmutedDefault);
   const [progress, setProgress] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -43,7 +47,35 @@ export const VideoPlayer = ({ src, title, author, isActive }: VideoPlayerProps) 
   const [isFullscreen, setIsFullscreen] = useState(false);
   
   const isYouTube = isYouTubeUrl(src);
-  const embedUrl = isYouTube ? getYouTubeEmbedUrl(src) : src;
+  const embedUrl = isYouTube ? getYouTubeEmbedUrl(src, !unmutedDefault) : src;
+
+  // Helper to send commands to the YouTube iframe via postMessage API
+  const postYTCommand = (func: string, args: any[] = []) => {
+    const iframe = iframeRef.current;
+    if (!iframe || !iframe.contentWindow) return;
+    iframe.contentWindow.postMessage(
+      JSON.stringify({ event: 'command', func, args }),
+      '*'
+    );
+  };
+
+  // Set initial volume once iframe loads (YouTube)
+  useEffect(() => {
+    if (!isYouTube) return;
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+    const onLoad = () => {
+      // Give the player a moment to initialize the JS API
+      setTimeout(() => {
+        postYTCommand('setVolume', [initialVolume]);
+        if (unmutedDefault) {
+          postYTCommand('unMute');
+        }
+      }, 500);
+    };
+    iframe.addEventListener('load', onLoad);
+    return () => iframe.removeEventListener('load', onLoad);
+  }, [isYouTube, initialVolume, unmutedDefault]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -87,7 +119,6 @@ export const VideoPlayer = ({ src, title, author, isActive }: VideoPlayerProps) 
 
   useEffect(() => {
     if (isYouTube) {
-      // For YouTube videos, we rely on autoplay in the embed URL
       setIsPlaying(isActive);
       return;
     }
@@ -106,8 +137,9 @@ export const VideoPlayer = ({ src, title, author, isActive }: VideoPlayerProps) 
 
   const togglePlay = () => {
     if (isYouTube) {
-      // For YouTube videos, toggle the state only
-      setIsPlaying(!isPlaying);
+      const next = !isPlaying;
+      postYTCommand(next ? 'playVideo' : 'pauseVideo');
+      setIsPlaying(next);
       return;
     }
 
@@ -125,8 +157,14 @@ export const VideoPlayer = ({ src, title, author, isActive }: VideoPlayerProps) 
 
   const toggleMute = () => {
     if (isYouTube) {
-      // For YouTube videos, toggle the state only
-      setIsMuted(!isMuted);
+      const nextMuted = !isMuted;
+      if (nextMuted) {
+        postYTCommand('mute');
+      } else {
+        postYTCommand('unMute');
+        postYTCommand('setVolume', [initialVolume]);
+      }
+      setIsMuted(nextMuted);
       return;
     }
 
@@ -246,6 +284,21 @@ export const VideoPlayer = ({ src, title, author, isActive }: VideoPlayerProps) 
 
         {/* Right Side - Action Buttons */}
         <div className="flex flex-col items-center space-y-4">
+          {/* Mute / Unmute Button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="w-12 h-12 rounded-full bg-black/30 backdrop-blur-sm border border-white/20 hover:bg-black/50 transition-all duration-300"
+            onClick={toggleMute}
+            aria-label={isMuted ? 'Unmute' : 'Mute'}
+          >
+            {isMuted ? (
+              <VolumeX className="w-5 h-5 text-white" />
+            ) : (
+              <Volume2 className="w-5 h-5 text-white" />
+            )}
+          </Button>
+
           {/* Fullscreen Button */}
           <Button
             variant="ghost"

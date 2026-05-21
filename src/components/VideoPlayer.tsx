@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
-import { Play, Pause, Volume2, VolumeX, MoreVertical, Maximize, X } from 'lucide-react';
+import { Play, Pause, Volume2, VolumeX, Maximize, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Slider } from '@/components/ui/slider';
 
 // Utility function to detect and convert YouTube URLs
 const getYouTubeVideoId = (url: string): string | null => {

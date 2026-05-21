@@ -157,6 +157,33 @@ export const VideoPlayer = ({ src, title, author, isActive, unmutedDefault = fal
     }
   };
 
+  const handleVolumeChange = (value: number[]) => {
+    const newVolume = value[0];
+    setVolume(newVolume);
+    if (isYouTube) {
+      postYTCommand('setVolume', [newVolume]);
+      if (newVolume > 0 && isMuted) {
+        postYTCommand('unMute');
+        setIsMuted(false);
+      } else if (newVolume === 0 && !isMuted) {
+        postYTCommand('mute');
+        setIsMuted(true);
+      }
+    }
+
+    const video = videoRef.current;
+    if (video) {
+      video.volume = newVolume / 100;
+      if (newVolume > 0 && video.muted) {
+        video.muted = false;
+        setIsMuted(false);
+      } else if (newVolume === 0 && !video.muted) {
+        video.muted = true;
+        setIsMuted(true);
+      }
+    }
+  };
+
   const toggleMute = () => {
     if (isYouTube) {
       const nextMuted = !isMuted;
@@ -164,7 +191,7 @@ export const VideoPlayer = ({ src, title, author, isActive, unmutedDefault = fal
         postYTCommand('mute');
       } else {
         postYTCommand('unMute');
-        postYTCommand('setVolume', [initialVolume]);
+        postYTCommand('setVolume', [volume]);
       }
       setIsMuted(nextMuted);
       return;

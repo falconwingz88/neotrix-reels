@@ -41,6 +41,7 @@ interface VideoPlayerProps {
 export const VideoPlayer = ({ src, title, author, isActive, unmutedDefault = false, initialVolume = 20 }: VideoPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(!unmutedDefault);
+  const [volume, setVolume] = useState(initialVolume);
   const [progress, setProgress] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);

@@ -150,7 +150,7 @@ const Index = () => {
             </p>
           </div>
           <div className="aspect-video bg-white/15 backdrop-blur-sm rounded-3xl border border-white/30 overflow-hidden shadow-2xl hover:bg-white/20 transition-all duration-500 max-w-7xl mx-auto ring-2 ring-white/10">
-            <VideoPlayer src={REELS[0].src} title={REELS[0].title} author={REELS[0].author} isActive={true} unmutedDefault initialVolume={15} />
+            <VideoPlayer src={REELS[0].src} title={REELS[0].title} author={REELS[0].author} isActive={true} unmutedDefault initialVolume={7} />
           </div>
         </div>
 

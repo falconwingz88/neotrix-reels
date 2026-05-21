@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
-import { Play, Pause, Volume2, VolumeX, MoreVertical, Maximize, X } from 'lucide-react';
+import { Play, Pause, Volume2, VolumeX, Maximize, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Slider } from '@/components/ui/slider';
 
 // Utility function to detect and convert YouTube URLs
 const getYouTubeVideoId = (url: string): string | null => {
@@ -40,6 +41,7 @@ interface VideoPlayerProps {
 export const VideoPlayer = ({ src, title, author, isActive, unmutedDefault = false, initialVolume = 20 }: VideoPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(!unmutedDefault);
+  const [volume, setVolume] = useState(initialVolume);
   const [progress, setProgress] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -155,6 +157,33 @@ export const VideoPlayer = ({ src, title, author, isActive, unmutedDefault = fal
     }
   };
 
+  const handleVolumeChange = (value: number[]) => {
+    const newVolume = value[0];
+    setVolume(newVolume);
+    if (isYouTube) {
+      postYTCommand('setVolume', [newVolume]);
+      if (newVolume > 0 && isMuted) {
+        postYTCommand('unMute');
+        setIsMuted(false);
+      } else if (newVolume === 0 && !isMuted) {
+        postYTCommand('mute');
+        setIsMuted(true);
+      }
+    }
+
+    const video = videoRef.current;
+    if (video) {
+      video.volume = newVolume / 100;
+      if (newVolume > 0 && video.muted) {
+        video.muted = false;
+        setIsMuted(false);
+      } else if (newVolume === 0 && !video.muted) {
+        video.muted = true;
+        setIsMuted(true);
+      }
+    }
+  };
+
   const toggleMute = () => {
     if (isYouTube) {
       const nextMuted = !isMuted;
@@ -162,7 +191,7 @@ export const VideoPlayer = ({ src, title, author, isActive, unmutedDefault = fal
         postYTCommand('mute');
       } else {
         postYTCommand('unMute');
-        postYTCommand('setVolume', [initialVolume]);
+        postYTCommand('setVolume', [volume]);
       }
       setIsMuted(nextMuted);
       return;
@@ -284,6 +313,18 @@ export const VideoPlayer = ({ src, title, author, isActive, unmutedDefault = fal
 
         {/* Right Side - Action Buttons */}
         <div className="flex flex-col items-center space-y-4">
+          {/* Volume Slider */}
+          <div className="w-12 flex flex-col items-center space-y-1">
+            <Slider
+              value={[isMuted ? 0 : volume]}
+              min={0}
+              max={100}
+              step={1}
+              onValueChange={handleVolumeChange}
+              className="w-full [&_[role=slider]]:h-3 [&_[role=slider]]:w-3 [&_[role=slider]]:border [&_.bg-primary]:bg-white [&_.bg-secondary]:bg-white/30"
+            />
+          </div>
+
           {/* Mute / Unmute Button */}
           <Button
             variant="ghost"

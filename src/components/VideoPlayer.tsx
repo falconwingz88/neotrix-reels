@@ -313,6 +313,18 @@ export const VideoPlayer = ({ src, title, author, isActive, unmutedDefault = fal
 
         {/* Right Side - Action Buttons */}
         <div className="flex flex-col items-center space-y-4">
+          {/* Volume Slider */}
+          <div className="w-12 flex flex-col items-center space-y-1">
+            <Slider
+              value={[isMuted ? 0 : volume]}
+              min={0}
+              max={100}
+              step={1}
+              onValueChange={handleVolumeChange}
+              className="w-full [&_[role=slider]]:h-3 [&_[role=slider]]:w-3 [&_[role=slider]]:border [&_.bg-primary]:bg-white [&_.bg-secondary]:bg-white/30"
+            />
+          </div>
+
           {/* Mute / Unmute Button */}
           <Button
             variant="ghost"

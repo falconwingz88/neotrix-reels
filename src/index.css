@@ -2,6 +2,33 @@
 @tailwind components;
 @tailwind utilities;
 
+/* TT Interphases Pro - variable font */
+@font-face {
+  font-family: 'TT Interphases Pro';
+  src: url('/fonts/TTInterphasesPro-Variable.ttf') format('truetype-variations'),
+       url('/fonts/TTInterphasesPro-Variable.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'TT Interphases Pro Mono';
+  src: url('/fonts/TTInterphasesProMono-Variable.ttf') format('truetype-variations'),
+       url('/fonts/TTInterphasesProMono-Variable.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+html, body, button, input, select, textarea {
+  font-family: 'TT Interphases Pro', system-ui, -apple-system, sans-serif;
+}
+
+code, kbd, pre, samp {
+  font-family: 'TT Interphases Pro Mono', ui-monospace, monospace;
+}
+
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
 All colors MUST be HSL.
 */

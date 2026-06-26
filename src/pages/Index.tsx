@@ -167,7 +167,7 @@ const Index = () => {
           >
             {/* Scrolling Project Grid */}
             <div
-              className="animate-scroll-vertical-slow transition-opacity duration-500 group-hover:opacity-40"
+              className="animate-scroll-vertical-slow transition-all duration-500 group-hover:brightness-125 group-hover:saturate-150"
               style={{ animationDuration: "100s" }}
             >
               <div className="grid grid-cols-3 gap-1 p-1">
@@ -190,10 +190,20 @@ const Index = () => {
             <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-black/30 to-transparent pointer-events-none" />
             <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/30 to-transparent pointer-events-none" />
 
+            {/* Soft animated gradient overlay - visible on hover */}
+            <div
+              className="absolute inset-0 opacity-0 group-hover:opacity-70 transition-opacity duration-500 pointer-events-none mix-blend-screen"
+              style={{
+                background: "linear-gradient(120deg, hsl(280 100% 70% / 0.55), hsl(200 100% 65% / 0.55), hsl(160 90% 60% / 0.55), hsl(320 100% 70% / 0.55), hsl(280 100% 70% / 0.55))",
+                backgroundSize: "300% 300%",
+                animation: "gradient 8s ease infinite",
+              }}
+            />
+
             {/* Always visible overlay with text */}
-            <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+            <div className="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/10 transition-colors duration-500">
               <div className="text-center">
-                <h3 className="text-white text-3xl md:text-5xl font-bold mb-2">See More</h3>
+                <h3 className="text-white text-3xl md:text-5xl font-bold mb-2 drop-shadow-lg">See More</h3>
                 <p className="text-white/80 text-sm md:text-lg flex items-center justify-center gap-2">
                   Explore All Projects
                   <ArrowRight className="w-5 h-5" />

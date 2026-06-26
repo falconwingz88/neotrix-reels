@@ -179,7 +179,8 @@ const Index = () => {
           <h2 className="text-xl md:text-3xl font-bold text-white text-center mb-6 px-2">Other Projects</h2>
 
           <div
-            className="group relative cursor-pointer bg-white/10 backdrop-blur-sm rounded-3xl border border-white/20 overflow-hidden shadow-2xl transition-all duration-500 hover:border-white/30 h-[300px] md:h-[400px]"
+            className="see-more-ring group relative cursor-pointer bg-white/10 backdrop-blur-sm rounded-3xl border border-white/20 overflow-hidden shadow-2xl transition-all duration-500 hover:border-white/40 hover:scale-[1.015] h-[300px] md:h-[400px]"
+            style={{ animation: "ring-pulse 3.5s ease-in-out infinite" }}
             onClick={() => {
               navigate("/projects");
               window.scrollTo({ top: 0, behavior: "instant" });
@@ -206,28 +207,58 @@ const Index = () => {
               </div>
             </div>
 
-            {/* Gradient Overlays for smooth edges */}
+            {/* Vignette - retracts on hover like curtains opening */}
+            <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,_transparent_30%,_rgba(0,0,0,0.7)_100%)] opacity-100 group-hover:opacity-30 transition-opacity duration-700" />
+
+            {/* Edge gradient softeners */}
             <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-black/30 to-transparent pointer-events-none" />
             <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/30 to-transparent pointer-events-none" />
 
-            {/* Soft animated gradient overlay - visible on hover */}
+            {/* Soft animated gradient overlay - intensifies on hover */}
             <div
-              className="absolute inset-0 opacity-0 group-hover:opacity-70 transition-opacity duration-500 pointer-events-none mix-blend-screen"
+              className="absolute inset-0 opacity-0 group-hover:opacity-85 transition-opacity duration-700 pointer-events-none mix-blend-screen"
               style={{
-                background: "linear-gradient(120deg, hsl(280 100% 70% / 0.55), hsl(200 100% 65% / 0.55), hsl(160 90% 60% / 0.55), hsl(320 100% 70% / 0.55), hsl(280 100% 70% / 0.55))",
+                background: "linear-gradient(120deg, hsl(280 100% 70% / 0.6), hsl(200 100% 65% / 0.6), hsl(160 90% 60% / 0.6), hsl(320 100% 70% / 0.6), hsl(280 100% 70% / 0.6))",
                 backgroundSize: "300% 300%",
-                animation: "gradient 8s ease infinite",
+                animation: "gradient 12s ease infinite",
               }}
             />
 
-            {/* Always visible overlay with text */}
+            {/* Always-on shimmer sweep */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              <div
+                className="see-more-shimmer absolute top-0 left-0 h-full w-1/3 bg-gradient-to-r from-transparent via-white/15 to-transparent"
+                style={{ animation: "shimmer-sweep 6s ease-in-out infinite" }}
+              />
+            </div>
+
+            {/* Projects counter chip */}
+            <div className="absolute top-4 right-4 z-10 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/20 text-white/90 text-xs md:text-sm font-medium">
+              <Sparkles
+                className="see-more-sparkle w-3.5 h-3.5 text-primary-glow"
+                style={{ animation: "sparkle-spin 4s ease-in-out infinite" }}
+              />
+              {customProjects.length}+ projects inside
+            </div>
+
+            {/* Always visible overlay with text + CTA pill */}
             <div className="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/10 transition-colors duration-500">
-              <div className="text-center">
-                <h3 className="text-white text-3xl md:text-5xl font-bold mb-2 drop-shadow-lg">See More</h3>
-                <p className="text-white/80 text-sm md:text-lg flex items-center justify-center gap-2">
-                  Explore All Projects
-                  <ArrowRight className="w-5 h-5" />
+              <div className="text-center px-6">
+                <h3 className="text-white text-3xl md:text-5xl font-bold mb-2 drop-shadow-lg transition-transform duration-500 group-hover:-translate-y-1">
+                  See More
+                </h3>
+                <p className="text-white/80 text-sm md:text-base mb-5 opacity-0 -translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500">
+                  Explore the full portfolio
                 </p>
+                <div
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold text-sm md:text-base shadow-[0_0_30px_hsl(var(--primary)/0.5)] transition-all duration-500 group-hover:shadow-[0_0_50px_hsl(var(--primary)/0.8)] group-hover:scale-105"
+                >
+                  View All Projects
+                  <ArrowRight
+                    className="see-more-chevron w-4 h-4 md:w-5 md:h-5"
+                    style={{ animation: "chevron-nudge 1.4s ease-in-out infinite" }}
+                  />
+                </div>
               </div>
             </div>
           </div>

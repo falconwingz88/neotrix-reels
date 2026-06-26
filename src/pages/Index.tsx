@@ -136,6 +136,26 @@ const Index = () => {
         @keyframes float-5 { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(-200px, 80px); } 50% { transform: translate(120px, -200px); } 75% { transform: translate(-80px, 150px); } }
         @keyframes float-6 { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(180px, 100px); } 50% { transform: translate(-100px, -150px); } 75% { transform: translate(200px, 120px); } }
         @keyframes float-7 { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(-150px, -100px); } 50% { transform: translate(100px, 180px); } 75% { transform: translate(-200px, -120px); } }
+
+        @keyframes shimmer-sweep {
+          0% { transform: translateX(-150%) skewX(-20deg); }
+          100% { transform: translateX(250%) skewX(-20deg); }
+        }
+        @keyframes ring-pulse {
+          0%, 100% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0.35), 0 0 40px 0 hsl(var(--accent) / 0.15); }
+          50% { box-shadow: 0 0 0 8px hsl(var(--primary) / 0), 0 0 60px 6px hsl(var(--accent) / 0.25); }
+        }
+        @keyframes chevron-nudge {
+          0%, 100% { transform: translateX(0); opacity: 1; }
+          50% { transform: translateX(6px); opacity: 0.85; }
+        }
+        @keyframes sparkle-spin {
+          0%, 100% { transform: rotate(0deg) scale(1); opacity: 0.9; }
+          50% { transform: rotate(180deg) scale(1.15); opacity: 1; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .see-more-shimmer, .see-more-ring, .see-more-chevron, .see-more-sparkle { animation: none !important; }
+        }
       `}</style>
 
       {/* Content Container */}

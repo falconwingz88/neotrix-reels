@@ -5,7 +5,7 @@ import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Mail, ArrowRight } from "lucide-react";
+import { Mail, ArrowRight, Sparkles } from "lucide-react";
 import { useProjects } from "@/contexts/ProjectsContext";
 
 

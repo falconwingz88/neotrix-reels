@@ -142,8 +142,8 @@ const Index = () => {
           100% { transform: translateX(250%) skewX(-20deg); }
         }
         @keyframes ring-pulse {
-          0%, 100% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0.35), 0 0 40px 0 hsl(var(--accent) / 0.15); }
-          50% { box-shadow: 0 0 0 8px hsl(var(--primary) / 0), 0 0 60px 6px hsl(var(--accent) / 0.25); }
+          0%, 100% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0.75), 0 0 60px 4px hsl(var(--accent) / 0.45); }
+          50% { box-shadow: 0 0 0 14px hsl(var(--primary) / 0), 0 0 100px 16px hsl(var(--accent) / 0.6); }
         }
         @keyframes chevron-nudge {
           0%, 100% { transform: translateX(0); opacity: 1; }
@@ -227,8 +227,8 @@ const Index = () => {
             {/* Always-on shimmer sweep */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
               <div
-                className="see-more-shimmer absolute top-0 left-0 h-full w-1/3 bg-gradient-to-r from-transparent via-white/15 to-transparent"
-                style={{ animation: "shimmer-sweep 6s ease-in-out infinite" }}
+                className="see-more-shimmer absolute top-0 left-0 h-full w-1/2 bg-gradient-to-r from-transparent via-white/45 to-transparent"
+                style={{ animation: "shimmer-sweep 3.5s ease-in-out infinite" }}
               />
             </div>
 
@@ -238,7 +238,7 @@ const Index = () => {
                 className="see-more-sparkle w-3.5 h-3.5 text-primary-glow"
                 style={{ animation: "sparkle-spin 4s ease-in-out infinite" }}
               />
-              {customProjects.length}+ projects inside
+              more projects inside
             </div>
 
             {/* Always visible overlay with text + CTA pill */}

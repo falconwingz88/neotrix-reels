@@ -1,9 +1,11 @@
 const worker = {
   async fetch(request, env) {
     const response = await env.ASSETS.fetch(request);
-    const acceptsHtml = (request.headers.get("accept") || "").includes("text/html");
+    const url = new URL(request.url);
+    const finalSegment = url.pathname.split("/").filter(Boolean).at(-1) || "";
+    const isApplicationRoute = !finalSegment.includes(".");
 
-    if (response.status !== 404 || request.method !== "GET" || !acceptsHtml) {
+    if (response.status !== 404 || request.method !== "GET" || !isApplicationRoute) {
       return response;
     }
 

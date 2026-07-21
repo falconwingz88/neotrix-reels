@@ -1,6 +1,14 @@
 const worker = {
   async fetch(request, env) {
     const url = new URL(request.url);
+
+    if (url.hostname === "reels.neotrix.asia") {
+      url.protocol = "https:";
+      url.hostname = "motion.neotrix.asia";
+      url.port = "";
+      return Response.redirect(url.toString(), 301);
+    }
+
     const finalSegment = url.pathname.split("/").filter(Boolean).at(-1) || "";
     const isApplicationRoute = !finalSegment.includes(".");
 

@@ -1,132 +1,37 @@
-import { useState, useEffect, useRef } from 'react';
-import { VideoPlayer } from '@/components/VideoPlayer';
-import { ArrowLeft, Home } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
+import { Link } from "react-router-dom";
+import { ArrowUpRight } from "lucide-react";
+import { Reveal } from "@/components/Motion";
+import { Seo } from "@/components/Seo";
+import { YouTubeFacade } from "@/components/YouTubeFacade";
 
-interface Reel {
-  id: string;
-  src: string;
-  title: string;
-  author: string;
-}
-
-// Now supports both direct video URLs and YouTube URLs
-const DEMO_REELS: Reel[] = [
-  {
-    id: '1',
-    src: 'https://youtu.be/LP5ybY7O2zc',
-    title: 'Neotrix Reels',
-    author: 'neotrix.asia'
-  },
-  {
-    id: '2',
-    src: 'https://www.youtube.com/watch?v=at7JQLqKE90',
-    title: 'Liquid Compilation',
-    author: 'neotrix.asia'
-  }
+const reels = [
+  { title: "Neotrix Studio Reel", subtitle: "Full-spectrum 3D / VFX", url: "https://youtu.be/LP5ybY7O2zc", accent: "#B8FF35" },
 ];
 
-const Reels = () => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const navigate = useNavigate();
-
-  // Handle keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowLeft') {
-        e.preventDefault();
-        handlePrevious();
-      } else if (e.key === 'ArrowRight') {
-        e.preventDefault();
-        handleNext();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentIndex]);
-
-  const handleNext = () => {
-    if (currentIndex < DEMO_REELS.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-    }
-  };
-
-  const handlePrevious = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
-    }
-  };
-
-
-  return (
-    <div className="relative w-full h-screen bg-black overflow-hidden">
-      {/* Navigation Buttons */}
-      <div className="absolute top-4 left-4 z-50 flex gap-2">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="w-10 h-10 rounded-full bg-black/30 backdrop-blur-sm hover:bg-black/50 transition-all duration-300"
-          onClick={() => window.open('https://neotrix.asia', '_blank')}
-        >
-          <Home className="w-5 h-5 text-white" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="w-10 h-10 rounded-full bg-black/30 backdrop-blur-sm hover:bg-black/50 transition-all duration-300"
-          onClick={() => navigate('/')}
-        >
-          <ArrowLeft className="w-5 h-5 text-white" />
-        </Button>
+const Reels = () => (
+  <>
+    <Seo title="Studio Reel" description="Watch the Neotrix studio reel: commercial 3D animation, VFX, character, and product-film work." path="/reels" />
+    <section className="page-wrap pb-24 pt-32 sm:pt-40 lg:pb-36">
+      <div className="grid gap-8 lg:grid-cols-[1.4fr_.6fr] lg:items-end">
+        <div><p className="eyebrow">Moving-image index</p><h1 className="mt-5 text-[clamp(4.5rem,13vw,13rem)] font-medium leading-[.78] tracking-[-0.075em]">Reels<span className="text-[#B8FF35]">.</span></h1></div>
+        <p className="max-w-md pb-3 text-lg leading-relaxed text-white/55">A fast route through the craft: character, VFX, product, lighting, and motion.</p>
       </div>
-
-      {/* Reels Title */}
-      <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-50">
-        <h1 className="text-white font-bold text-lg tracking-wide">Reels</h1>
-      </div>
-
-      {/* Video Container */}
-      <div ref={containerRef} className="relative w-full h-full">
-        <div
-          className="flex transition-transform duration-500 ease-out"
-          style={{
-            transform: `translateX(-${currentIndex * 100}vw)`,
-          }}
-        >
-          {DEMO_REELS.map((reel, index) => (
-            <div key={reel.id} className="w-full h-screen flex-shrink-0">
-              <VideoPlayer
-                src={reel.src}
-                title={reel.title}
-                author={reel.author}
-                isActive={index === currentIndex}
-              />
+      <div className="mt-16 space-y-20 sm:mt-24 sm:space-y-28">
+        {reels.map((reel, index) => (
+          <Reveal key={reel.title}>
+            <div className="mb-5 flex items-end justify-between gap-4">
+              <div><p className="font-mono text-[9px] uppercase tracking-[0.18em]" style={{ color: reel.accent }}>0{index + 1} / Reel</p><h2 className="mt-2 text-3xl font-medium tracking-[-0.04em] sm:text-5xl">{reel.title}</h2></div>
+              <p className="hidden font-mono text-[9px] uppercase tracking-[0.15em] text-white/35 sm:block">{reel.subtitle}</p>
             </div>
-          ))}
-        </div>
+            <YouTubeFacade url={reel.url} title={reel.title} hero={index === 0} autoplayWhenVisible={index === 0} className="rounded-[1.35rem] sm:rounded-[2.2rem]" />
+          </Reveal>
+        ))}
       </div>
-
-      {/* Navigation Indicators */}
-      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-50">
-        <div className="flex space-x-2">
-          {DEMO_REELS.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentIndex(index)}
-              className={`w-8 h-1 rounded-full transition-all duration-300 ${
-                index === currentIndex
-                  ? 'bg-gradient-primary shadow-glow'
-                  : 'bg-white/30'
-              }`}
-            />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-};
+    </section>
+    <Link to="/contact" className="group flex items-center justify-between border-y border-black/10 bg-[#F4F0E8] px-5 py-16 text-black sm:px-10 sm:py-24">
+      <span className="text-[clamp(2.8rem,8vw,8rem)] font-medium leading-none tracking-[-0.065em]">Bring us a brief.</span><ArrowUpRight className="size-8 transition-transform group-hover:rotate-45 sm:size-14" />
+    </Link>
+  </>
+);
 
 export default Reels;

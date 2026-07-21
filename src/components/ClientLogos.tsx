@@ -1,183 +1,89 @@
-import { useRef, useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { useEffect, useMemo, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { cn } from "@/lib/utils";
+import { getClientLogoSize, splitClientLogoRows, type ClientLogoDisplayRecord } from "@/lib/clientLogos";
 
-interface ClientLogo {
-  id: string;
-  name: string;
-  url: string;
-  scale: string;
-  sort_order: number;
-}
+export type ClientLogo = ClientLogoDisplayRecord;
 
-export const ClientLogos = () => {
-  const scrollRef = useRef<HTMLDivElement>(null);
+const fallback = [
+  ["BCA", "/client-logos/BCA_white.png"],
+  ["BNI", "/client-logos/BNI_white.png"],
+  ["J&T Express", "/client-logos/JT-Express_logo_white.png"],
+  ["Telkomsel", "/client-logos/telkomsel_white.png"],
+  ["Garuda", "/client-logos/garuda_white.png"],
+  ["Oppo", "/client-logos/oppo_white.png"],
+  ["Wuling", "/client-logos/wuling_white.png"],
+  ["Vivo", "/client-logos/vivo_white.png"],
+  ["Indofood", "/client-logos/indofood-kulkuil_white.png"],
+  ["Free Fire", "/client-logos/freefire_white.png"],
+  ["Mobile Legends", "/client-logos/mobile-legends_white.png"],
+  ["Wardah", "/client-logos/wardah_white.png"],
+].map(([name, url], index) => ({ id: "fallback-" + index, name, url, scale: "normal", sort_order: index }));
+
+export const useClientLogos = () => {
   const [logos, setLogos] = useState<ClientLogo[]>([]);
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
-    const fetchLogos = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('client_logos')
-          .select('*')
-          .eq('is_active', true)
-          .order('sort_order', { ascending: true });
-
-        if (error) {
-          console.error('Error fetching client logos:', error);
-          return;
-        }
-
-        setLogos((data || []) as ClientLogo[]);
-      } catch (error) {
-        console.error('Unexpected error fetching client logos:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    void fetchLogos();
-
-    const channel = supabase
-      .channel('client_logos_changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'client_logos'
-        },
-        () => {
-          void fetchLogos();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    let active = true;
+    void supabase.from("client_logos").select("id,name,url,scale,sort_order").eq("is_active", true).order("sort_order").then(({ data, error }) => {
+      if (!active) return;
+      setLogos(error || !data?.length ? fallback : (data as ClientLogo[]));
+      setLoading(false);
+    });
+    return () => { active = false; };
   }, []);
+  return { logos, loading };
+};
 
-  const createLogoRows = () => {
-    if (logos.length === 0) return [];
-    
-    const logosPerRow = Math.ceil(logos.length / 3);
-    const rows = [];
-    
-    for (let row = 0; row < 3; row++) {
-      const startIndex = row * logosPerRow;
-      const endIndex = Math.min(startIndex + logosPerRow, logos.length);
-      let rowLogos = logos.slice(startIndex, endIndex);
-      
-      while (rowLogos.length < logosPerRow) {
-        const remainingCount = logosPerRow - rowLogos.length;
-        const fillLogos = logos.slice(0, Math.min(remainingCount, logos.length));
-        rowLogos = [...rowLogos, ...fillLogos];
-      }
-      
-      const duplicatedRow = [
-        ...rowLogos, ...rowLogos, ...rowLogos, 
-        ...rowLogos, ...rowLogos, ...rowLogos
-      ];
-      rows.push(duplicatedRow);
-    }
-    return rows;
-  };
+interface ClientLogosProps {
+  logos: ClientLogo[];
+  preview?: boolean;
+}
 
-  const logoRows = createLogoRows();
-
-  useEffect(() => {
-    const handleWheel = (e: WheelEvent) => {
-      if (scrollRef.current) {
-        e.preventDefault();
-        scrollRef.current.scrollLeft += e.deltaY;
-      }
-    };
-
-    const currentRef = scrollRef.current;
-    if (currentRef) {
-      currentRef.addEventListener('wheel', handleWheel);
-      return () => currentRef.removeEventListener('wheel', handleWheel);
-    }
-  }, []);
-
-  const getScaleClass = (scale: string) => {
-    switch (scale) {
-      case '3x':
-        return 'scale-[3]';
-      case '2x':
-        return 'scale-[2]';
-      case 'small':
-        return 'scale-75';
-      default:
-        return '';
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="bg-white/5 backdrop-blur-2xl rounded-3xl border border-white/20 shadow-2xl overflow-hidden mb-8 p-8">
-        <div className="text-center text-white/50">Loading logos...</div>
-      </div>
-    );
-  }
-
-  if (logos.length === 0) {
-    return null;
-  }
-
+export const ClientLogos = ({ logos, preview = false }: ClientLogosProps) => {
+  const rows = useMemo(() => splitClientLogoRows(logos), [logos]);
+  if (!logos.length) return null;
   return (
-    <div className="bg-white/5 backdrop-blur-2xl rounded-3xl border border-white/20 shadow-2xl overflow-hidden mb-8">
-      <div className="p-4 md:p-8 pb-0">
-        <div className="mb-2 md:mb-4 text-center">
-          <h2 className="text-xl md:text-3xl font-bold text-white mb-2">Trusted by Industry Leaders</h2>
-          <p className="text-sm md:text-base text-white/70 px-4">Proud to collaborate with amazing brands worldwide</p>
-        </div>
+    <section
+      aria-label={preview ? "Homepage collaborator preview" : "Selected clients"}
+      className={cn(
+        "overflow-hidden border-y border-black/10 bg-[#F4F0E8] text-black",
+        preview ? "rounded-2xl py-7 sm:py-8" : "py-10 sm:py-14",
+      )}
+    >
+      <div className={cn("mx-auto flex max-w-[1480px] items-center px-5 font-mono text-[9px] uppercase tracking-[0.18em] text-black/65 sm:px-8 lg:px-10", preview ? "mb-6" : "mb-9 sm:mb-11")}>
+        <span>Selected collaborators</span>
+        {preview && <span className="ml-auto text-black/40">Live homepage preview</span>}
       </div>
-
-      <div 
-        ref={scrollRef}
-        className="space-y-3 md:space-y-6 overflow-x-auto scrollbar-hide -mt-2"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-      >
-        {logoRows.map((rowLogos, rowIndex) => (
+      <div className="space-y-10 sm:space-y-12">
+        {rows.map((row, rowIndex) => (
           <div
             key={rowIndex}
-            className={`flex gap-3 md:gap-6 animate-scroll-horizontal w-fit px-4 md:px-8 ${
-              rowIndex === 1 ? 'ml-8 md:ml-16' : rowIndex === 2 ? 'ml-4 md:ml-8' : ''
-            }`}
-            style={{
-              animationDelay: `${rowIndex * -20}s`,
-              animationDuration: '220s'
-            }}
+            className={cn(
+              "logo-marquee flex w-max items-center gap-12 pr-12 sm:gap-16 sm:pr-16",
+              rowIndex === 1 && "logo-marquee-reverse",
+            )}
           >
-            {rowLogos.map((logo, logoIndex) => (
-              <div
-                key={`${rowIndex}-${logoIndex}`}
-                className="flex-shrink-0 flex items-center justify-center bg-white/10 rounded-xl border border-white/10 hover:bg-white/20 transition-all duration-300 p-2 w-20 h-10 md:w-32 md:h-16"
-              >
-                <img
-                  src={logo.url}
-                  alt={logo.name}
-                  className={`max-w-full max-h-full object-contain filter brightness-0 invert opacity-70 hover:opacity-100 transition-all duration-300 ${getScaleClass(logo.scale)}`}
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.style.display = 'none';
-                    const parent = target.parentElement;
-                    if (parent && !parent.querySelector('.logo-text')) {
-                      const textDiv = document.createElement('div');
-                      textDiv.className = 'logo-text text-white/70 font-semibold text-xs text-center px-1';
-                      textDiv.textContent = logo.name;
-                      parent.appendChild(textDiv);
-                    }
-                  }}
-                />
+            {[...row, ...row].map((logo, index) => (
+              <div key={logo.id + "-" + index} className="grid h-16 w-36 flex-none place-items-center sm:h-20 sm:w-44">
+                <div className="grid max-h-full max-w-full place-items-center overflow-hidden" style={getClientLogoSize(logo.scale)}>
+                  <img
+                    src={logo.url}
+                    alt={index < row.length ? logo.name : ""}
+                    aria-hidden={index >= row.length}
+                    loading="lazy"
+                    decoding="async"
+                    width="176"
+                    height="80"
+                    style={getClientLogoSize(logo.scale)}
+                    className="block object-contain brightness-0 opacity-55 transition-[opacity,filter] duration-300 hover:opacity-85 hover:saturate-150"
+                  />
+                </div>
               </div>
             ))}
           </div>
         ))}
-        <div className="pb-6 md:pb-8"></div>
       </div>
-    </div>
+    </section>
   );
 };

@@ -1,73 +1,39 @@
-import { useState, useEffect, useRef } from 'react';
-export const StatsCounter = () => {
-  const [projectsCount, setProjectsCount] = useState(0);
-  const [brandsCount, setBrandsCount] = useState(0);
-  const [isVisible, setIsVisible] = useState(false);
-  const counterRef = useRef<HTMLDivElement>(null);
+import { useEffect, useRef, useState } from "react";
+import { useReducedMotion } from "framer-motion";
 
-  // Intersection Observer to detect when component is in view
+const Count = ({ target }: { target: number | null }) => {
+  const [value, setValue] = useState<number | null>(null);
+  const ref = useRef<HTMLSpanElement>(null);
+  const reduced = useReducedMotion();
   useEffect(() => {
+    if (!ref.current || target === null) return;
     const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting && !isVisible) {
-        setIsVisible(true);
-      }
-    }, {
-      threshold: 0.5
-    } // Trigger when 50% of the component is visible
-    );
-    if (counterRef.current) {
-      observer.observe(counterRef.current);
-    }
-    return () => {
-      if (counterRef.current) {
-        observer.unobserve(counterRef.current);
-      }
-    };
-  }, [isVisible]);
-
-  // Counter animation
-  useEffect(() => {
-    if (!isVisible) return;
-    const animateCount = (setValue: (value: number) => void, target: number) => {
-      let start = 13;
-      const duration = 6000; // 6 seconds
-      const startTime = Date.now();
-      const updateCount = () => {
-        const currentTime = Date.now();
-        const elapsed = currentTime - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-
-        // Easing function
-        const easeOut = 1 - Math.pow(1 - progress, 3);
-        const currentValue = Math.floor(easeOut * target);
-        setValue(currentValue);
-        if (progress < 1) {
-          requestAnimationFrame(updateCount);
-        }
+      if (!entry.isIntersecting) return;
+      observer.disconnect();
+      if (reduced) return setValue(target);
+      const started = performance.now();
+      const tick = (now: number) => {
+        const progress = Math.min((now - started) / 1200, 1);
+        setValue(Math.max(1, Math.round(target * (1 - Math.pow(1 - progress, 3)))));
+        if (progress < 1) requestAnimationFrame(tick);
       };
-      requestAnimationFrame(updateCount);
-    };
-    const timer = setTimeout(() => {
-      animateCount(setProjectsCount, 148);
-      animateCount(setBrandsCount, 50);
-    }, 500); // Delay start by 500ms
-
-    return () => clearTimeout(timer);
-  }, [isVisible]);
-  return <div ref={counterRef} className="max-w-7xl mx-auto w-full py-16">
-      <div className="flex justify-center gap-16 md:gap-32">
-        <div className="text-center animate-fade-in">
-          <div className="text-white/70 text-lg md:text-xl mb-2">Projects</div>
-          <div className="text-white text-7xl md:text-9xl font-bold">
-            {projectsCount}+
-          </div>
-        </div>
-        <div className="text-center animate-fade-in">
-          <div className="text-white/70 text-lg md:text-xl mb-2">Clients</div>
-          <div className="text-white text-7xl md:text-9xl font-bold">
-            {brandsCount}+
-          </div>
-        </div>
-      </div>
-    </div>;
+      requestAnimationFrame(tick);
+    }, { threshold: 0.5 });
+    observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [reduced, target]);
+  return <span ref={ref}>{value === null ? "—" : value}</span>;
 };
+
+export const StatsCounter = ({ projects, clients }: { projects: number | null; clients: number | null }) => (
+  <div className="grid grid-cols-2 border-y border-white/10">
+    <div className="border-r border-white/10 px-5 py-10 sm:px-10 sm:py-16">
+      <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-white/38">Projects rendered</p>
+      <p className="mt-4 text-[clamp(3.5rem,10vw,9rem)] font-medium leading-none tracking-[-0.065em]"><Count target={projects} /><sup className="ml-2 align-top text-[0.24em] text-[#B8FF35]">+</sup></p>
+    </div>
+    <div className="px-5 py-10 sm:px-10 sm:py-16">
+      <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-white/38">Brand collaborations</p>
+      <p className="mt-4 text-[clamp(3.5rem,10vw,9rem)] font-medium leading-none tracking-[-0.065em]"><Count target={clients} /><sup className="ml-2 align-top text-[0.24em] text-[#7DEBFF]">+</sup></p>
+    </div>
+  </div>
+);

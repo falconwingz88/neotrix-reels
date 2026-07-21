@@ -3,7 +3,7 @@ import { useContacts } from "@/contexts/ContactsContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Calendar, MapPin, User, Video, FileText, Clock } from "lucide-react";
+import { ArrowLeft, Calendar, MapPin, User, Video, FileText, Clock, Building2, Mail, Phone } from "lucide-react";
 import { format } from "date-fns";
 
 const ClientDetail = () => {
@@ -82,11 +82,34 @@ const ClientDetail = () => {
           {/* Name & Role */}
           <div className="space-y-2">
             <h1 className="text-3xl font-bold text-white">{contact.name}</h1>
+            {contact.company && (
+              <div className="flex items-center gap-2 text-white/70">
+                <Building2 className="w-4 h-4" />
+                <span>{contact.company}</span>
+              </div>
+            )}
             <div className="flex items-center gap-2 text-white/60">
               <User className="w-4 h-4" />
               <span>{contact.role}</span>
             </div>
           </div>
+
+          {(contact.email || contact.phone) && (
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              {contact.email && (
+                <a href={"mailto:" + contact.email} className="flex items-center gap-2 rounded-xl bg-white/5 p-4 text-blue-300 hover:bg-white/10">
+                  <Mail className="w-4 h-4" />
+                  <span className="break-all">{contact.email}</span>
+                </a>
+              )}
+              {contact.phone && (
+                <a href={"tel:" + contact.phone} className="flex items-center gap-2 rounded-xl bg-white/5 p-4 text-green-300 hover:bg-white/10">
+                  <Phone className="w-4 h-4" />
+                  <span>{contact.phone}</span>
+                </a>
+              )}
+            </div>
+          )}
 
           {/* Location & Time */}
           <div className="flex flex-wrap gap-4 text-sm text-white/50">

@@ -30,7 +30,7 @@ const RestrictedProjects = () => {
   // Filter only restricted projects
   const restrictedProjects = useMemo(() => {
     return customProjects
-      .filter((cp) => (cp as any).isRestricted === true)
+      .filter((cp) => cp.isRestricted === true)
       .map((cp) => ({
         id: cp.id,
         title: cp.title,

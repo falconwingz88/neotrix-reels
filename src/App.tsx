@@ -1,67 +1,62 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import Reels from "./pages/Reels";
-import NotFound from "./pages/NotFound";
-import { Projects } from "./pages/Projects";
-import ProjectDetail from "./pages/ProjectDetail";
-import Contact from "./pages/Contact";
-import Login from "./pages/Login";
-import AdminLogin from "./pages/AdminLogin";
-import AdminDashboard from "./pages/AdminDashboard";
-import ClientDetail from "./pages/ClientDetail";
-import { AuthProvider } from "./contexts/AuthContext";
-import { ProjectsProvider } from "./contexts/ProjectsContext";
-import { ContactsProvider } from "./contexts/ContactsContext";
-import { SiteSettingsProvider } from "./contexts/SiteSettingsContext";
-import AboutUs from "./pages/AboutUs";
-import JoinUs from "./pages/JoinUs";
-import Hiring from "./pages/Hiring";
-import NeoTimeline from "./pages/NeoTimeline";
-import NeoTimelineView from "./pages/NeoTimelineView";
-import RestrictedProjects from "./pages/RestrictedProjects";
-
-const queryClient = new QueryClient();
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { lazy, Suspense } from "react";
+import { PublicLayout } from "@/components/PublicLayout";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { ContactsProvider } from "@/contexts/ContactsContext";
+import { ProjectsProvider } from "@/contexts/ProjectsContext";
+import { SiteSettingsProvider } from "@/contexts/SiteSettingsContext";
+const Index = lazy(() => import("@/pages/Index"));
+const Reels = lazy(() => import("@/pages/Reels"));
+const Projects = lazy(() => import("@/pages/Projects").then((module) => ({ default: module.Projects })));
+const ProjectDetail = lazy(() => import("@/pages/ProjectDetail"));
+const Contact = lazy(() => import("@/pages/Contact"));
+const AboutUs = lazy(() => import("@/pages/AboutUs"));
+const JoinUs = lazy(() => import("@/pages/JoinUs"));
+const Hiring = lazy(() => import("@/pages/Hiring"));
+const Login = lazy(() => import("@/pages/Login"));
+const AdminLogin = lazy(() => import("@/pages/AdminLogin"));
+const AdminDashboard = lazy(() => import("@/pages/AdminDashboard"));
+const ClientDetail = lazy(() => import("@/pages/ClientDetail"));
+const NeoTimeline = lazy(() => import("@/pages/NeoTimeline"));
+const NeoTimelineView = lazy(() => import("@/pages/NeoTimelineView"));
+const RestrictedProjects = lazy(() => import("@/pages/RestrictedProjects"));
+const NotFound = lazy(() => import("@/pages/NotFound"));
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <SiteSettingsProvider>
-        <ProjectsProvider>
-          <ContactsProvider>
-            <TooltipProvider>
+  <AuthProvider>
+    <ProjectsProvider>
+      <ContactsProvider>
               <Toaster />
               <Sonner />
               <BrowserRouter>
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/reels" element={<Reels />} />
-                  <Route path="/projects" element={<Projects />} />
-                  <Route path="/projects/:id" element={<ProjectDetail />} />
-                  <Route path="/contact" element={<Contact />} />
-                  <Route path="/about-us" element={<AboutUs />} />
-                  <Route path="/join-us" element={<JoinUs />} />
-                  <Route path="/hiring" element={<Hiring />} />
+                <Suspense fallback={<div className="grid min-h-screen place-items-center bg-[#0A0B0C] text-sm text-white/50">Loading Neotrix…</div>}>
+                  <Routes>
+                  <Route element={<PublicLayout />}>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/reels" element={<Reels />} />
+                    <Route path="/projects" element={<Projects />} />
+                    <Route path="/projects/:id" element={<ProjectDetail />} />
+                    <Route path="/contact" element={<Contact />} />
+                    <Route path="/about-us" element={<AboutUs />} />
+                    <Route path="/join-us" element={<JoinUs />} />
+                    <Route path="/hiring" element={<Hiring />} />
+                  </Route>
                   <Route path="/neo-timeline" element={<NeoTimeline />} />
                   <Route path="/neo-timeline/view" element={<NeoTimelineView />} />
                   <Route path="/r" element={<RestrictedProjects />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/admin-login" element={<AdminLogin />} />
-                  <Route path="/admin" element={<AdminDashboard />} />
+                  <Route path="/admin" element={<SiteSettingsProvider><AdminDashboard /></SiteSettingsProvider>} />
                   <Route path="/client/:id" element={<ClientDetail />} />
-                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />
-                </Routes>
+                  </Routes>
+                </Suspense>
               </BrowserRouter>
-            </TooltipProvider>
-          </ContactsProvider>
-        </ProjectsProvider>
-      </SiteSettingsProvider>
-    </AuthProvider>
-  </QueryClientProvider>
+      </ContactsProvider>
+    </ProjectsProvider>
+  </AuthProvider>
 );
 
 export default App;

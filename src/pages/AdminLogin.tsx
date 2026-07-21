@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 
 const AdminLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState('neotrix.ai@gmail.com');
   const [password, setPassword] = useState('');
   const { isAuthenticated, isAdmin, loading, login } = useAuth();
   const navigate = useNavigate();

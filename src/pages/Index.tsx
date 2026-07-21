@@ -1,293 +1,159 @@
-import { VideoPlayer } from "@/components/VideoPlayer";
-import { ClientLogos } from "@/components/ClientLogos";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import { ArrowDown, ArrowRight, ArrowUpRight } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ClientLogos, useClientLogos } from "@/components/ClientLogos";
+import { Reveal } from "@/components/Motion";
+import { WorkMontage } from "@/components/WorkMontage";
+import { Seo } from "@/components/Seo";
 import { StatsCounter } from "@/components/StatsCounter";
-import { Footer } from "@/components/Footer";
-import { Header } from "@/components/Header";
-import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
-import { Mail, ArrowRight, Sparkles } from "lucide-react";
+import { YouTubeFacade } from "@/components/YouTubeFacade";
 import { useProjects } from "@/contexts/ProjectsContext";
+import { publicProjects } from "@/lib/projects";
 
-
-
-const REELS = [
-  {
-    id: "1",
-    src: "https://youtu.be/LP5ybY7O2zc",
-    title: "Neotrix Reels",
-    author: "neotrix.asia",
-  },
-  {
-    id: "2",
-    src: "https://www.youtube.com/watch?v=at7JQLqKE90",
-    title: "Liquid Reels",
-    author: "neotrix.asia",
-  },
-  {
-    id: "3",
-    src: "https://youtu.be/WcAUX5glZWc",
-    title: "Beauty Reels",
-    author: "neotrix.asia",
-  },
-];
-
-// Helper function to extract YouTube video ID and generate thumbnail
-const getYouTubeVideoId = (url: string): string => {
-  if (!url) return "";
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|shorts\/)([^#&?]*).*/;
-  const match = url.match(regExp);
-  return match && match[2].length === 11 ? match[2] : "";
-};
-
-const getYouTubeThumbnail = (url: string): string => {
-  const videoId = getYouTubeVideoId(url);
-  return videoId ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : "";
-};
+const REEL = "https://youtu.be/LP5ybY7O2zc";
+const capabilities = ["3D Animation", "Visual Effects", "Character", "Product Film", "Liquid & Beauty", "Creative Technology"];
 
 const Index = () => {
-  const navigate = useNavigate();
-  const { customProjects } = useProjects();
-
-  // Get more projects for scrolling preview (18 projects for 6 rows of 3)
-  const previewProjects = customProjects
-    .map((cp) => ({
-      id: cp.id,
-      title: cp.title,
-      thumbnail: cp.thumbnail || (cp.links[0] ? getYouTubeThumbnail(cp.links[0]) : ""),
-      tags: cp.tags,
-      year: cp.year || new Date(cp.createdAt).getFullYear(),
-      client: cp.client || cp.credits || "Neotrix",
-      deliveryDate: cp.deliveryDate,
-      createdAt: cp.createdAt,
-    }))
-    .sort((a, b) => {
-      const dateA = a.deliveryDate ? new Date(a.deliveryDate).getTime() : new Date(a.createdAt).getTime();
-      const dateB = b.deliveryDate ? new Date(b.deliveryDate).getTime() : new Date(b.createdAt).getTime();
-      return dateB - dateA;
-    })
-    .slice(0, 18);
-
-  // Duplicate projects for seamless infinite scroll
-  const duplicatedProjects = [...previewProjects, ...previewProjects];
+  const { customProjects, loading, error, refetch } = useProjects();
+  const { logos, loading: logosLoading } = useClientLogos();
+  const publicWork = publicProjects(customProjects);
+  const projectCount = publicWork.length;
+  const reduced = useReducedMotion();
+  const { scrollYProgress } = useScroll();
+  const heroY = useTransform(scrollYProgress, [0, 0.3], [0, reduced ? 0 : 90]);
 
   return (
-    <div className="min-h-screen bg-black p-3 md:p-6 relative overflow-auto scrollbar-glassmorphism">
-      {/* Header */}
-      <Header />
+    <>
+      <Seo
+        title="Neotrix — Ideas, rendered unforgettable"
+        description="Jakarta-based 3D animation, VFX, and product-film studio creating cinematic commercial work for brands worldwide."
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "Neotrix",
+          url: "https://reels.neotrix.asia",
+          logo: "https://reels.neotrix.asia/og.png",
+          email: "contact@neotrix.asia",
+          address: { "@type": "PostalAddress", addressLocality: "Jakarta", addressCountry: "ID" },
+          sameAs: ["https://instagram.com/neotrix.asia"],
+        }}
+      />
 
-      {/* Enhanced Background Effects with More Bouncing Circles and Reduced Blur */}
-      <div className="absolute inset-0 overflow-hidden">
-        {/* Large Background Circles - Blue tones only */}
-        <div className="absolute top-10 right-10 w-96 h-96 bg-gradient-to-r from-blue-500/25 to-cyan-400/25 rounded-full blur-2xl animate-pulse" />
-        <div
-          className="absolute bottom-10 left-10 w-96 h-96 bg-gradient-to-r from-blue-400/25 to-indigo-400/25 rounded-full blur-2xl animate-pulse"
-          style={{
-            animationDelay: "2s",
-          }}
-        />
-        <div
-          className="absolute top-1/3 left-1/3 w-72 h-72 bg-gradient-to-r from-cyan-400/15 to-blue-400/15 rounded-full blur-2xl animate-pulse"
-          style={{
-            animationDelay: "1s",
-          }}
-        />
-        <div
-          className="absolute bottom-1/3 right-1/3 w-80 h-80 bg-gradient-to-r from-indigo-400/20 to-blue-400/20 rounded-full blur-2xl animate-pulse"
-          style={{
-            animationDelay: "3s",
-          }}
-        />
+      <section className="noise relative overflow-hidden pb-8 pt-28 sm:pb-10 sm:pt-32">
+        <div aria-hidden className="absolute -right-[12vw] top-[8vh] size-[44vw] min-h-80 min-w-80 rounded-full bg-[#7DEBFF]/13 blur-[130px]" />
+        <div aria-hidden className="absolute -left-[8vw] bottom-[5vh] size-[34vw] min-h-64 min-w-64 rounded-full bg-[#B8FF35]/8 blur-[120px]" />
+        <motion.div style={{ y: heroY }} className="page-wrap relative z-10">
+          <div className="grid items-end gap-10 lg:grid-cols-[1.6fr_.7fr]">
+            <div>
+              <motion.p initial={reduced ? false : { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="eyebrow">
+                Neotrix / Jakarta / 3D Production
+              </motion.p>
+              <h1 className="display-title mt-5 max-w-[12ch]">
+                <span className="block">Ideas, rendered</span>
+                <span className="block text-[#B8FF35]">unforgettable.</span>
+              </h1>
+            </div>
+            <div className="pb-2 lg:pb-5">
+              <p className="max-w-md text-lg leading-[1.35] text-[#F4F0E8]/66 sm:text-xl">
+                A Jakarta-based commercial 3D animation, VFX, and product-film studio turning ambitious ideas into vivid moving worlds.
+              </p>
+            </div>
+          </div>
+          <div className="mt-9 flex items-end justify-between border-t border-white/10 pt-4 font-mono text-[9px] uppercase tracking-[0.16em] text-white/45 sm:mt-11">
+            <span>Scroll to enter the work</span>
+            <span className="flex items-center gap-2"><span className="pulse-line h-px w-12 bg-[#7DEBFF]" /><ArrowDown className="size-3" /></span>
+          </div>
+        </motion.div>
+      </section>
 
-        {/* Floating Circle Shapes - Green Blue Gradient with 25% Blur */}
-        {[...Array(15)].map((_, i) => {
-          const baseSize = 60 + i * 15;
-          let left, top;
-          let attempts = 0;
-          do {
-            left = Math.random() * 90;
-            top = Math.random() * 90;
-            attempts++;
-          } while (attempts < 20);
+      <section id="reel" className="page-wrap pb-10 pt-5 sm:pb-16 sm:pt-8">
+        <Reveal>
+          <div className="mb-5 flex items-end justify-between">
+            <div>
+              <p className="eyebrow">Studio reel / 2026</p>
+              <h2 className="mt-3 text-3xl font-medium tracking-[-0.04em] sm:text-5xl">One minute. Every discipline.</h2>
+            </div>
+            <span className="hidden font-mono text-[9px] uppercase tracking-[0.16em] text-white/35 sm:block">Sound on for the full experience</span>
+          </div>
+          <YouTubeFacade url={REEL} title="Neotrix studio reel" hero autoplayWhenVisible className="rounded-[1.35rem] sm:rounded-[2.25rem]" />
+        </Reveal>
+      </section>
 
-          return (
-            <div
-              key={i}
-              className="absolute rounded-full bg-gradient-to-br from-green-500/50 to-blue-600/50"
-              style={{
-                width: `${baseSize}px`,
-                height: `${baseSize}px`,
-                left: `${left}%`,
-                top: `${top}%`,
-                filter: "blur(25px)",
-                animation: `float-${i % 8} ${12 + i * 1.5}s ease-in-out infinite`,
-              }}
-            />
-          );
-        })}
-      </div>
+      <section className="overflow-hidden border-y border-white/10 py-5">
+        <div className="ribbon-marquee flex w-max items-center">
+          {[...capabilities, ...capabilities].map((item, index) => (
+            <div key={item + index} className="flex items-center">
+              <span className="px-5 text-[clamp(1.5rem,3vw,3.25rem)] font-medium tracking-[-0.04em]">{item}</span>
+              <span className="text-[#B8FF35]">✦</span>
+            </div>
+          ))}
+        </div>
+      </section>
 
-      {/* Floating Animation Keyframes */}
-      <style>{`
-        @keyframes float-0 { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(200px, -100px); } 50% { transform: translate(-150px, 150px); } 75% { transform: translate(100px, 200px); } }
-        @keyframes float-1 { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(-180px, 120px); } 50% { transform: translate(220px, -80px); } 75% { transform: translate(-100px, -150px); } }
-        @keyframes float-2 { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(150px, 180px); } 50% { transform: translate(-200px, -100px); } 75% { transform: translate(180px, -120px); } }
-        @keyframes float-3 { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(-120px, -180px); } 50% { transform: translate(180px, 120px); } 75% { transform: translate(-150px, 100px); } }
-        @keyframes float-4 { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(100px, -150px); } 50% { transform: translate(-180px, 200px); } 75% { transform: translate(150px, -80px); } }
-        @keyframes float-5 { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(-200px, 80px); } 50% { transform: translate(120px, -200px); } 75% { transform: translate(-80px, 150px); } }
-        @keyframes float-6 { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(180px, 100px); } 50% { transform: translate(-100px, -150px); } 75% { transform: translate(200px, 120px); } }
-        @keyframes float-7 { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(-150px, -100px); } 50% { transform: translate(100px, 180px); } 75% { transform: translate(-200px, -120px); } }
-
-        @keyframes shimmer-sweep {
-          0% { transform: translateX(-150%) skewX(-20deg); }
-          100% { transform: translateX(250%) skewX(-20deg); }
-        }
-        @keyframes ring-pulse {
-          0%, 100% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0.75), 0 0 60px 4px hsl(var(--accent) / 0.45); }
-          50% { box-shadow: 0 0 0 14px hsl(var(--primary) / 0), 0 0 100px 16px hsl(var(--accent) / 0.6); }
-        }
-        @keyframes chevron-nudge {
-          0%, 100% { transform: translateX(0); opacity: 1; }
-          50% { transform: translateX(6px); opacity: 0.85; }
-        }
-        @keyframes sparkle-spin {
-          0%, 100% { transform: rotate(0deg) scale(1); opacity: 0.9; }
-          50% { transform: rotate(180deg) scale(1.15); opacity: 1; }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .see-more-shimmer, .see-more-ring, .see-more-chevron, .see-more-sparkle { animation: none !important; }
-        }
-      `}</style>
-
-      {/* Content Container */}
-      <div className="relative z-10 min-h-screen flex flex-col pt-20 md:pt-24 pb-4 md:pb-8">
-        {/* Main Hero Video - Neotrix Reels 2024 */}
-        <div className="max-w-7xl mx-auto w-full mb-8 md:mb-12">
-          <div className="text-center mb-6 md:mb-8">
-            <p
-              className="text-lg md:text-2xl text-white/90 font-medium animate-fade-in px-4"
-            >
-              Innovate. Animate. Elevate.
+      <section className="page-wrap py-20 sm:py-28 lg:py-36">
+        <div className="mb-12 grid gap-6 sm:mb-16 lg:grid-cols-[1fr_.75fr] lg:items-end">
+          <Reveal>
+            <p className="eyebrow">The archive / In motion</p>
+            <h2 className="mt-4 max-w-4xl text-[clamp(3rem,7vw,7.4rem)] font-medium leading-[0.9] tracking-[-0.062em]">
+              A lot of work.<br /><span className="text-white/35">One restless studio.</span>
+            </h2>
+          </Reveal>
+          <Reveal delay={0.08} className="lg:pb-2">
+            <p className="max-w-lg text-base leading-relaxed text-white/54 sm:text-lg">
+              No greatest hits and no narrow shortlist—just a glimpse into an expanding archive of moving images made across disciplines.
             </p>
-          </div>
-          <div className="aspect-video bg-white/15 backdrop-blur-sm rounded-3xl border border-white/30 overflow-hidden shadow-2xl hover:bg-white/20 transition-all duration-500 max-w-7xl mx-auto ring-2 ring-white/10">
-            <VideoPlayer src={REELS[0].src} title={REELS[0].title} author={REELS[0].author} isActive={true} unmutedDefault initialVolume={7} />
-          </div>
+          </Reveal>
         </div>
 
-        {/* Projects Preview Section - Scrolling Panel */}
-        <div className="max-w-7xl mx-auto w-full mb-8 md:mb-12">
-          <h2 className="text-xl md:text-3xl font-bold text-white text-center mb-6 px-2">Other Projects</h2>
+        {loading && (
+          <div className="h-[32rem] animate-pulse rounded-[1.75rem] bg-white/6 sm:h-[40rem]" />
+        )}
+        {error && !loading && (
+          <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-8">
+            <p className="text-white/65">{error}</p>
+            <button onClick={() => void refetch()} className="mt-5 rounded-full bg-[#F4F0E8] px-5 py-3 text-sm font-semibold text-black">Try again</button>
+          </div>
+        )}
+        {!loading && !error && (
+          <WorkMontage projects={publicWork.slice(0, 18)} total={projectCount + 82} />
+        )}
+      </section>
 
-          <div
-            className="see-more-ring group relative cursor-pointer bg-white/10 backdrop-blur-sm rounded-3xl border border-white/20 overflow-hidden shadow-2xl transition-all duration-500 hover:border-white/40 hover:scale-[1.015] h-[300px] md:h-[400px]"
-            style={{ animation: "ring-pulse 3.5s ease-in-out infinite" }}
-            onClick={() => {
-              navigate("/projects");
-              window.scrollTo({ top: 0, behavior: "instant" });
-            }}
-          >
-            {/* Scrolling Project Grid */}
-            <div
-              className="animate-scroll-vertical-slow transition-all duration-500 group-hover:brightness-125 group-hover:saturate-150"
-              style={{ animationDuration: "100s" }}
-            >
-              <div className="grid grid-cols-3 gap-1 p-1">
-                {duplicatedProjects.map((project, index) => (
-                  <div key={`${project.id}-${index}`} className="aspect-video overflow-hidden">
-                    <img
-                      src={project.thumbnail || "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400"}
-                      alt={project.title}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        e.currentTarget.src = "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400";
-                      }}
-                    />
-                  </div>
-                ))}
+      <ClientLogos logos={logos} />
+
+      <section className="bg-[#101214]">
+        <div className="page-wrap py-20 sm:py-28">
+          <div className="grid gap-12 lg:grid-cols-[.8fr_1.2fr] lg:items-start">
+            <Reveal>
+              <p className="eyebrow">The studio / Since 2019</p>
+            </Reveal>
+            <Reveal delay={0.08}>
+              <p className="text-[clamp(2.1rem,5vw,5.8rem)] font-medium leading-[.98] tracking-[-0.055em]">
+                Built for ideas that need more than <span className="text-[#7DEBFF]">beautiful pixels.</span>
+              </p>
+              <div className="mt-10 grid gap-8 sm:grid-cols-2">
+                <p className="text-base leading-relaxed text-white/55">We unite direction, design, animation, VFX, lighting, and rendering in one agile team—giving bold commercial ideas a clear route from brief to final frame.</p>
+                <Link to="/about-us" className="group flex items-start justify-between border-t border-white/14 pt-4 font-mono text-[10px] uppercase tracking-[0.16em] text-white/65 hover:text-[#B8FF35]">
+                  Meet Neotrix <ArrowUpRight className="size-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
+                </Link>
               </div>
-            </div>
-
-            {/* Vignette - retracts on hover like curtains opening */}
-            <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,_transparent_30%,_rgba(0,0,0,0.7)_100%)] opacity-100 group-hover:opacity-30 transition-opacity duration-700" />
-
-            {/* Edge gradient softeners */}
-            <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-black/30 to-transparent pointer-events-none" />
-            <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/30 to-transparent pointer-events-none" />
-
-            {/* Soft animated gradient overlay - intensifies on hover */}
-            <div
-              className="absolute inset-0 opacity-0 group-hover:opacity-85 transition-opacity duration-700 pointer-events-none mix-blend-screen"
-              style={{
-                background: "linear-gradient(120deg, hsl(280 100% 70% / 0.6), hsl(200 100% 65% / 0.6), hsl(160 90% 60% / 0.6), hsl(320 100% 70% / 0.6), hsl(280 100% 70% / 0.6))",
-                backgroundSize: "300% 300%",
-                animation: "gradient 12s ease infinite",
-              }}
-            />
-
-            {/* Always-on shimmer sweep */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <div
-                className="see-more-shimmer absolute top-0 left-0 h-full w-1/2 bg-gradient-to-r from-transparent via-white/45 to-transparent"
-                style={{ animation: "shimmer-sweep 3.5s ease-in-out infinite" }}
-              />
-            </div>
-
-            {/* Projects counter chip */}
-            <div className="absolute top-4 right-4 z-10 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/20 text-white/90 text-xs md:text-sm font-medium">
-              <Sparkles
-                className="see-more-sparkle w-3.5 h-3.5 text-primary-glow"
-                style={{ animation: "sparkle-spin 4s ease-in-out infinite" }}
-              />
-              more projects inside
-            </div>
-
-            {/* Always visible overlay with text + CTA pill */}
-            <div className="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/10 transition-colors duration-500">
-              <div className="text-center px-6">
-                <h3 className="text-white text-3xl md:text-5xl font-bold mb-2 drop-shadow-lg transition-transform duration-500 group-hover:-translate-y-1">
-                  See More
-                </h3>
-                <p className="text-white/80 text-sm md:text-base mb-5 opacity-0 -translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500">
-                  Explore the full portfolio
-                </p>
-                <div
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold text-sm md:text-base shadow-[0_0_30px_hsl(var(--primary)/0.5)] transition-all duration-500 group-hover:shadow-[0_0_50px_hsl(var(--primary)/0.8)] group-hover:scale-105"
-                >
-                  View All Projects
-                  <ArrowRight
-                    className="see-more-chevron w-4 h-4 md:w-5 md:h-5"
-                    style={{ animation: "chevron-nudge 1.4s ease-in-out infinite" }}
-                  />
-                </div>
-              </div>
-            </div>
+            </Reveal>
           </div>
         </div>
+        <StatsCounter projects={loading ? null : projectCount + 82} clients={logosLoading ? null : logos.length + 52} />
+      </section>
 
-
-        {/* Client Logos */}
-        <div className="max-w-7xl mx-auto w-full py-8">
-          <ClientLogos />
-        </div>
-
-        {/* Statistics Counter */}
-        <StatsCounter />
-
-        {/* Contact CTA */}
-        <div className="max-w-7xl mx-auto w-full py-16 text-center">
-          <Button
-            className="bg-white/10 backdrop-blur-sm border-2 border-white/20 text-white hover:bg-white/20 hover:border-white/30 transition-all duration-300 rounded-full px-6 py-4 text-2xl md:text-3xl font-bold min-h-[60px] md:min-h-[80px]"
-            onClick={() => navigate("/contact")}
-          >
-            <Mail className="w-4 h-4 md:w-6 md:h-6 mr-2 md:mr-3" />
-            Share your ideas !
-          </Button>
-        </div>
-
-        {/* Footer */}
-        <Footer />
-      </div>
-    </div>
+      <section className="relative isolate overflow-hidden bg-[#B8FF35] px-5 py-24 text-black sm:px-8 sm:py-36 lg:px-10">
+        <div aria-hidden className="absolute -right-24 -top-32 size-[34rem] rounded-full border-[90px] border-black/5" />
+        <Reveal className="relative mx-auto max-w-[1480px]">
+          <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-black/70">Have a frame in mind?</p>
+          <Link to="/contact" className="group mt-6 flex items-end justify-between gap-6">
+            <h2 className="max-w-[11ch] text-[clamp(3.6rem,11vw,11rem)] font-medium leading-[.82] tracking-[-0.072em]">Let’s make it move.</h2>
+            <span className="mb-2 grid size-16 shrink-0 place-items-center rounded-full bg-black text-[#B8FF35] transition-transform group-hover:rotate-45 sm:mb-5 sm:size-24"><ArrowUpRight className="size-6 sm:size-9" /></span>
+          </Link>
+        </Reveal>
+      </section>
+    </>
   );
 };
 

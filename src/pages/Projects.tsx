@@ -1,45 +1,19 @@
-import { ProjectsBrowser } from '@/components/ProjectsBrowser';
-import { useNavigate } from 'react-router-dom';
-import { Header } from '@/components/Header';
-import { Footer } from '@/components/Footer';
-import { Button } from '@/components/ui/button';
+import { Link } from "react-router-dom";
+import { ArrowUpRight } from "lucide-react";
+import { ProjectsBrowser } from "@/components/ProjectsBrowser";
+import { Seo } from "@/components/Seo";
 
-export const Projects = () => {
-  const navigate = useNavigate();
-
-  return (
-    <div className="min-h-screen bg-black relative overflow-hidden">
-      {/* Background Effects */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-10 right-10 w-96 h-96 bg-gradient-to-r from-blue-500/25 to-cyan-400/25 rounded-full blur-2xl animate-pulse" />
-        <div className="absolute bottom-10 left-10 w-96 h-96 bg-gradient-to-r from-blue-400/25 to-indigo-400/25 rounded-full blur-2xl animate-pulse" style={{ animationDelay: "2s" }} />
-        <div className="absolute top-1/3 left-1/3 w-72 h-72 bg-gradient-to-r from-cyan-400/15 to-blue-400/15 rounded-full blur-2xl animate-pulse" style={{ animationDelay: "1s" }} />
-      </div>
-      
-      <Header />
-      
-      <div className="container mx-auto px-6 pt-24 pb-8">
-        <ProjectsBrowser />
-        
-        {/* Bottom Message */}
-        <div className="text-center py-12 mt-8 border-t border-white/10">
-          <p className="text-white/70 text-lg md:text-xl font-medium mb-2">
-            Many more projects we can't show you yet
-          </p>
-          <p className="text-white/50 text-sm md:text-base">
-            Contact us if you are interested and we can show you the rest
-          </p>
-          <Button
-            variant="ghost"
-            onClick={() => navigate('/contact')}
-            className="mt-4 text-white hover:bg-white/10"
-          >
-            Get in Touch
-          </Button>
-        </div>
-      </div>
-      
-      <Footer />
-    </div>
-  );
-};
+export const Projects = () => (
+  <>
+    <Seo title="Selected Work" description="Explore Neotrix commercial 3D animation, VFX, character, product-film, liquid, and beauty projects." path="/projects" />
+    <section className="page-wrap pb-24 pt-32 sm:pt-40 lg:pb-36">
+      <ProjectsBrowser />
+    </section>
+    <section className="border-t border-white/10 bg-[#101214]">
+      <Link to="/contact" className="page-wrap group flex items-center justify-between gap-8 py-16 sm:py-24">
+        <div><p className="eyebrow">There is more under NDA</p><p className="mt-4 text-[clamp(2.5rem,7vw,7rem)] font-medium leading-[.9] tracking-[-0.06em]">Ask to see the rest.</p></div>
+        <span className="grid size-16 shrink-0 place-items-center rounded-full border border-white/18 transition-colors group-hover:border-[#B8FF35] group-hover:bg-[#B8FF35] group-hover:text-black sm:size-24"><ArrowUpRight className="size-6 sm:size-8" /></span>
+      </Link>
+    </section>
+  </>
+);

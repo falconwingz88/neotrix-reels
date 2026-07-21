@@ -45,7 +45,7 @@ export const SortableProjectItem = ({
       <div
         ref={setNodeRef}
         style={style}
-        className={`bg-white/5 rounded-lg border border-white/10 hover:border-white/20 transition-all ${
+        className={`admin-project-row group bg-white/5 rounded-xl border border-white/10 hover:border-cyan-300/30 transition-all ${
           isDragging ? 'shadow-lg shadow-white/10' : ''
         }`}
       >
@@ -54,17 +54,18 @@ export const SortableProjectItem = ({
           <div
             {...attributes}
             {...listeners}
+            aria-label={`Reorder ${project.title}`}
             className="cursor-grab active:cursor-grabbing p-1 hover:bg-white/10 rounded transition-colors touch-none"
           >
             <GripVertical className="w-4 h-4 text-white/40" />
           </div>
 
           {/* Thumbnail */}
-          <div className="w-12 h-8 md:w-16 md:h-10 rounded overflow-hidden bg-white/10 flex-shrink-0">
+          <div className="w-14 h-10 md:w-20 md:h-12 rounded-lg overflow-hidden bg-black/40 flex-shrink-0 border border-white/10">
             <img
               src={thumbnail}
               alt={project.title}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain p-0.5 transition-transform duration-500 group-hover:scale-[1.03]"
               onError={(e) => {
                 e.currentTarget.src = 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=100';
               }}
@@ -94,6 +95,7 @@ export const SortableProjectItem = ({
                 variant="ghost"
                 size="icon"
                 onClick={() => onRestrict(project.id, project.title)}
+                aria-label={`Move ${project.title} to restricted projects`}
                 className="text-yellow-400 hover:text-yellow-300 hover:bg-yellow-500/20 w-7 h-7"
                 title="Move to Restricted"
               >
@@ -104,6 +106,7 @@ export const SortableProjectItem = ({
               variant="ghost"
               size="icon"
               onClick={() => onEdit(project)}
+              aria-label={`Edit ${project.title}`}
               className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/20 w-7 h-7"
             >
               <Edit2 className="w-3.5 h-3.5" />
@@ -112,6 +115,7 @@ export const SortableProjectItem = ({
               variant="ghost"
               size="icon"
               onClick={() => onDelete(project.id, project.title)}
+              aria-label={`Delete ${project.title}`}
               className="text-red-400 hover:text-red-300 hover:bg-red-500/20 w-7 h-7"
             >
               <Trash2 className="w-3.5 h-3.5" />
@@ -127,7 +131,7 @@ export const SortableProjectItem = ({
     <div
       ref={setNodeRef}
       style={style}
-      className={`bg-white/5 rounded-lg border border-white/10 hover:border-white/20 transition-all ${
+      className={`admin-project-row group bg-white/5 rounded-xl border border-white/10 hover:border-cyan-300/30 transition-all ${
         isDragging ? 'shadow-lg shadow-white/10' : ''
       }`}
     >
@@ -136,17 +140,18 @@ export const SortableProjectItem = ({
         <div
           {...attributes}
           {...listeners}
+          aria-label={`Reorder ${project.title}`}
           className="cursor-grab active:cursor-grabbing p-1 hover:bg-white/10 rounded transition-colors touch-none self-start mt-1"
         >
           <GripVertical className="w-4 h-4 text-white/40" />
         </div>
 
         {/* Thumbnail */}
-        <div className="w-24 h-16 md:w-32 md:h-20 rounded overflow-hidden bg-white/10 flex-shrink-0">
+        <div className="w-24 h-16 md:w-32 md:h-20 rounded-lg overflow-hidden bg-black/40 flex-shrink-0 border border-white/10">
           <img
             src={thumbnail}
             alt={project.title}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain p-1 transition-transform duration-500 group-hover:scale-[1.03]"
             onError={(e) => {
               e.currentTarget.src = 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=100';
             }}
@@ -183,6 +188,7 @@ export const SortableProjectItem = ({
               variant="ghost"
               size="icon"
               onClick={() => onRestrict(project.id, project.title)}
+              aria-label={`Move ${project.title} to restricted projects`}
               className="text-yellow-400 hover:text-yellow-300 hover:bg-yellow-500/20 w-8 h-8"
               title="Move to Restricted"
             >
@@ -193,6 +199,7 @@ export const SortableProjectItem = ({
             variant="ghost"
             size="icon"
             onClick={() => onEdit(project)}
+            aria-label={`Edit ${project.title}`}
             className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/20 w-8 h-8"
           >
             <Edit2 className="w-4 h-4" />
@@ -201,6 +208,7 @@ export const SortableProjectItem = ({
             variant="ghost"
             size="icon"
             onClick={() => onDelete(project.id, project.title)}
+            aria-label={`Delete ${project.title}`}
             className="text-red-400 hover:text-red-300 hover:bg-red-500/20 w-8 h-8"
           >
             <Trash2 className="w-4 h-4" />

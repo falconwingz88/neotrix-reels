@@ -1,302 +1,156 @@
-import { useParams, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { ArrowLeft, Calendar, Users, Clock, FolderOpen, Link as LinkIcon, Edit2, Check, Copy } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
+import { useMemo, useState } from "react";
+import { ArrowLeft, ArrowRight, ArrowUpRight, Check, Share2 } from "lucide-react";
+import { Link, useParams } from "react-router-dom";
+import { Reveal } from "@/components/Motion";
+import { Seo } from "@/components/Seo";
+import { YouTubeFacade } from "@/components/YouTubeFacade";
 import { useProjects } from "@/contexts/ProjectsContext";
-import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { projectPoster, publicProjects } from "@/lib/projects";
+import { getYouTubeThumbnail } from "@/lib/youtube";
 
-// Helper function to extract YouTube video ID
-const getYouTubeVideoId = (url: string): string => {
-  if (!url) return "";
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|shorts\/)([^#&?]*).*/;
-  const match = url.match(regExp);
-  return match && match[2].length === 11 ? match[2] : "";
+const displayDate = (value?: string) => {
+  if (!value) return "Not listed";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? value : new Intl.DateTimeFormat("en", { month: "short", year: "numeric" }).format(date);
 };
-
-// Get embed URL from video URL
-const getEmbedUrl = (url: string): string => {
-  const videoId = getYouTubeVideoId(url);
-  return videoId ? `https://www.youtube.com/embed/${videoId}` : "";
-};
-
-interface ClientLogo {
-  name: string;
-  url: string;
-  scale: string;
-}
 
 const ProjectDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const { customProjects, loading } = useProjects();
-  const { isAuthenticated, isAdmin } = useAuth();
-  const [clientLogo, setClientLogo] = useState<ClientLogo | null>(null);
-  const [copied, setCopied] = useState(false);
+  const { customProjects, loading, error, refetch } = useProjects();
+  const [shared, setShared] = useState(false);
+  const projects = useMemo(() => publicProjects(customProjects), [customProjects]);
+  const index = projects.findIndex((item) => item.id === id);
+  const project = index >= 0 ? projects[index] : undefined;
+  const previous = index > 0 ? projects[index - 1] : projects[projects.length - 1];
+  const next = index >= 0 && index < projects.length - 1 ? projects[index + 1] : projects[0];
 
-  const project = customProjects.find((p) => p.id === id);
-
-  // Fetch client logo when project loads
-  useEffect(() => {
-    const fetchClientLogo = async () => {
-      if (project?.client) {
-        const { data } = await supabase
-          .from('client_logos')
-          .select('name, url, scale')
-          .eq('name', project.client)
-          .eq('is_active', true)
-          .single();
-        
-        if (data) {
-          setClientLogo(data);
-        }
-      }
-    };
-    fetchClientLogo();
-  }, [project?.client]);
-
-  const handleCopyLink = async () => {
-    const url = window.location.href;
+  const share = async () => {
+    if (!project) return;
     try {
-      await navigator.clipboard.writeText(url);
-      setCopied(true);
-      toast.success("Link copied to clipboard!");
-      setTimeout(() => setCopied(false), 2000);
+      if (navigator.share) await navigator.share({ title: project.title, url: window.location.href });
+      else await navigator.clipboard.writeText(window.location.href);
+      setShared(true);
+      window.setTimeout(() => setShared(false), 1800);
     } catch {
-      toast.error("Failed to copy link");
+      // User-cancelled shares should not surface as an error.
     }
   };
 
-  const getScaleClass = (scale: string) => {
-    switch (scale) {
-      case '3x': return 'scale-150';
-      case '2x': return 'scale-125';
-      case 'small': return 'scale-75';
-      default: return '';
-    }
-  };
+  if (loading) return <div className="page-wrap min-h-screen pb-24 pt-36"><div className="aspect-video animate-pulse rounded-[2rem] bg-white/6" /></div>;
+  if (error) return (
+    <section className="page-wrap flex min-h-[75vh] items-center pt-28">
+      <div><p className="eyebrow">Project unavailable</p><h1 className="mt-4 text-5xl tracking-[-0.05em]">The case study did not load.</h1><button onClick={() => void refetch()} className="mt-7 rounded-full bg-white px-5 py-3 text-sm font-semibold text-black">Try again</button></div>
+    </section>
+  );
+  if (!project) return (
+    <section className="page-wrap flex min-h-[75vh] items-center pt-28">
+      <div><p className="eyebrow">404 / Project</p><h1 className="mt-4 text-6xl tracking-[-0.06em]">This frame is not public.</h1><Link to="/projects" className="mt-7 inline-flex items-center gap-2 rounded-full border border-white/15 px-5 py-3 text-sm"><ArrowLeft className="size-4" /> Return to work</Link></div>
+    </section>
+  );
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-white text-xl">Loading...</div>
-      </div>
-    );
-  }
-
-  if (!project) {
-    return (
-      <div className="min-h-screen bg-black flex flex-col">
-        <Header />
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <h1 className="text-4xl font-bold text-white mb-4">Project Not Found</h1>
-            <p className="text-white/70 mb-8">The project you're looking for doesn't exist.</p>
-            <Button onClick={() => navigate("/projects")} className="bg-white/20 hover:bg-white/30 text-white">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Projects
-            </Button>
-          </div>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
-
-  const projectData = {
-    id: project.id,
-    title: project.title,
-    description: project.description,
-    thumbnail: project.thumbnail,
-    tags: project.tags,
-    year: project.year || new Date(project.createdAt).getFullYear(),
-    client: project.client || "Neotrix",
-    credits: project.credits || "",
-    primaryVideoUrl: project.links[0] || "",
-    allVideos: project.links,
-    fileLink: project.fileLink,
-    projectStartDate: project.projectStartDate,
-    deliveryDate: project.deliveryDate,
-  };
+  const poster = projectPoster(project);
+  const description = project.description || "A commercial moving-image project created by Neotrix.";
 
   return (
-    <div className="min-h-screen bg-black relative overflow-hidden">
-      {/* Background Effects */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-10 right-10 w-96 h-96 bg-gradient-to-r from-blue-500/25 to-cyan-400/25 rounded-full blur-2xl animate-pulse" />
-        <div className="absolute bottom-10 left-10 w-96 h-96 bg-gradient-to-r from-blue-400/25 to-indigo-400/25 rounded-full blur-2xl animate-pulse" style={{ animationDelay: "2s" }} />
-        <div className="absolute top-1/3 left-1/3 w-72 h-72 bg-gradient-to-r from-cyan-400/15 to-blue-400/15 rounded-full blur-2xl animate-pulse" style={{ animationDelay: "1s" }} />
-      </div>
-      
-      <Header />
-
-      <div className="max-w-6xl mx-auto px-4 pt-24 md:pt-20 pb-8 relative z-10">
-        {/* Back Button & Share */}
-        <div className="flex items-center justify-between mb-6 relative z-10">
-          <Button
-            onClick={() => navigate("/projects")}
-            variant="ghost"
-            className="text-white hover:bg-white/10 bg-white/5"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Projects
-          </Button>
-          <div className="flex items-center gap-2">
-            {isAdmin && (
-              <Button
-                onClick={() => navigate(`/admin?edit=${project.id}`)}
-                variant="ghost"
-                className="text-white hover:bg-white/10 bg-white/5"
-              >
-                <Edit2 className="w-4 h-4 mr-2" />
-                Edit
-              </Button>
-            )}
-            <Button
-              onClick={handleCopyLink}
-              variant="ghost"
-              className="text-white hover:bg-white/10 bg-white/5 gap-2"
-            >
-              {copied ? (
-                <>
-                  <Check className="w-4 h-4 text-green-400" />
-                  Copied!
-                </>
-              ) : (
-                <>
-                  <Copy className="w-4 h-4" />
-                  Copy Link
-                </>
-              )}
-            </Button>
+    <>
+      <Seo
+        title={project.title + " — Project"}
+        description={description.slice(0, 155)}
+        path={"/projects/" + project.id}
+        image={poster.startsWith("http") ? poster : "https://reels.neotrix.asia" + poster}
+        type="video.other"
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "VideoObject",
+          name: project.title,
+          description,
+          thumbnailUrl: poster,
+          uploadDate: project.deliveryDate || project.createdAt,
+          contentUrl: project.links[0],
+          creator: { "@type": "Organization", name: "Neotrix" },
+        }}
+      />
+      <article className="pb-24 pt-28 sm:pt-36 lg:pb-36">
+        <header className="page-wrap">
+          <div className="mb-8 flex items-center justify-between">
+            <Link to="/projects" className="group flex items-center gap-2 font-mono text-[9px] uppercase tracking-[0.16em] text-white/45 hover:text-white"><ArrowLeft className="size-3 transition-transform group-hover:-translate-x-1" /> Back to archive</Link>
+            <button onClick={() => void share()} className="flex items-center gap-2 rounded-full border border-white/13 px-4 py-2.5 font-mono text-[9px] uppercase tracking-[0.13em] text-white/65 hover:border-white/35 hover:text-white">
+              {shared ? <Check className="size-3.5 text-[#B8FF35]" /> : <Share2 className="size-3.5" />}{shared ? "Copied" : "Share"}
+            </button>
           </div>
-        </div>
-
-        {/* Project Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">{projectData.title}</h1>
-          <div className="flex flex-wrap gap-2">
-            {projectData.tags.map((tag) => (
-              <Badge key={tag} className="bg-white/20 text-white border-white/30">
-                {tag}
-              </Badge>
-            ))}
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className="space-y-8">
-          {/* Admin File Link - Only visible to admins */}
-          {isAuthenticated && projectData.fileLink && (
-            <div className="bg-green-500/20 border border-green-500/30 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-green-300 mb-2 flex items-center gap-2">
-                <FolderOpen className="w-5 h-5" />
-                High-Resolution Files (Admin Only)
-              </h3>
-              <a
-                href={projectData.fileLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-green-200 hover:text-green-100 underline break-all"
-              >
-                {projectData.fileLink}
-              </a>
-            </div>
-          )}
-
-          {/* Primary Video */}
-          {projectData.primaryVideoUrl && (
-            <div className="aspect-video bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 overflow-hidden shadow-xl">
-              <iframe
-                src={getEmbedUrl(projectData.primaryVideoUrl)}
-                title="Project Video"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                className="w-full h-full"
-              />
-            </div>
-          )}
-
-          {/* Additional Videos */}
-          {projectData.allVideos.length > 1 && (
-            <div>
-              <h2 className="text-2xl md:text-3xl font-bold text-white mb-6">Additional Videos</h2>
-              <div className={projectData.allVideos.length === 2 ? "space-y-6" : "grid grid-cols-1 md:grid-cols-2 gap-4"}>
-                {projectData.allVideos.slice(1).map((videoUrl, index) => (
-                  <div
-                    key={index}
-                    className="aspect-video bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 overflow-hidden shadow-xl"
-                  >
-                    <iframe
-                      src={getEmbedUrl(videoUrl)}
-                      title={`Additional Video ${index + 1}`}
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                      className="w-full h-full"
-                    />
-                  </div>
-                ))}
+          <Reveal>
+            <div className="grid gap-8 lg:grid-cols-[1.5fr_.55fr] lg:items-end">
+              <div>
+                <p className="eyebrow">{project.client || "Neotrix"} / {project.year || "Undated"}</p>
+                <h1 className="mt-5 max-w-[13ch] text-[clamp(4rem,10vw,10rem)] font-medium leading-[.84] tracking-[-0.07em]">{project.title}</h1>
+              </div>
+              <div className="flex flex-wrap gap-2 lg:pb-3">
+                {Array.from(new Set(project.tags)).map((tag) => <span key={tag} className="rounded-full border border-white/15 px-3 py-2 font-mono text-[9px] uppercase tracking-[0.13em] text-white/55">{tag}</span>)}
               </div>
             </div>
-          )}
+          </Reveal>
+        </header>
 
-          {/* Project Timeline */}
-          <div className="flex flex-wrap gap-6">
-            {projectData.projectStartDate && (
-              <div className="flex items-center gap-3 text-white/70">
-                <Calendar className="w-5 h-5 text-emerald-400" />
-                <div>
-                  <p className="text-sm text-white/50">Start Date</p>
-                  <p className="text-white">{new Date(projectData.projectStartDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+        <section className="page-wrap mt-12 sm:mt-16">
+          <Reveal>
+            <YouTubeFacade url={project.links[0] || ""} poster={poster} title={project.title} hero className="rounded-[1.3rem] sm:rounded-[2.2rem]" />
+          </Reveal>
+        </section>
+
+        {project.links.length > 1 && (
+          <section className="page-wrap border-b border-white/10 py-12 sm:py-16">
+            <div className="mb-7 flex items-end justify-between">
+              <div>
+                <p className="eyebrow">More from the project</p>
+                <h2 className="mt-2 text-2xl font-medium tracking-[-0.035em] sm:text-4xl">Additional videos</h2>
+              </div>
+              <span className="font-mono text-[9px] text-white/40">{String(project.links.length - 1).padStart(2, "0")}</span>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              {project.links.slice(1).map((link, itemIndex) => (
+                <Reveal key={link} delay={itemIndex * 0.04}>
+                  <YouTubeFacade url={link} poster={getYouTubeThumbnail(link)} title={`${project.title} — Video ${itemIndex + 2}`} className="rounded-[1rem] sm:rounded-[1.3rem]" />
+                </Reveal>
+              ))}
+            </div>
+          </section>
+        )}
+
+        <section className="page-wrap grid gap-8 py-14 sm:py-20 lg:grid-cols-[.38fr_1fr]">
+          <Reveal>
+            <p className="eyebrow">Project caption</p>
+          </Reveal>
+          <Reveal delay={0.08}>
+            <p className="max-w-3xl text-base leading-relaxed text-white/70 sm:text-lg">{description}</p>
+            <dl className="mt-9 grid gap-x-8 gap-y-6 border-t border-white/10 pt-7 sm:grid-cols-2">
+              {[
+                ["Client", project.client || "Neotrix"],
+                ["Year", String(project.year || "—")],
+                ["Production", project.credits || "Neotrix"],
+                ["Project window", displayDate(project.projectStartDate) + " — " + displayDate(project.deliveryDate)],
+              ].map(([term, value]) => (
+                <div key={term}>
+                  <dt className="font-mono text-[8px] uppercase tracking-[0.16em] text-white/35">{term}</dt>
+                  <dd className="mt-2 text-sm leading-relaxed text-white/68">{value}</dd>
                 </div>
-              </div>
-            )}
-            {projectData.deliveryDate && (
-              <div className="flex items-center gap-3 text-white/70">
-                <Clock className="w-5 h-5 text-blue-400" />
-                <div>
-                  <p className="text-sm text-white/50">Delivery Date</p>
-                  <p className="text-white">{new Date(projectData.deliveryDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
-                </div>
-              </div>
-            )}
-            {!projectData.projectStartDate && !projectData.deliveryDate && (
-              <div className="flex items-center gap-3 text-white/70">
-                <Calendar className="w-5 h-5 text-emerald-400" />
-                <div>
-                  <p className="text-sm text-white/50">Year</p>
-                  <p className="text-white">{projectData.year}</p>
-                </div>
-              </div>
-            )}
-          </div>
+              ))}
+            </dl>
+          </Reveal>
+        </section>
 
-          {/* Description */}
-          <div>
-            <h2 className="text-2xl font-semibold text-white mb-4">Project Overview</h2>
-            <p className="text-white/80 text-lg leading-relaxed">{projectData.description}</p>
-          </div>
+        <nav aria-label="Project pagination" className="page-wrap grid gap-px py-20 sm:grid-cols-2 sm:py-28">
+          {previous && <Link to={"/projects/" + previous.id} className="group border-y border-white/10 py-8 sm:border-r sm:pr-8"><p className="eyebrow">Previous</p><div className="mt-4 flex items-center justify-between gap-4"><span className="text-2xl tracking-[-0.035em] sm:text-4xl">{previous.title}</span><ArrowLeft className="size-5 transition-transform group-hover:-translate-x-2" /></div></Link>}
+          {next && <Link to={"/projects/" + next.id} className="group border-b border-white/10 py-8 sm:border-y sm:pl-8 sm:text-right"><p className="eyebrow">Next</p><div className="mt-4 flex items-center justify-between gap-4 sm:flex-row-reverse"><span className="text-2xl tracking-[-0.035em] sm:text-4xl">{next.title}</span><ArrowRight className="size-5 transition-transform group-hover:translate-x-2" /></div></Link>}
+        </nav>
 
-
-          {/* Credits */}
-          {projectData.credits && (
-            <div>
-              <h2 className="text-2xl font-semibold text-white mb-4 flex items-center gap-2">
-                <Clock className="w-6 h-6" />
-                Production Credits
-              </h2>
-              <div className="text-white/80 whitespace-pre-line">{projectData.credits}</div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      <Footer />
-    </div>
+        <section className="page-wrap">
+          <Link to="/contact" className="group flex items-center justify-between rounded-[1.5rem] bg-[#7DEBFF] p-6 text-black sm:p-10">
+            <div><p className="font-mono text-[9px] uppercase tracking-[0.18em] text-black/45">Your project could be next</p><p className="mt-3 text-[clamp(2.5rem,6vw,6.5rem)] font-medium leading-[.9] tracking-[-0.06em]">Start a project.</p></div>
+            <ArrowUpRight className="size-7 transition-transform group-hover:rotate-45 sm:size-12" />
+          </Link>
+        </section>
+      </article>
+    </>
   );
 };
 

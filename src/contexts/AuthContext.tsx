@@ -46,8 +46,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     let mounted = true;
+    let sessionRequest = 0;
 
     const applySession = async (sessionUser: { id: string; email?: string | null } | null) => {
+      const request = ++sessionRequest;
       if (!mounted) return;
 
       if (!sessionUser) {
@@ -57,9 +59,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return;
       }
 
-      setUser(mapSessionUser(sessionUser));
+      setLoading(true);
       const admin = await refreshAdminFlag(sessionUser.id);
-      if (!mounted) return;
+      if (!mounted || request !== sessionRequest) return;
+      setUser(mapSessionUser(sessionUser));
       setIsAdmin(admin);
       setLoading(false);
     };

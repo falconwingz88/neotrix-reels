@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useCallback, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface SiteSettings {
@@ -63,27 +63,27 @@ const applyGlassStyles = (opacity: number, color: string) => {
   root.style.setProperty('--glass-color', hsl);
 };
 
+const processSettingsData = (data: { key: string; value: string }[]) => {
+  const loadedSettings = { ...defaultSettings };
+
+  data.forEach((row) => {
+    if (row.key === 'glassmorphism_opacity') {
+      loadedSettings.glassmorphismOpacity = parseFloat(row.value) || defaultSettings.glassmorphismOpacity;
+    } else if (row.key === 'glassmorphism_color') {
+      loadedSettings.glassmorphismColor = row.value || defaultSettings.glassmorphismColor;
+    } else if (row.key === 'tools_visible') {
+      loadedSettings.toolsVisible = row.value === 'true';
+    }
+  });
+
+  return loadedSettings;
+};
+
 export const SiteSettingsProvider = ({ children }: { children: ReactNode }) => {
   const [settings, setSettings] = useState<SiteSettings>(defaultSettings);
   const [loading, setLoading] = useState(true);
 
-  const processSettingsData = (data: { key: string; value: string }[]) => {
-    const loadedSettings = { ...defaultSettings };
-    
-    data.forEach((row) => {
-      if (row.key === 'glassmorphism_opacity') {
-        loadedSettings.glassmorphismOpacity = parseFloat(row.value) || defaultSettings.glassmorphismOpacity;
-      } else if (row.key === 'glassmorphism_color') {
-        loadedSettings.glassmorphismColor = row.value || defaultSettings.glassmorphismColor;
-      } else if (row.key === 'tools_visible') {
-        loadedSettings.toolsVisible = row.value === 'true';
-      }
-    });
-
-    return loadedSettings;
-  };
-
-  const fetchSettings = async () => {
+  const fetchSettings = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('site_settings')
@@ -104,7 +104,7 @@ export const SiteSettingsProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchSettings();
@@ -148,41 +148,25 @@ export const SiteSettingsProvider = ({ children }: { children: ReactNode }) => {
     // This keeps "everyone" (including not logged in) in sync without manual refresh.
     const pollId = window.setInterval(() => {
       fetchSettings();
-    }, 5000);
+    }, 30000);
 
     return () => {
       window.clearInterval(pollId);
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [fetchSettings]);
 
   const updateSetting = async (key: string, value: string) => {
     try {
-      // Check if setting exists
-      const { data: existing } = await supabase
+      const { error } = await supabase
         .from('site_settings')
-        .select('id')
-        .eq('key', key)
-        .maybeSingle();
+        .upsert(
+          { key, value, updated_at: new Date().toISOString() },
+          { onConflict: 'key' },
+        );
 
-      if (existing) {
-        // Update existing setting
-        const { error } = await supabase
-          .from('site_settings')
-          .update({ value, updated_at: new Date().toISOString() })
-          .eq('key', key);
-
-        if (error) throw error;
-      } else {
-        // Insert new setting
-        const { error } = await supabase
-          .from('site_settings')
-          .insert({ key, value });
-
-        if (error) throw error;
-      }
-
-      // Local state will be updated via realtime subscription
+      if (error) throw error;
+      await fetchSettings();
     } catch (err) {
       console.error('Error saving site settings:', err);
       throw err;

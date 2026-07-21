@@ -37,6 +37,11 @@ export interface CalendarEvent {
   is_sub_event?: boolean;
 }
 
+type SerializedCalendarEvent = Omit<CalendarEvent, "start_time" | "end_time"> & {
+  start_time: string;
+  end_time: string;
+};
+
 type ViewType = 'month';
 
 const NeoTimeline = () => {
@@ -119,7 +124,7 @@ const NeoTimeline = () => {
 
       const cachedEvents = localStorage.getItem(eventsStorageKey);
       if (cachedEvents) {
-        const parsed = JSON.parse(cachedEvents) as any[];
+        const parsed = JSON.parse(cachedEvents) as SerializedCalendarEvent[];
         setEvents(
           parsed.map((e) => ({
             ...e,

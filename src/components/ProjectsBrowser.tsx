@@ -1,12 +1,13 @@
-import { useState, useMemo, useEffect, useCallback } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { Search, Filter, X, Users, Calendar, Layers, FolderOpen } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+import { useMemo, useState, type PointerEvent } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { Filter, Search, X } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
+import { ProjectCard } from "@/components/ProjectCard";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useProjects } from "@/contexts/ProjectsContext";
-import { useAuth } from "@/contexts/AuthContext";
-import { motion, AnimatePresence } from "framer-motion";
+import { deriveProjectFacets, filterProjects, filtersFromSearchParams, filtersToSearchParams, resolveResourceState, type ProjectFilters } from "@/lib/projects";
+
+// Retained for the legacy admin modal contract.
 export interface Project {
   id: string;
   title: string;
@@ -20,274 +21,158 @@ export interface Project {
   deliveryFiles: string[];
   fileLink?: string;
   deliveryDate?: string;
-  createdAt?: string;
+  createdAt: string;
 }
 
-// Helper function to extract YouTube video ID and generate thumbnail
-const getYouTubeVideoId = (url: string): string => {
-  if (!url) return "";
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|shorts\/)([^#&?]*).*/;
-  const match = url.match(regExp);
-  return match && match[2].length === 11 ? match[2] : "";
-};
-const getYouTubeThumbnail = (url: string): string => {
-  const videoId = getYouTubeVideoId(url);
-  return videoId ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : "";
-};
-export const TAG_OPTIONS = ["Beauty", "Liquid", "VFX", "Character Animation", "Object Animation"];
-const YEAR_OPTIONS = [2026, 2025, 2024, 2023, 2022, 2021, 2020];
-export const ProjectsBrowser = () => {
-  const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const {
-    customProjects,
-    loading
-  } = useProjects();
-  const {
-    isAdmin
-  } = useAuth();
-
-  // Initialize state from URL params
-  const [searchTerm, setSearchTerm] = useState(() => searchParams.get("q") || "");
-  const [selectedTags, setSelectedTags] = useState<string[]>(() => {
-    const tags = searchParams.get("tags");
-    return tags ? tags.split(",").filter(Boolean) : [];
-  });
-  const [selectedYear, setSelectedYear] = useState<number | null>(() => {
-    const year = searchParams.get("year");
-    return year ? parseInt(year, 10) : null;
-  });
-  const [showFilters, setShowFilters] = useState(() => !!searchParams.get("year"));
-
-  const updateSearchParams = useCallback((search: string, tags: string[], year: number | null) => {
-    const params = new URLSearchParams(searchParams);
-    if (search) params.set("q", search);
-    else params.delete("q");
-
-    if (tags.length > 0) params.set("tags", tags.join(","));
-    else params.delete("tags");
-
-    if (year !== null) params.set("year", String(year));
-    else params.delete("year");
-
-    setSearchParams(params);
-  }, [searchParams, setSearchParams]);
-
-  useEffect(() => {
-    const nextSearch = searchParams.get("q") || "";
-    const nextTags = (searchParams.get("tags") || "").split(",").filter(Boolean);
-    const nextYear = searchParams.get("year");
-    const parsedYear = nextYear ? parseInt(nextYear, 10) : null;
-
-    setSearchTerm(prev => prev === nextSearch ? prev : nextSearch);
-    setSelectedTags(prev => JSON.stringify(prev) === JSON.stringify(nextTags) ? prev : nextTags);
-    setSelectedYear(prev => prev === parsedYear ? prev : parsedYear);
-    setShowFilters(!!nextYear);
-  }, [searchParams]);
-
-  // Convert custom projects to Project format (already sorted by sort_order from context)
-  // Filter out restricted projects from public view
-  const allProjects: Project[] = customProjects
-    .filter(cp => !(cp as any).isRestricted)
-    .map(cp => ({
-    id: cp.id,
-    title: cp.title,
-    description: cp.description,
-    thumbnail: cp.thumbnail || (cp.links[0] ? getYouTubeThumbnail(cp.links[0]) : ""),
-    tags: cp.tags,
-    year: cp.year || new Date(cp.createdAt).getFullYear(),
-    client: cp.client || cp.credits || "Neotrix",
-    primaryVideoUrl: cp.links[0] || "",
-    allVideos: cp.links,
-    deliveryFiles: [],
-    fileLink: cp.fileLink,
-    deliveryDate: cp.deliveryDate,
-    createdAt: cp.createdAt
-  }));
-
-  // Create a Set of filtered project IDs for quick lookup
-  const filteredProjectIds = useMemo(() => {
-    const ids = new Set<string>();
-    allProjects.forEach(project => {
-      const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase()) || project.description.toLowerCase().includes(searchTerm.toLowerCase()) || project.client.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesTags = selectedTags.length === 0 || selectedTags.some(tag => project.tags.includes(tag));
-      const matchesYear = selectedYear === null || project.year === selectedYear;
-      if (matchesSearch && matchesTags && matchesYear) {
-        ids.add(project.id);
-      }
-    });
-    return ids;
-  }, [allProjects, searchTerm, selectedTags, selectedYear]);
-  const filteredProjects = allProjects.filter(project => filteredProjectIds.has(project.id));
-  const toggleTag = (tag: string) => {
-    const nextTags = selectedTags.includes(tag) ? selectedTags.filter(t => t !== tag) : [...selectedTags, tag];
-    setSelectedTags(nextTags);
-    updateSearchParams(searchTerm, nextTags, selectedYear);
-  };
-  const clearFilters = () => {
-    setSelectedTags([]);
-    setSelectedYear(null);
-    setSearchTerm("");
-    updateSearchParams("", [], null);
-  };
-  return <div className="space-y-6">
-      {/* Header */}
-      <div className="text-center space-y-4">
-        <h1 className="text-4xl font-bold text-white">Other Projects</h1>
-        <p className="text-xl text-white/80 max-w-2xl mx-auto">
-          Explore our portfolio of creative campaigns, visual effects, and brand storytelling across different
-          industries.
-        </p>
-      </div>
-
-      {/* Search and Filter Controls */}
-      <div className="space-y-4">
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/60 w-4 h-4" />
-            <Input placeholder="Search projects..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-white/60" />
-          </div>
-          <Button onClick={() => setShowFilters(!showFilters)} variant="outline" className="bg-white/5 border-white/40 text-white hover:bg-white/10">
-            <Filter className="w-4 h-4 mr-2" />
-            More Filters
-          </Button>
-        </div>
-
-        {/* Category Filters - Always visible */}
-        <div className="flex flex-wrap gap-2 md:gap-3">
-          {TAG_OPTIONS.map(tag => (
-            <Button
+const FilterControls = ({ filters, setFilters, tags, years, vertical = false }: {
+  filters: ProjectFilters;
+  setFilters: (filters: ProjectFilters) => void;
+  tags: string[];
+  years: number[];
+  vertical?: boolean;
+}) => (
+  <div className={vertical ? "space-y-7" : "space-y-8"}>
+    <div>
+      <p className="mb-3 font-mono text-[9px] uppercase tracking-[0.18em] text-white/40">Discipline</p>
+      <div className={vertical ? "grid gap-1.5" : "flex flex-wrap gap-2"}>
+        {tags.map((tag) => {
+          const active = filters.tags.includes(tag);
+          return (
+            <button
               key={tag}
-              variant={selectedTags.includes(tag) ? "default" : "outline"}
-              className={`px-4 py-2 md:px-6 md:py-3 text-sm md:text-base font-medium transition-colors ${
-                selectedTags.includes(tag) 
-                  ? "bg-white text-black hover:bg-white/90" 
-                  : "border-white/30 text-white hover:bg-white/10 bg-white/5"
-              }`}
-              onClick={() => toggleTag(tag)}
+              type="button"
+              onClick={() => setFilters({ ...filters, tags: active ? filters.tags.filter((item) => item !== tag) : [...filters.tags, tag] })}
+              aria-pressed={active}
+              className={`${vertical ? "flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left" : "rounded-full px-3 py-2"} border font-mono text-[9px] uppercase tracking-[0.12em] transition-colors ${active ? "border-[#B8FF35] bg-[#B8FF35] text-black" : "border-white/10 text-white/55 hover:border-white/35 hover:bg-white/[.04] hover:text-white"}`}
             >
-              {tag}
-            </Button>
-          ))}
+              <span>{tag}</span>{vertical && <span className="text-[8px] opacity-55">{active ? "ON" : "+"}</span>}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+    <div>
+      <p className="mb-3 font-mono text-[9px] uppercase tracking-[0.18em] text-white/40">Year</p>
+      <div className={vertical ? "grid grid-cols-2 gap-1.5" : "flex flex-wrap gap-2"}>
+        {years.map((year) => {
+          const active = filters.year === year;
+          return (
+            <button
+              key={year}
+              type="button"
+              onClick={() => setFilters({ ...filters, year: active ? null : year })}
+              aria-pressed={active}
+              className={`${vertical ? "rounded-lg py-2.5" : "rounded-full px-3 py-2"} border font-mono text-[9px] transition-colors ${active ? "border-[#7DEBFF] bg-[#7DEBFF] text-black" : "border-white/10 text-white/55 hover:border-white/35 hover:bg-white/[.04] hover:text-white"}`}
+            >
+              {year}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  </div>
+);
+
+export const ProjectsBrowser = () => {
+  const { customProjects, loading, error, refetch } = useProjects();
+  const [params, setParams] = useSearchParams();
+  const [cursor, setCursor] = useState({ visible: false, x: 0, y: 0 });
+  const reduced = useReducedMotion();
+  const filters = useMemo(() => filtersFromSearchParams(params), [params]);
+  const facets = useMemo(() => deriveProjectFacets(customProjects), [customProjects]);
+  const projects = useMemo(() => filterProjects(customProjects, filters), [customProjects, filters]);
+  const state = resolveResourceState(loading, error, projects);
+  const activeCount = filters.tags.length + (filters.year ? 1 : 0) + (filters.query ? 1 : 0);
+  const setFilters = (next: ProjectFilters) => setParams(filtersToSearchParams(next), { replace: true });
+  const clear = () => setFilters({ query: "", tags: [], year: null });
+  const handlePointer = (event: PointerEvent<HTMLDivElement>) => {
+    if (reduced || !window.matchMedia("(pointer:fine)").matches) return;
+    const target = event.target as HTMLElement;
+    setCursor({ visible: Boolean(target.closest("[data-project-link]")), x: event.clientX, y: event.clientY });
+  };
+
+  return (
+    <>
+      <div className="grid gap-7 border-b border-white/10 pb-7 lg:grid-cols-[1fr_.9fr] lg:items-end">
+        <div>
+          <p className="eyebrow">Work archive / 2020-Now</p>
+          <h1 className="mt-4 text-[clamp(3.2rem,8vw,7.8rem)] font-medium leading-[.84] tracking-[-0.068em]">All work.<br /><span className="text-white/30">No filler.</span></h1>
         </div>
-
-        {/* Year Filter Panel - Only shown when More Filters is clicked */}
-        {showFilters && (
-          <div className="bg-white/5 backdrop-blur-sm rounded-lg p-6 space-y-4">
-            <div>
-              <h3 className="text-white font-medium mb-3 flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                Year
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {YEAR_OPTIONS.map(year => (
-                  <Badge 
-                    key={year} 
-                    variant={selectedYear === year ? "default" : "outline"} 
-                    className={`cursor-pointer transition-colors text-sm px-3 py-1 ${
-                      selectedYear === year 
-                        ? "bg-white text-black hover:bg-white/90" 
-                        : "border-white/20 text-white hover:bg-white/10"
-                    }`} 
-                    onClick={() => setSelectedYear(selectedYear === year ? null : year)}
-                  >
-                    {year}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-
-            {/* Clear Filters */}
-            {(selectedTags.length > 0 || selectedYear !== null || searchTerm) && (
-              <Button onClick={clearFilters} variant="ghost" className="text-white hover:bg-white/10">
-                <X className="w-4 h-4 mr-2" />
-                Clear all filters
-              </Button>
-            )}
+        <div className="lg:pb-2">
+          <p className="max-w-lg text-base leading-relaxed text-white/55">Commercial worlds, character stories, product obsessions, and the occasional impossible liquid.</p>
+          <div className="relative mt-5">
+            <Search className="pointer-events-none absolute left-0 top-1/2 size-4 -translate-y-1/2 text-white/35" />
+            <input
+              value={filters.query}
+              onChange={(event) => setFilters({ ...filters, query: event.target.value })}
+              placeholder="Search title, client, or detail"
+              aria-label="Search projects"
+              className="h-13 w-full border-b border-white/18 bg-transparent py-4 pl-7 pr-9 text-base text-white outline-none placeholder:text-white/28 focus:border-[#7DEBFF]"
+            />
+            {filters.query && <button type="button" onClick={() => setFilters({ ...filters, query: "" })} className="absolute right-0 top-1/2 -translate-y-1/2 p-2 text-white/40 hover:text-white" aria-label="Clear search"><X className="size-4" /></button>}
           </div>
-        )}
+        </div>
       </div>
 
-      {/* Results Summary */}
-      
+      <div className="sticky top-[4.8rem] z-40 -mx-5 flex items-center justify-between border-b border-white/10 bg-[#0A0B0C]/92 px-5 py-3.5 backdrop-blur-xl sm:-mx-8 sm:px-8 lg:hidden">
+        <span className="font-mono text-[9px] uppercase tracking-[0.16em] text-white/45">Archive filters</span>
+        <Sheet>
+          <SheetTrigger asChild>
+            <button className="flex items-center gap-2 rounded-full border border-white/14 px-3 py-2 font-mono text-[9px] uppercase tracking-[0.14em]">
+              <Filter className="size-3.5" /> Filters {activeCount > 0 && `(${activeCount})`}
+            </button>
+          </SheetTrigger>
+          <SheetContent side="bottom" className="max-h-[82vh] overflow-y-auto rounded-t-[2rem] border-white/12 bg-[#111315] px-5 pb-10 text-white">
+            <SheetHeader className="mb-8 text-left"><SheetTitle className="text-3xl text-white">Filter the archive</SheetTitle></SheetHeader>
+            {activeCount > 0 && <button onClick={clear} className="mb-7 font-mono text-[9px] uppercase tracking-[0.14em] text-[#B8FF35] hover:text-white">Clear all filters</button>}
+            <FilterControls filters={filters} setFilters={setFilters} tags={facets.tags} years={facets.years} />
+          </SheetContent>
+        </Sheet>
+      </div>
 
-      {/* Projects Grid with animations */}
-      <motion.div layout className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-1 md:gap-6">
-        <AnimatePresence mode="popLayout">
-          {filteredProjects.map(project => <motion.div key={project.id} layout initial={{
-          opacity: 0,
-          scale: 0.9,
-          y: 20
-        }} animate={{
-          opacity: 1,
-          scale: 1,
-          y: 0
-        }} exit={{
-          opacity: 0,
-          scale: 0.9,
-          y: 20
-        }} transition={{
-          duration: 0.3,
-          ease: [0.4, 0, 0.2, 1],
-          layout: {
-            duration: 0.4
-          }
-        }} className="group cursor-pointer bg-white/5 backdrop-blur-sm rounded-md md:rounded-lg overflow-hidden border border-white/10 hover:border-white/20 relative" whileHover={{
-          scale: 1.03
-        }} onClick={() => navigate(`/projects/${project.id}`)}>
-              <div className="aspect-[4/3] md:aspect-video bg-gray-800 overflow-hidden">
-                <img src={project.thumbnail || "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400"} alt={project.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" onError={e => {
-              e.currentTarget.src = "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400";
-            }} />
-              </div>
-              <div className="p-1 md:p-4 space-y-0.5 md:space-y-3">
-                <div className="flex items-start justify-between gap-1">
-                  <h3 className="font-semibold text-white group-hover:text-blue-300 transition-colors line-clamp-1 text-xs md:text-base">
-                    {project.title}
-                  </h3>
-                  <span className="hidden md:block text-xs text-white/60 bg-white/10 px-2 py-1 rounded-full whitespace-nowrap">
-                    {project.year}
-                  </span>
-                </div>
-                <p className="text-[10px] md:text-sm text-white/70 line-clamp-2">
-                  {project.description.length > 50 ? <>
-                      <span className="md:hidden">{project.description.slice(0, 50)}...</span>
-                      <span className="hidden md:inline">
-                        {project.description.length > 100 ? <>
-                            {project.description.slice(0, 100)}...
-                            <span className="text-blue-300 hover:underline ml-1 opacity-100">see more</span>
-                          </> : project.description}
-                      </span>
-                    </> : project.description}
-                </p>
-                <div className="flex flex-wrap gap-0.5 md:gap-1">
-                  {project.tags.slice(0, 2).map((tag, index) => <Badge key={index} variant="secondary" className="text-[8px] md:text-xs bg-white/10 text-white/80 hover:bg-white/20 px-1 py-0 md:px-2 md:py-0.5">
-                      {tag}
-                    </Badge>)}
-                  {project.tags.length > 2 && <Badge variant="secondary" className="text-[8px] md:text-xs bg-white/10 text-white/80 px-1 py-0 md:px-2 md:py-0.5">
-                      +{project.tags.length - 2}
-                    </Badge>}
-                </div>
-              </div>
-              
-              {/* Admin File Access Button */}
-              {isAdmin && (project.fileLink ? <a href={project.fileLink} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="absolute bottom-2 right-2 md:bottom-4 md:right-4 flex items-center gap-1 px-2 py-1 md:px-3 md:py-1.5 bg-green-600 hover:bg-green-500 text-white text-xs font-medium rounded-md transition-colors">
-                    <FolderOpen className="w-3 h-3" />
-                    <span className="hidden md:inline">Access Files</span>
-                  </a> : <div className="absolute bottom-2 right-2 md:bottom-4 md:right-4 flex items-center gap-1 px-2 py-1 md:px-3 md:py-1.5 bg-gray-600 text-white/50 text-xs font-medium rounded-md cursor-not-allowed">
-                    <FolderOpen className="w-3 h-3" />
-                    <span className="hidden md:inline">No Files</span>
-                  </div>)}
-            </motion.div>)}
-        </AnimatePresence>
+      <div onPointerMove={handlePointer} onPointerLeave={() => setCursor((value) => ({ ...value, visible: false }))} className="relative grid gap-7 py-8 lg:grid-cols-[12rem_1fr] lg:gap-6 lg:py-10">
+        <aside className="hidden lg:block" aria-label="Project filters">
+          <div className="sticky top-28">
+            <div className="mb-6 flex items-center justify-between border-b border-white/10 pb-4">
+              <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-white/55">Filters</p>
+              {activeCount > 0 && <button onClick={clear} className="font-mono text-[8px] uppercase tracking-[0.12em] text-[#B8FF35] hover:text-white">Clear {activeCount}</button>}
+            </div>
+            <FilterControls vertical filters={filters} setFilters={setFilters} tags={facets.tags} years={facets.years} />
+          </div>
+        </aside>
+
+        <div>
+          {state === "loading" && <div className="grid grid-cols-2 gap-x-3 gap-y-7 md:grid-cols-3 xl:grid-cols-4">{Array.from({ length: 12 }).map((_, index) => <div key={index} className="aspect-video animate-pulse rounded-xl bg-white/6" />)}</div>}
+          {state === "error" && (
+            <div className="rounded-[1.5rem] border border-white/10 bg-white/5 p-8">
+              <p className="text-lg">The archive did not load.</p><p className="mt-2 text-sm text-white/50">{error}</p>
+              <button onClick={() => void refetch()} className="mt-6 rounded-full bg-white px-5 py-3 text-sm font-semibold text-black">Try again</button>
+            </div>
+          )}
+          {state === "empty" && (
+            <div className="rounded-[1.5rem] border border-white/10 bg-white/5 px-6 py-20 text-center">
+              <p className="text-3xl tracking-[-0.04em]">Nothing matches that cut.</p>
+              <button onClick={clear} className="mt-6 rounded-full border border-white/15 px-5 py-3 text-sm text-white/70 hover:text-white">Reset filters</button>
+            </div>
+          )}
+          {state === "ready" && (
+            <motion.div layout className="grid grid-cols-2 gap-x-3 gap-y-7 sm:gap-x-4 sm:gap-y-9 md:grid-cols-3 xl:grid-cols-4">
+              <AnimatePresence mode="popLayout">
+                {projects.map((project, index) => <ProjectCard key={project.id} project={project} index={index} compact priority />)}
+              </AnimatePresence>
+            </motion.div>
+          )}
+        </div>
+      </div>
+
+      <motion.div
+        aria-hidden
+        animate={{ x: cursor.x - 30, y: cursor.y - 30, opacity: cursor.visible ? 1 : 0, scale: cursor.visible ? 1 : 0.7 }}
+        transition={{ type: "spring", stiffness: 280, damping: 24 }}
+        className="pointer-events-none fixed left-0 top-0 z-[85] hidden size-[60px] place-items-center rounded-full bg-[#B8FF35] font-mono text-[8px] uppercase tracking-[0.14em] text-black lg:grid"
+      >
+        View
       </motion.div>
-
-      {/* No Results */}
-      {filteredProjects.length === 0 && <div className="text-center py-12">
-          <p className="text-white/60">No projects found matching your criteria.</p>
-          <Button onClick={clearFilters} variant="ghost" className="mt-4 text-white hover:bg-white/10">
-            Clear filters
-          </Button>
-        </div>}
-    </div>;
+    </>
+  );
 };

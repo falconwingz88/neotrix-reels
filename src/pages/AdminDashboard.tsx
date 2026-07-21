@@ -50,7 +50,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { useProjects, CustomProject } from '@/contexts/ProjectsContext';
 import { useContacts } from '@/contexts/ContactsContext';
-import { ArrowLeft, Plus, LogOut, X, Trash2, Edit2, Users, AlertCircle, Check, Link2, FolderOpen, RefreshCw, CalendarIcon, FolderKanban, MessageSquare, MapPin, Clock, ExternalLink, GripVertical, List, LayoutGrid, Briefcase, Image, Search, Settings, Lock } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, Plus, LogOut, X, Trash2, Edit2, Users, AlertCircle, Check, Link2, FolderOpen, RefreshCw, CalendarIcon, FolderKanban, MessageSquare, MapPin, Clock, ExternalLink, GripVertical, List, LayoutGrid, Briefcase, Image, Search, Settings, Lock, Radio, Sparkles } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import UndoNotification, { UndoNotificationItem } from '@/components/UndoNotification';
@@ -58,7 +58,9 @@ import { ThumbnailUpload } from '@/components/ThumbnailUpload';
 import { SortableProjectItem } from '@/components/SortableProjectItem';
 import { MediaUpload } from '@/components/MediaUpload';
 import { ClientLogoSelector } from '@/components/ClientLogoSelector';
+import { ClientLogos as ClientLogoWall } from '@/components/ClientLogos';
 import { cn } from '@/lib/utils';
+import { CLIENT_LOGO_SCALE_OPTIONS, getClientLogoScaleLabel, getClientLogoSize } from '@/lib/clientLogos';
 import { supabase } from '@/integrations/supabase/client';
 import { useSiteSettings } from '@/contexts/SiteSettingsContext';
 import { Slider } from '@/components/ui/slider';
@@ -86,6 +88,7 @@ interface ClientLogo {
 
 const TAG_OPTIONS = ['Beauty', 'Liquid', 'VFX', 'Character Animation', 'Object Animation', 'AI'];
 const YEAR_OPTIONS = [2030, 2029, 2028, 2027, 2026, 2025, 2024, 2023, 2022, 2021, 2020];
+const ADMIN_TABS = ['projects', 'restricted', 'logos', 'jobs', 'contacts', 'settings'] as const;
 
 // Helper function to extract YouTube video ID and generate thumbnail
 const getYouTubeVideoId = (url: string): string => {
@@ -112,7 +115,7 @@ const isValidUrl = (string: string): boolean => {
 
 const AdminDashboard = () => {
   // UI-only check - actual security enforced by RLS policies on database tables
-  const { isAuthenticated, isAdmin, logout, loading: authLoading } = useAuth();
+  const { isAuthenticated, isAdmin, user, logout, loading: authLoading } = useAuth();
   const { customProjects, addProject, updateProject, deleteProject, reorderProjectsByIds, initializeDefaultProjects, loading: projectsLoading, refetch: refetchProjects } = useProjects();
   const { contacts, deleteContact, clearAllContacts, loading: contactsLoading } = useContacts();
   const { settings, updateSetting } = useSiteSettings();
@@ -171,6 +174,7 @@ const AdminDashboard = () => {
   const [logoName, setLogoName] = useState('');
   const [logoUrl, setLogoUrl] = useState('');
   const [logoScale, setLogoScale] = useState('normal');
+  const [logoSortOrder, setLogoSortOrder] = useState('');
   const [logoIsActive, setLogoIsActive] = useState(true);
   const [logoSearchTerm, setLogoSearchTerm] = useState('');
   
@@ -242,10 +246,8 @@ const AdminDashboard = () => {
     const editId = searchParams.get('edit');
     const tabParam = searchParams.get('tab');
     
-    // Handle tab parameter from Join Us page
-    if (tabParam === 'jobs') {
-      setActiveTab('jobs');
-      setSearchParams({}, { replace: true });
+    if (tabParam && ADMIN_TABS.includes(tabParam as (typeof ADMIN_TABS)[number])) {
+      setActiveTab(tabParam);
     }
     
     if (editId && customProjects.length > 0 && !projectsLoading) {
@@ -265,7 +267,9 @@ const AdminDashboard = () => {
         setDeliveryDate(projectToEdit.deliveryDate ? new Date(projectToEdit.deliveryDate) : undefined);
         setShowForm(true);
         // Clear the search param after loading
-        setSearchParams({}, { replace: true });
+        const nextParams = new URLSearchParams(searchParams);
+        nextParams.delete('edit');
+        setSearchParams(nextParams, { replace: true });
       }
     }
   }, [searchParams, customProjects, projectsLoading, setSearchParams]);
@@ -508,9 +512,9 @@ const AdminDashboard = () => {
     setProjectToDelete(null);
   };
 
-  const dismissUndoNotification = useCallback((id: string) => {
+  const dismissUndoNotification = (id: string) => {
     setUndoNotifications(prev => prev.filter(n => n.id !== id));
-  }, []);
+  };
 
   const handleRestrictProject = async (projectId: string, projectTitle: string) => {
     try {
@@ -782,6 +786,7 @@ const AdminDashboard = () => {
     setLogoName('');
     setLogoUrl('');
     setLogoScale('normal');
+    setLogoSortOrder('');
     setLogoIsActive(true);
     setEditingLogo(null);
     setShowLogoForm(false);
@@ -799,6 +804,11 @@ const AdminDashboard = () => {
       return;
     }
 
+    const requestedOrder = Number.parseInt(logoSortOrder, 10);
+    const nextOrder = Number.isFinite(requestedOrder) && requestedOrder > 0
+      ? requestedOrder
+      : editingLogo?.sort_order ?? clientLogos.reduce((max, logo) => Math.max(max, logo.sort_order), 0) + 1;
+
     try {
       if (editingLogo) {
         const { error } = await supabase
@@ -807,6 +817,7 @@ const AdminDashboard = () => {
             name: logoName.trim(),
             url: logoUrl.trim(),
             scale: logoScale,
+            sort_order: nextOrder,
             is_active: logoIsActive,
           })
           .eq('id', editingLogo.id);
@@ -818,8 +829,6 @@ const AdminDashboard = () => {
           description: `"${logoName}" has been updated.`,
         });
       } else {
-        const maxOrder = clientLogos.reduce((max, l) => Math.max(max, l.sort_order), 0);
-        
         const { error } = await supabase
           .from('client_logos')
           .insert({
@@ -827,7 +836,7 @@ const AdminDashboard = () => {
             url: logoUrl.trim(),
             scale: logoScale,
             is_active: logoIsActive,
-            sort_order: maxOrder + 1,
+            sort_order: nextOrder,
           });
         
         if (error) throw error;
@@ -854,6 +863,7 @@ const AdminDashboard = () => {
     setLogoName(logo.name);
     setLogoUrl(logo.url);
     setLogoScale(logo.scale);
+    setLogoSortOrder(String(logo.sort_order));
     setLogoIsActive(logo.is_active);
     setShowLogoForm(true);
   };
@@ -908,69 +918,106 @@ const AdminDashboard = () => {
     }
   };
 
+  const publicProjectCount = customProjects.filter((project) => !project.isRestricted).length;
+  const restrictedProjectCount = customProjects.length - publicProjectCount;
+  const activeLogoCount = clientLogos.filter((logo) => logo.is_active).length;
+  const activeJobCount = jobOpenings.filter((job) => job.is_active).length;
+
   return (
-    <div className="min-h-screen bg-black p-4 md:p-8 overflow-x-hidden relative">
-      {/* Background Effects */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-10 right-10 w-96 h-96 bg-gradient-to-r from-blue-500/25 to-cyan-400/25 rounded-full blur-2xl animate-pulse" />
-        <div className="absolute bottom-10 left-10 w-96 h-96 bg-gradient-to-r from-blue-400/25 to-indigo-400/25 rounded-full blur-2xl animate-pulse" style={{ animationDelay: "2s" }} />
-        <div className="absolute top-1/3 left-1/3 w-72 h-72 bg-gradient-to-r from-cyan-400/15 to-blue-400/15 rounded-full blur-2xl animate-pulse" style={{ animationDelay: "1s" }} />
-      </div>
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-        <div className="flex items-center gap-4">
+    <div className="admin-console min-h-screen overflow-x-hidden bg-[#0a0b0c] text-[#f4f0e8]">
+      <div className="admin-ambient" aria-hidden="true" />
+
+      <header className="admin-topbar">
+        <button className="admin-brand" onClick={() => navigate('/')} aria-label="Back to Neotrix home">
+          <span className="admin-brand-mark">NX</span>
+          <span>
+            <strong>Neotrix</strong>
+            <small>Control room</small>
+          </span>
+        </button>
+
+        <div className="admin-topbar-actions">
+          <span className="admin-live-pill"><Radio aria-hidden="true" /> Live database</span>
           <Button
             variant="ghost"
-            onClick={() => navigate('/')}
-            className="text-white hover:bg-white/10 flex items-center gap-2"
+            onClick={() => navigate('/projects')}
+            className="admin-quiet-button"
           >
-            <ArrowLeft className="w-4 h-4" />
-            <span className="hidden sm:inline">Back to Home</span>
+            View portfolio <ArrowUpRight className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" onClick={handleLogout} className="admin-quiet-button">
+            <LogOut className="h-4 w-4" />
+            <span className="hidden sm:inline">Log out</span>
           </Button>
         </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            onClick={handleLogout}
-            className="text-white hover:bg-white/10 flex items-center gap-2"
-          >
-            <LogOut className="w-4 h-4" />
-            <span className="hidden sm:inline">Logout</span>
-          </Button>
-        </div>
-      </div>
+      </header>
 
-      <div className="max-w-6xl mx-auto">
-        <h1 className="text-2xl md:text-4xl font-bold text-white mb-2">Admin Dashboard</h1>
-        <p className="text-white/60 text-sm md:text-base mb-6 md:mb-8">Manage your projects and contacts</p>
+      <main className="relative mx-auto w-full max-w-[1600px] px-4 pb-16 pt-7 sm:px-6 lg:px-10 lg:pt-10">
+        <section className="admin-intro">
+          <div>
+            <p className="admin-eyebrow">Operations / Jakarta / {new Date().getFullYear()}</p>
+            <h1>Archive control,<br /><em>without the clutter.</em></h1>
+          </div>
+          <div className="admin-intro-copy">
+            <p>Publish work, shape the client wall, manage opportunities, and review every incoming brief from one connected workspace.</p>
+            <span><span className="admin-presence-dot" /> Signed in as {user?.email}</span>
+          </div>
+        </section>
 
-        {/* Tab Navigation */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="bg-white/10 border border-white/20 mb-6 w-full sm:w-auto flex flex-wrap">
-            <TabsTrigger value="projects" className="data-[state=active]:bg-white/20 text-white flex-1 sm:flex-none text-xs sm:text-sm">
-              <FolderKanban className="w-4 h-4 mr-1 sm:mr-2" />
-              <span className="hidden sm:inline">Projects</span> ({customProjects.filter(p => !p.isRestricted).length})
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => {
+            setActiveTab(value);
+            setSearchParams(value === 'projects' ? {} : { tab: value }, { replace: true });
+          }}
+          className="admin-workspace"
+        >
+          <section className="admin-metrics" aria-label="Workspace overview">
+            <article>
+              <span>Public archive</span>
+              <strong>{publicProjectCount}</strong>
+              <small>Projects live on the site</small>
+            </article>
+            <article>
+              <span>Client system</span>
+              <strong>{activeLogoCount}<sup>/{clientLogos.length}</sup></strong>
+              <small>Active logos</small>
+            </article>
+            <article>
+              <span>Open roles</span>
+              <strong>{activeJobCount}<sup>/{jobOpenings.length}</sup></strong>
+              <small>Visible opportunities</small>
+            </article>
+            <article className={contacts.length > 0 ? 'has-signal' : ''}>
+              <span>New business</span>
+              <strong>{contacts.length}</strong>
+              <small>Inquiry records</small>
+            </article>
+          </section>
+
+          <TabsList className="admin-nav">
+            <TabsTrigger value="projects" className="admin-nav-item">
+              <FolderKanban /> <span>Projects</span><b>{publicProjectCount}</b>
             </TabsTrigger>
-            <TabsTrigger value="restricted" className="data-[state=active]:bg-yellow-500/30 text-yellow-400 flex-1 sm:flex-none text-xs sm:text-sm">
-              <Lock className="w-4 h-4 mr-1 sm:mr-2" />
-              <span className="hidden sm:inline">Restricted</span> ({customProjects.filter(p => p.isRestricted).length})
+            <TabsTrigger value="restricted" className="admin-nav-item admin-nav-restricted">
+              <Lock /> <span>Restricted</span><b>{restrictedProjectCount}</b>
             </TabsTrigger>
-            <TabsTrigger value="logos" className="data-[state=active]:bg-white/20 text-white flex-1 sm:flex-none text-xs sm:text-sm">
-              <Image className="w-4 h-4 mr-1 sm:mr-2" />
-              <span className="hidden sm:inline">Client Logos</span> ({clientLogos.length})
+            <TabsTrigger value="logos" className="admin-nav-item">
+              <Image /> <span>Client logos</span><b>{clientLogos.length}</b>
             </TabsTrigger>
-            <TabsTrigger value="jobs" className="data-[state=active]:bg-white/20 text-white flex-1 sm:flex-none text-xs sm:text-sm">
-              <Briefcase className="w-4 h-4 mr-1 sm:mr-2" />
-              <span className="hidden sm:inline">Job Opening</span> ({jobOpenings.length})
+            <TabsTrigger value="jobs" className="admin-nav-item">
+              <Briefcase /> <span>Job openings</span><b>{jobOpenings.length}</b>
             </TabsTrigger>
-            <TabsTrigger value="contacts" className="data-[state=active]:bg-white/20 text-white flex-1 sm:flex-none text-xs sm:text-sm">
-              <MessageSquare className="w-4 h-4 mr-1 sm:mr-2" />
-              <span className="hidden sm:inline">Interested Form</span> ({contacts.length})
+            <TabsTrigger value="contacts" className="admin-nav-item">
+              <MessageSquare /> <span>Inquiries</span><b>{contacts.length}</b>
             </TabsTrigger>
-            <TabsTrigger value="settings" className="data-[state=active]:bg-white/20 text-white flex-1 sm:flex-none text-xs sm:text-sm">
-              <Settings className="w-4 h-4 mr-1 sm:mr-2" />
-              <span className="hidden sm:inline">Settings</span>
+            <TabsTrigger value="settings" className="admin-nav-item">
+              <Settings /> <span>Site settings</span><b>••</b>
             </TabsTrigger>
+            <div className="admin-nav-note">
+              <Sparkles aria-hidden="true" />
+              <span><strong>Connected</strong>Changes publish to the same Supabase records used by the main site.</span>
+            </div>
           </TabsList>
 
           {/* Projects Tab */}
@@ -1005,6 +1052,7 @@ const AdminDashboard = () => {
                 variant="ghost"
                 size="icon"
                 onClick={resetForm}
+                aria-label="Close project editor"
                 className="text-white hover:bg-white/10"
               >
                 <X className="w-5 h-5" />
@@ -1373,6 +1421,7 @@ const AdminDashboard = () => {
                       resetForm();
                       setShowRestrictedForm(false);
                     }}
+                    aria-label="Close restricted project editor"
                     className="text-yellow-400 hover:bg-yellow-500/20"
                   >
                     <X className="w-5 h-5" />
@@ -1717,6 +1766,15 @@ const AdminDashboard = () => {
                                   {contact.name}
                                   <ExternalLink className="w-3 h-3 text-white/40" />
                                 </div>
+                                {contact.company && (
+                                  <div className="text-xs text-white/55">{contact.company}</div>
+                                )}
+                                {(contact.email || contact.phone) && (
+                                  <div className="mt-1 max-w-[220px] space-y-0.5 text-xs text-white/45">
+                                    {contact.email && <div className="truncate">{contact.email}</div>}
+                                    {contact.phone && <div>{contact.phone}</div>}
+                                  </div>
+                                )}
                                 <div className="text-xs font-mono text-white/40">
                                   LEAD-{contact.id.slice(-6).toUpperCase()}
                                 </div>
@@ -1808,6 +1866,7 @@ const AdminDashboard = () => {
                       variant="ghost"
                       size="icon"
                       onClick={resetJobForm}
+                      aria-label="Close job editor"
                       className="text-white hover:bg-white/10"
                     >
                       <X className="w-5 h-5" />
@@ -2000,6 +2059,22 @@ const AdminDashboard = () => {
           {/* Logos Tab */}
           <TabsContent value="logos">
             <div className="space-y-6">
+              {!logosLoading && activeLogoCount > 0 && (
+                <div className="space-y-3">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                      <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-cyan-300">Homepage section</p>
+                      <h2 className="mt-1 text-xl font-semibold text-white">Selected collaborators preview</h2>
+                      <p className="mt-1 text-sm text-white/50">This is the same two-row wall visitors see on the homepage.</p>
+                    </div>
+                    <Button type="button" variant="ghost" onClick={() => navigate('/')} className="w-fit text-white/70 hover:bg-white/10 hover:text-white">
+                      View homepage <ArrowUpRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </div>
+                  <ClientLogoWall logos={clientLogos.filter((logo) => logo.is_active)} preview />
+                </div>
+              )}
+
               {/* Add/Edit Logo Form */}
               {showLogoForm ? (
                 <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-6">
@@ -2011,6 +2086,7 @@ const AdminDashboard = () => {
                       variant="ghost"
                       size="icon"
                       onClick={resetLogoForm}
+                      aria-label="Close logo editor"
                       className="text-white hover:bg-white/10"
                     >
                       <X className="w-5 h-5" />
@@ -2018,16 +2094,31 @@ const AdminDashboard = () => {
                   </div>
 
                   <form onSubmit={handleLogoSubmit} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="logoName" className="text-white">Brand Name *</Label>
-                      <Input
-                        id="logoName"
-                        value={logoName}
-                        onChange={(e) => setLogoName(e.target.value)}
-                        className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
-                        placeholder="e.g. BCA, Oppo, Telkomsel"
-                        required
-                      />
+                    <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_10rem]">
+                      <div className="space-y-2">
+                        <Label htmlFor="logoName" className="text-white">Brand Name *</Label>
+                        <Input
+                          id="logoName"
+                          value={logoName}
+                          onChange={(e) => setLogoName(e.target.value)}
+                          className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+                          placeholder="e.g. BCA, Oppo, Telkomsel"
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="logoSortOrder" className="text-white">Display position</Label>
+                        <Input
+                          id="logoSortOrder"
+                          type="number"
+                          min="1"
+                          step="1"
+                          value={logoSortOrder}
+                          onChange={(e) => setLogoSortOrder(e.target.value)}
+                          className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+                          placeholder={String(clientLogos.length + 1)}
+                        />
+                      </div>
                     </div>
 
                     <div className="space-y-2">
@@ -2044,43 +2135,46 @@ const AdminDashboard = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-white">Logo Scale</Label>
-                      <div className="flex flex-wrap gap-2">
-                        {['small', 'normal', '2x', '3x'].map((scale) => (
-                          <Badge
-                            key={scale}
-                            variant={logoScale === scale ? "default" : "outline"}
-                            className={`cursor-pointer transition-colors ${
-                              logoScale === scale
-                                ? 'bg-white text-black hover:bg-white/90'
-                                : 'border-white/20 text-white hover:bg-white/10'
-                            }`}
-                            onClick={() => setLogoScale(scale)}
+                      <Label className="text-white">Homepage display size</Label>
+                      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                        {CLIENT_LOGO_SCALE_OPTIONS.map((option) => (
+                          <button
+                            key={option.value}
+                            type="button"
+                            aria-pressed={logoScale === option.value}
+                            onClick={() => setLogoScale(option.value)}
+                            className={cn(
+                              "rounded-xl border p-3 text-left transition-colors",
+                              logoScale === option.value
+                                ? "border-cyan-300/70 bg-cyan-300/10 text-white"
+                                : "border-white/15 bg-black/10 text-white/65 hover:border-white/30 hover:bg-white/5",
+                            )}
                           >
-                            {scale === 'small' ? '0.75x' : scale === 'normal' ? '1x' : scale}
-                          </Badge>
+                            <span className="block text-sm font-medium">{option.label}</span>
+                            <span className="mt-1 block text-[11px] leading-snug text-current opacity-60">{option.description}</span>
+                          </button>
                         ))}
                       </div>
-                      <p className="text-white/50 text-xs">Adjust if logo appears too small or too large</p>
+                      <p className="text-white/50 text-xs">Every preset is constrained to its own tile, so logos cannot overlap.</p>
                     </div>
 
                     {logoUrl && (
                       <div className="space-y-2">
-                        <Label className="text-white">Preview</Label>
-                        <div className="bg-white/10 rounded-lg p-4 flex items-center justify-center h-20">
-                          <img
-                            src={logoUrl}
-                            alt="Preview"
-                            className={`max-h-full object-contain filter brightness-0 invert ${
-                              logoScale === '3x' ? 'scale-[3]' : 
-                              logoScale === '2x' ? 'scale-[2]' : 
-                              logoScale === 'small' ? 'scale-75' : ''
-                            }`}
-                            onError={(e) => {
-                              e.currentTarget.style.display = 'none';
-                            }}
-                          />
+                        <Label className="text-white">Exact tile preview</Label>
+                        <div className="flex min-h-32 items-center justify-center rounded-xl border border-white/10 bg-[#F4F0E8] p-5">
+                          <div className="grid h-20 w-44 place-items-center border border-dashed border-black/15">
+                            <div className="grid max-h-full max-w-full place-items-center overflow-hidden" style={getClientLogoSize(logoScale)}>
+                              <img
+                                key={logoUrl}
+                                src={logoUrl}
+                                alt={`${logoName || 'Logo'} preview`}
+                                style={getClientLogoSize(logoScale)}
+                                className="block object-contain brightness-0 opacity-60"
+                              />
+                            </div>
+                          </div>
                         </div>
+                        <p className="text-xs text-white/45">The dashed outline is one homepage tile. The logo will remain inside it at every screen size.</p>
                       </div>
                     )}
 
@@ -2117,7 +2211,10 @@ const AdminDashboard = () => {
               ) : (
                 <div className="flex flex-col sm:flex-row gap-3">
                   <Button
-                    onClick={() => setShowLogoForm(true)}
+                    onClick={() => {
+                      setLogoSortOrder(String(clientLogos.reduce((max, logo) => Math.max(max, logo.sort_order), 0) + 1));
+                      setShowLogoForm(true);
+                    }}
                     className="bg-white/20 hover:bg-white/30 text-white border border-white/20"
                   >
                     <Plus className="w-4 h-4 mr-2" />
@@ -2152,22 +2249,18 @@ const AdminDashboard = () => {
                         !logo.is_active && "opacity-50"
                       )}
                     >
-                      <div className="aspect-square flex items-center justify-center mb-3">
-                        <img
-                          src={logo.url}
-                          alt={logo.name}
-                          className={`max-w-full max-h-full object-contain filter brightness-0 invert ${
-                            logo.scale === '3x' ? 'scale-[2]' : 
-                            logo.scale === '2x' ? 'scale-150' : 
-                            logo.scale === 'small' ? 'scale-75' : ''
-                          }`}
-                          onError={(e) => {
-                            e.currentTarget.style.display = 'none';
-                          }}
-                        />
+                      <div className="mb-3 grid aspect-square place-items-center overflow-hidden rounded-lg bg-black/15">
+                        <div className="grid max-h-full max-w-full place-items-center overflow-hidden" style={getClientLogoSize(logo.scale)}>
+                          <img
+                            src={logo.url}
+                            alt={logo.name}
+                            style={getClientLogoSize(logo.scale)}
+                            className="block object-contain brightness-0 invert opacity-80"
+                          />
+                        </div>
                       </div>
                       <p className="text-white text-xs text-center truncate font-medium">{logo.name}</p>
-                      <p className="text-white/40 text-[10px] text-center">{logo.scale}</p>
+                      <p className="text-white/40 text-[10px] text-center">{getClientLogoScaleLabel(logo.scale)} · position {logo.sort_order}</p>
                       
                       {/* Actions overlay */}
                       <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center gap-2">
@@ -2316,7 +2409,7 @@ const AdminDashboard = () => {
             </div>
           </TabsContent>
         </Tabs>
-      </div>
+      </main>
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

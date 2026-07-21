@@ -1,244 +1,123 @@
-import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
-import { Home, Menu, Shield, LogOut } from 'lucide-react';
-import { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import neotrixLogo from '@/assets/neotrix-logo-white.png';
+import { useEffect, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { ArrowUpRight, LogOut, Menu, Shield, X } from "lucide-react";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import neotrixLogo from "@/assets/neotrix-logo-white.png";
+
+const links = [
+  { to: "/projects", label: "Work" },
+  { to: "/reels", label: "Reels" },
+  { to: "/about-us", label: "Studio" },
+  { to: "/join-us", label: "Careers" },
+];
+
 export const Header = () => {
+  const [open, setOpen] = useState(false);
+  const [compact, setCompact] = useState(false);
+  const location = useLocation();
   const navigate = useNavigate();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const reduceMotion = useReducedMotion();
   const { isAdmin, isAuthenticated, logout } = useAuth();
+
+  useEffect(() => setOpen(false), [location.pathname]);
+  useEffect(() => {
+    const onScroll = () => setCompact(window.scrollY > 32);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const handleLogout = async () => {
     await logout();
-    navigate('/');
+    navigate("/");
   };
 
   return (
-    <header className="absolute top-0 left-0 right-0 z-50 px-4 py-4">
-      <div className="max-w-7xl mx-auto">
-        {/* Desktop - Pill-shaped navigation bar */}
-        <nav className="hidden lg:flex items-center justify-between glass-panel rounded-full border border-white/20 px-2 py-2">
-          {/* Left side - Home + Admin Dashboard */}
-          <div className="flex items-center gap-1">
-            <Button
-              variant="ghost"
-              className="group flex items-center gap-2 rounded-full hover:bg-white/20 transition-all duration-300 px-3 py-2 h-auto min-w-10"
-              onClick={() => navigate('/')}
-            >
-              <Home className="w-5 h-5 text-white flex-shrink-0" />
-              <span className="text-white text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap overflow-hidden w-0 group-hover:w-auto group-hover:ml-1">
-                Home
-              </span>
-            </Button>
-            
-            {/* Admin Dashboard Button - Only visible for admins */}
-            {isAdmin && (
-              <Button
-                variant="ghost"
-                className="group flex items-center gap-2 rounded-full hover:bg-white/20 transition-all duration-300 px-3 py-2 h-auto"
-                onClick={() => navigate('/admin')}
-              >
-                <Shield className="w-5 h-5 text-amber-400 flex-shrink-0" />
-                <span className="text-amber-400 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap overflow-hidden w-0 group-hover:w-auto group-hover:ml-1">
-                  Admin
-                </span>
-              </Button>
-            )}
-          </div>
+    <motion.header
+      initial={reduceMotion ? false : { y: -24, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      className="fixed inset-x-0 top-0 z-[70] px-3 pt-3 sm:px-6 sm:pt-5"
+    >
+      <nav
+        aria-label="Primary navigation"
+        className={"mx-auto flex max-w-[1480px] items-center justify-between border px-3 transition-all duration-500 sm:px-4 " +
+          (compact ? "h-14 rounded-2xl border-white/10 bg-[#0a0b0c]/82 shadow-2xl backdrop-blur-xl" : "h-16 rounded-[1.35rem] border-white/10 bg-black/25 backdrop-blur-md")}
+      >
+        <Link to="/" className="group relative z-10 flex min-w-28 items-center" aria-label="Neotrix home">
+          <img src={neotrixLogo} alt="Neotrix" width="150" height="24" className="h-5 w-auto opacity-95 transition-opacity group-hover:opacity-70" />
+        </Link>
 
-          {/* Center - Logo */}
-          <div className="absolute left-1/2 transform -translate-x-1/2">
-            <img 
-              src={neotrixLogo} 
-              alt="Neotrix Logo" 
-              className="h-6 w-auto object-contain cursor-pointer"
-              onClick={() => navigate('/')}
-            />
-          </div>
+        <div className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-1 lg:flex">
+          {links.map((link) => (
+            <NavLink
+              key={link.to}
+              to={link.to}
+              className={({ isActive }) =>
+                "relative rounded-full px-4 py-2 font-mono text-[11px] uppercase tracking-[0.16em] transition-colors " +
+                (isActive ? "text-[#B8FF35]" : "text-[#F4F0E8]/62 hover:text-[#F4F0E8]")
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  {link.label}
+                  {isActive && <motion.span layoutId="nav-dot" className="absolute inset-x-4 -bottom-0.5 h-px bg-[#B8FF35]" />}
+                </>
+              )}
+            </NavLink>
+          ))}
+        </div>
 
-          {/* Right side - Navigation buttons */}
-          <div className="flex items-center gap-1">
-            <Button
-              variant="ghost"
-              className="rounded-full hover:bg-white/20 transition-all duration-300 px-4 py-2 text-white font-medium"
-              onClick={() => navigate('/projects')}
-            >
-              Works
-            </Button>
-            
-            <Button
-              variant="ghost"
-              className="rounded-full hover:bg-white/20 transition-all duration-300 px-4 py-2 text-white font-medium"
-              onClick={() => navigate('/contact')}
-            >
-              Book Now
-            </Button>
-            <Button
-              variant="ghost"
-              className="rounded-full hover:bg-white/20 transition-all duration-300 px-4 py-2 text-white font-medium"
-              onClick={() => navigate('/join-us')}
-            >
-              Join Us
-            </Button>
-            <Button
-              variant="ghost"
-              className="rounded-full hover:bg-white/20 transition-all duration-300 px-4 py-2 text-white font-medium"
-              onClick={() => navigate('/about-us')}
-            >
-              About Us
-            </Button>
-            {isAuthenticated ? (
-              <Button
-                variant="ghost"
-                className="rounded-full hover:bg-white/20 transition-all duration-300 px-4 py-2 text-white/60 font-medium"
-                onClick={handleLogout}
-              >
-                <LogOut className="w-4 h-4 mr-2" />
-                Logout
-              </Button>
-            ) : (
-              <Button
-                variant="ghost"
-                className="rounded-full hover:bg-white/20 transition-all duration-300 px-4 py-2 text-white/60 font-medium"
-                onClick={() => navigate('/login')}
-              >
-                Login
-              </Button>
-            )}
-          </div>
-        </nav>
-
-        {/* Mobile & Tablet Navigation */}
-        <div className="flex lg:hidden items-center justify-between glass-panel rounded-full border border-white/20 px-2 py-2 relative">
-          <div className="flex items-center gap-1 z-10">
-            <Button
-              variant="ghost"
-              className="rounded-full hover:bg-white/20 transition-all duration-300 px-3 py-2 h-auto"
-              onClick={() => navigate('/')}
-            >
-              <Home className="w-5 h-5 text-white" />
-            </Button>
-            
-            {/* Admin Dashboard Button - Mobile */}
-            {isAdmin && (
-              <Button
-                variant="ghost"
-                className="rounded-full hover:bg-white/20 transition-all duration-300 px-3 py-2 h-auto"
-                onClick={() => navigate('/admin')}
-              >
-                <Shield className="w-5 h-5 text-amber-400" />
-              </Button>
-            )}
-          </div>
-          
-          {/* Center - Logo */}
-          <div className="absolute left-1/2 transform -translate-x-1/2">
-            <img 
-              src={neotrixLogo} 
-              alt="Neotrix Logo" 
-              className="h-5 w-auto object-contain cursor-pointer"
-              onClick={() => navigate('/')}
-            />
-          </div>
-          
-          <Button
-            variant="ghost"
-            size="icon"
-            className="w-10 h-10 rounded-full hover:bg-white/20 transition-all duration-300 z-10"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+        <div className="relative z-10 flex min-w-28 items-center justify-end gap-2">
+          {isAdmin && (
+            <Link to="/admin" className="hidden rounded-full p-2 text-[#B8FF35] transition-colors hover:bg-white/10 sm:block" aria-label="Admin dashboard">
+              <Shield className="size-4" />
+            </Link>
+          )}
+          {isAuthenticated && (
+            <button onClick={handleLogout} className="hidden rounded-full p-2 text-white/45 transition-colors hover:text-white sm:block" aria-label="Log out">
+              <LogOut className="size-4" />
+            </button>
+          )}
+          <Link to="/contact" className="hidden items-center gap-2 rounded-full bg-[#F4F0E8] px-4 py-2.5 text-[12px] font-semibold text-[#0A0B0C] transition-transform hover:scale-[1.03] md:flex">
+            Start a project <ArrowUpRight className="size-3.5" />
+          </Link>
+          <button
+            type="button"
+            onClick={() => setOpen((value) => !value)}
+            className="grid size-10 place-items-center rounded-full border border-white/12 text-white lg:hidden"
+            aria-expanded={open}
+            aria-controls="mobile-navigation"
+            aria-label={open ? "Close menu" : "Open menu"}
           >
-            <Menu className="w-5 h-5 text-white" />
-          </Button>
+            {open ? <X className="size-4" /> : <Menu className="size-4" />}
+          </button>
         </div>
-      </div>
+      </nav>
 
-      {/* Mobile & Tablet Menu Dropdown */}
-      {mobileMenuOpen && (
-        <div className="lg:hidden mt-2 glass-panel rounded-2xl border border-white/20 p-4 mx-2">
-          <div className="flex flex-col gap-2">
-            {/* Admin Dashboard - Mobile Menu */}
-            {isAdmin && (
-              <Button
-                variant="ghost"
-                className="w-full justify-start rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 font-medium"
-                onClick={() => {
-                  navigate('/admin');
-                  setMobileMenuOpen(false);
-                }}
-              >
-                <Shield className="w-4 h-4 mr-2" />
-                Admin Dashboard
-              </Button>
-            )}
-            <Button
-              variant="ghost"
-              className="w-full justify-start rounded-lg bg-white/5 hover:bg-white/10 text-white font-medium"
-              onClick={() => {
-                navigate('/projects');
-                setMobileMenuOpen(false);
-              }}
-            >
-              Works
-            </Button>
-            
-            <Button
-              variant="ghost"
-              className="w-full justify-start rounded-lg bg-white/5 hover:bg-white/10 text-white font-medium"
-              onClick={() => {
-                navigate('/contact');
-                setMobileMenuOpen(false);
-              }}
-            >
-              Book Now
-            </Button>
-            <Button
-              variant="ghost"
-              className="w-full justify-start rounded-lg bg-white/5 hover:bg-white/10 text-white font-medium"
-              onClick={() => {
-                navigate('/join-us');
-                setMobileMenuOpen(false);
-              }}
-            >
-              Join Us
-            </Button>
-            <Button
-              variant="ghost"
-              className="w-full justify-start rounded-lg bg-white/5 hover:bg-white/10 text-white font-medium"
-              onClick={() => {
-                navigate('/about-us');
-                setMobileMenuOpen(false);
-              }}
-            >
-              About Us
-            </Button>
-            {isAuthenticated ? (
-              <Button
-                variant="ghost"
-                className="w-full justify-start rounded-lg bg-white/5 hover:bg-white/10 text-white/60 font-medium"
-                onClick={() => {
-                  handleLogout();
-                  setMobileMenuOpen(false);
-                }}
-              >
-                <LogOut className="w-4 h-4 mr-2" />
-                Logout
-              </Button>
-            ) : (
-              <Button
-                variant="ghost"
-                className="w-full justify-start rounded-lg bg-white/5 hover:bg-white/10 text-white/60 font-medium"
-                onClick={() => {
-                  navigate('/login');
-                  setMobileMenuOpen(false);
-                }}
-              >
-                Login
-              </Button>
-            )}
-          </div>
-        </div>
-      )}
-    </header>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            id="mobile-navigation"
+            initial={reduceMotion ? false : { opacity: 0, y: -12, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -12, scale: 0.98 }}
+            className="mx-auto mt-2 max-w-[1480px] overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#111315]/96 p-3 shadow-2xl backdrop-blur-xl lg:hidden"
+          >
+            <div className="grid">
+              {links.map((link, index) => (
+                <Link key={link.to} to={link.to} className="flex items-center justify-between border-b border-white/8 px-3 py-4 text-2xl text-[#F4F0E8]">
+                  <span>{link.label}</span>
+                  <span className="font-mono text-[10px] text-white/35">0{index + 1}</span>
+                </Link>
+              ))}
+              <Link to="/contact" className="mt-3 flex items-center justify-between rounded-2xl bg-[#B8FF35] px-4 py-4 font-semibold text-black">
+                Start a project <ArrowUpRight className="size-4" />
+              </Link>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.header>
   );
 };

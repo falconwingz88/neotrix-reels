@@ -1,65 +1,35 @@
-import { Instagram, Mail, Phone, MapPin } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-export const Footer = () => {
-  return <footer className="bg-white/5 backdrop-blur-xl border-t border-white/10 mt-16 w-full">
-      <div className="max-w-7xl mx-auto px-6 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* Company Info */}
-          <div className="space-y-4">
-            <h3 className="text-2xl font-bold text-white">Neotrix</h3>
-            <p className="text-white/70 leading-relaxed">is a 3D animation Studio in Jakarta for commercial, series, and Movies. uniquely blending artistry with cutting-edge Technology and AI.</p>
-            <p className="text-white/60 italic text-sm mt-2">"Technology inspires creativity, Creativity challenges technology" - John Lasseter (Pixar)
+import { ArrowUpRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
+export const Footer = () => (
+  <footer className="relative overflow-hidden border-t border-white/10 bg-[#0A0B0C] text-[#F4F0E8]">
+    <div className="mx-auto max-w-[1480px] px-5 py-12 sm:px-8 lg:px-10 lg:py-16">
+      <div className="grid gap-12 lg:grid-cols-[1.6fr_1fr_1fr]">
+        <div>
+          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#7DEBFF]">Neotrix / Jakarta</p>
+          <p className="mt-5 max-w-xl text-[clamp(2rem,5vw,5rem)] font-medium leading-[0.92] tracking-[-0.055em]">
+            Making ideas impossible to forget.
           </p>
-          </div>
-
-          {/* Contact Info */}
-          <div className="space-y-4">
-            <h4 className="text-lg font-semibold text-white">Contact</h4>
-            <div className="space-y-3">
-              <div className="flex items-center gap-3 text-white/70">
-                <Mail className="w-4 h-4 text-purple-400" />
-                <span>contact@neotrix.asia</span>
-              </div>
-              <div className="flex items-center gap-3 text-white/70">
-                <Phone className="w-4 h-4 text-purple-400" />
-                <span>+62 851-1130-3372</span>
-              </div>
-              <div className="flex items-start gap-3 text-white/70">
-                <MapPin className="w-4 h-4 text-purple-400 mt-0.5 flex-shrink-0" />
-                <span>Surya Utama Road 15, West Jakarta 11520, Indonesia</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Services */}
-          <div className="space-y-4">
-            <h4 className="text-lg font-semibold text-white">Services</h4>
-            <div className="space-y-2">
-              <p className="text-white/70">3D Animation</p>
-              <p className="text-white/70">3D Motion Capture</p>
-              <p className="text-white/70">Product Commercial</p>
-              <p className="text-white/70">3D Lighting & Render</p>
-            </div>
-          </div>
-
-          {/* Social & Follow */}
-          <div className="space-y-4">
-            <h4 className="text-lg font-semibold text-white">Socials</h4>
-            <Button variant="outline" size="lg" className="bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 hover:border-white/30 transition-all duration-300 rounded-full px-6 py-3 w-full" onClick={() => window.open('https://instagram.com/neotrix.asia', '_blank')}>
-              <Instagram className="w-5 h-5 mr-2" />
-              @neotrix.asia
-            </Button>
-            <p className="text-white/50 text-sm">
-              Follow us for the latest and greatest from us
-            </p>
-          </div>
         </div>
-
-        {/* Copyright */}
-        <div className="border-t border-white/10 mt-8 pt-6 text-center">
-          <p className="text-white/50">© 2026 Neotrix. All rights reserved. | Privacy Policy | Terms of Service</p>
+        <div className="grid content-start gap-3 font-mono text-xs uppercase tracking-[0.12em] text-white/55">
+          <p className="mb-2 text-white/28">Navigate</p>
+          <Link className="hover:text-[#B8FF35]" to="/projects">Selected work</Link>
+          <Link className="hover:text-[#B8FF35]" to="/about-us">About the studio</Link>
+          <Link className="hover:text-[#B8FF35]" to="/join-us">Join the team</Link>
+          <Link className="hover:text-[#B8FF35]" to="/contact">Start a project</Link>
+          <Link className="mt-2 text-white/35 hover:text-[#7DEBFF]" to="/admin-login">Admin access</Link>
+        </div>
+        <div className="grid content-start gap-3 font-mono text-xs uppercase tracking-[0.12em] text-white/55">
+          <p className="mb-2 text-white/28">Connect</p>
+          <a className="flex items-center gap-1 hover:text-[#7DEBFF]" href="mailto:contact@neotrix.asia">Email <ArrowUpRight className="size-3" /></a>
+          <a className="flex items-center gap-1 hover:text-[#7DEBFF]" href="https://instagram.com/neotrix.asia" target="_blank" rel="noreferrer">Instagram <ArrowUpRight className="size-3" /></a>
+          <p className="mt-4 normal-case tracking-normal text-white/55">West Jakarta · Indonesia<br />Working worldwide</p>
         </div>
       </div>
-    </footer>;
-};
+      <div className="mt-16 flex flex-col gap-3 border-t border-white/10 pt-5 font-mono text-[9px] uppercase tracking-[0.16em] text-white/55 sm:flex-row sm:items-center sm:justify-between">
+        <span>© {new Date().getFullYear()} Neotrix</span>
+        <span>3D animation · VFX · Product film</span>
+      </div>
+    </div>
+  </footer>
+);

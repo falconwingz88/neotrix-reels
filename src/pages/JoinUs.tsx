@@ -1,216 +1,64 @@
-import { useState, useEffect } from 'react';
-import { Header } from '@/components/Header';
-import { Footer } from '@/components/Footer';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { 
-  Accordion, 
-  AccordionContent, 
-  AccordionItem, 
-  AccordionTrigger 
-} from '@/components/ui/accordion';
-import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import { Edit2, Briefcase, Users, Zap, Target, Heart } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { useEffect, useState } from "react";
+import { ArrowUpRight, Briefcase, Edit2, Plus } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Reveal } from "@/components/Motion";
+import { Seo } from "@/components/Seo";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 interface JobOpening {
-  id: string;
-  title: string;
-  subtitle: string | null;
-  description: string | null;
-  responsibilities: string[];
-  requirements: string[];
-  traits: string[];
-  sort_order: number | null;
-  is_active: boolean;
+  id: string; title: string; subtitle: string | null; description: string | null;
+  responsibilities: string[] | null; requirements: string[] | null; traits: string[] | null;
+  sort_order: number | null; is_active: boolean | null;
 }
 
 const JoinUs = () => {
-  const { isAdmin } = useAuth();
-  const navigate = useNavigate();
-  const [jobOpenings, setJobOpenings] = useState<JobOpening[]>([]);
+  const [jobs, setJobs] = useState<JobOpening[]>([]);
   const [loading, setLoading] = useState(true);
-
+  const [error, setError] = useState(false);
+  const { isAdmin } = useAuth();
   useEffect(() => {
-    const fetchJobOpenings = async () => {
-      const { data, error } = await supabase
-        .from('job_openings')
-        .select('*')
-        .order('sort_order', { ascending: true });
-      
-      if (!error && data) {
-        setJobOpenings(data as JobOpening[]);
-      }
+    let active = true;
+    void supabase.from("job_openings").select("*").eq("is_active", true).order("sort_order").then(({ data, error: fetchError }) => {
+      if (!active) return;
+      setJobs((data || []) as JobOpening[]);
+      setError(Boolean(fetchError));
       setLoading(false);
-    };
-
-    fetchJobOpenings();
+    });
+    return () => { active = false; };
   }, []);
 
-  const whyWorkHere = [
-    { icon: Users, text: 'Small team, high impact' },
-    { icon: Target, text: 'Real projects, real responsibility' },
-    { icon: Zap, text: 'Strong focus on efficiency, clarity, and evolution' },
-    { icon: Heart, text: 'No corporate noise, no ego culture' },
-    { icon: Briefcase, text: 'A studio that is actively redefining how 3D production works' },
-  ];
-
   return (
-    <div className="min-h-screen bg-black relative overflow-hidden">
-      {/* Background Effects */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-10 right-10 w-96 h-96 bg-gradient-to-r from-blue-500/25 to-cyan-400/25 rounded-full blur-2xl animate-pulse" />
-        <div className="absolute bottom-10 left-10 w-96 h-96 bg-gradient-to-r from-blue-400/25 to-indigo-400/25 rounded-full blur-2xl animate-pulse" style={{ animationDelay: "2s" }} />
-        <div className="absolute top-1/3 left-1/3 w-72 h-72 bg-gradient-to-r from-cyan-400/15 to-blue-400/15 rounded-full blur-2xl animate-pulse" style={{ animationDelay: "1s" }} />
-      </div>
-      
-      <Header />
-      
-      <main className="pt-24 pb-16 px-4">
-        <div className="max-w-4xl mx-auto">
-          {/* Hero Section */}
-          <div className="text-center mb-8">
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-              Join Us at Neotrix
-            </h1>
-            <p className="text-lg text-white/70 max-w-2xl mx-auto">
-              If you like thinking, improving systems, and building something that actually works — you'll feel at home here.
-            </p>
-          </div>
-
-          {/* Why Work Here Section - Compact */}
-          <section className="mb-10">
-            <div className="flex flex-wrap items-center justify-center gap-3">
-              {whyWorkHere.map((item, index) => (
-                <div 
-                  key={index}
-                  className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 border border-white/20"
-                >
-                  <item.icon className="w-4 h-4 text-white/80" />
-                  <span className="text-sm text-white/90">{item.text}</span>
-                </div>
+    <>
+      <Seo title="Careers at Neotrix" description="Join Neotrix in Jakarta and help build ambitious 3D animation, VFX, and product-film work." path="/join-us" />
+      <section className="page-wrap pb-24 pt-32 sm:pt-40 lg:pb-36">
+        <Reveal><p className="eyebrow">Careers / Jakarta</p><h1 className="mt-6 max-w-[11ch] text-[clamp(4rem,10.5vw,10.5rem)] font-medium leading-[.84] tracking-[-0.072em]">Build strange, beautiful things.</h1></Reveal>
+        <div className="mt-16 grid gap-10 border-t border-white/10 pt-10 lg:grid-cols-[.6fr_1.4fr]"><p className="eyebrow">Life at Neotrix</p><div><p className="max-w-4xl text-[clamp(2rem,4vw,4.5rem)] font-medium leading-[1.03] tracking-[-0.05em]">Small team. High ownership. Real projects. No ego theatre.</p><div className="mt-10 grid gap-3 sm:grid-cols-2">{["Clarity over chaos", "Craft over convention", "Systems that help artists", "Responsibility with trust"].map((item, index) => <div key={item} className="flex items-center gap-4 border-t border-white/10 py-4"><span className="font-mono text-[9px] text-[#B8FF35]">0{index + 1}</span><span className="text-white/65">{item}</span></div>)}</div></div></div>
+      </section>
+      <section className="border-y border-white/10 bg-[#101214] py-20 sm:py-28">
+        <div className="page-wrap">
+          <div className="mb-10 flex items-end justify-between"><div><p className="eyebrow">Open positions</p><h2 className="mt-3 text-5xl font-medium tracking-[-0.055em] sm:text-7xl">Come make the work.</h2></div>{isAdmin && <Link to="/admin?tab=jobs" className="flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 text-xs"><Edit2 className="size-3.5" /> Manage</Link>}</div>
+          {loading && <div className="space-y-3">{[1, 2].map((item) => <div key={item} className="h-24 animate-pulse rounded-2xl bg-white/5" />)}</div>}
+          {!loading && error && <div className="rounded-[1.5rem] border border-white/10 p-8"><p className="text-xl">Open roles are temporarily unavailable.</p><p className="mt-2 text-white/45">You can still send an open application below.</p></div>}
+          {!loading && !error && jobs.length === 0 && <div className="rounded-[1.5rem] border border-white/10 p-8"><Briefcase className="size-5 text-white/40" /><p className="mt-5 text-2xl">No published roles today.</p><p className="mt-2 text-white/45">Great portfolios are always welcome.</p></div>}
+          {!loading && !error && jobs.length > 0 && (
+            <Accordion type="single" collapsible className="divide-y divide-white/10 border-y border-white/10">
+              {jobs.map((job, index) => (
+                <AccordionItem key={job.id} value={job.id} className="border-0">
+                  <AccordionTrigger className="group py-7 text-left hover:no-underline sm:py-9"><div className="grid w-full grid-cols-[2rem_1fr] items-center gap-3 pr-4 sm:grid-cols-[4rem_1fr_auto]"><span className="font-mono text-[9px] text-[#B8FF35]">{String(index + 1).padStart(2, "0")}</span><span className="text-2xl font-medium tracking-[-0.035em] text-white sm:text-4xl">{job.title}</span><span className="hidden font-mono text-[9px] uppercase tracking-[0.14em] text-white/35 sm:block">{job.subtitle}</span></div></AccordionTrigger>
+                  <AccordionContent className="pb-10 pl-8 sm:pl-16">
+                    <div className="grid gap-9 lg:grid-cols-[1fr_1.2fr]"><p className="max-w-xl text-lg leading-relaxed text-white/58">{job.description}</p><div className="grid gap-8 sm:grid-cols-2">{[["What you’ll do", job.responsibilities], ["What you bring", job.requirements], ["Who you are", job.traits]].map(([title, items]) => Array.isArray(items) && items.length > 0 && <div key={String(title)}><h3 className="eyebrow">{title}</h3><ul className="mt-4 space-y-3">{items.map((item) => <li key={item} className="flex gap-3 text-sm leading-relaxed text-white/55"><Plus className="mt-1 size-3 shrink-0 text-[#7DEBFF]" />{item}</li>)}</ul></div>)}</div></div>
+                    <Link to="/hiring" className="mt-9 inline-flex items-center gap-2 rounded-full bg-[#F4F0E8] px-5 py-3 text-sm font-semibold text-black">Apply for this role <ArrowUpRight className="size-3.5" /></Link>
+                  </AccordionContent>
+                </AccordionItem>
               ))}
-            </div>
-          </section>
-
-          {/* Job Openings Section */}
-          <section>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl md:text-3xl font-bold text-white">
-                Open Positions
-              </h2>
-              {isAdmin && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => navigate('/admin?tab=jobs')}
-                  className="bg-white/10 border-white/30 text-white hover:bg-white/20"
-                >
-                  <Edit2 className="w-4 h-4 mr-2" />
-                  Manage Jobs
-                </Button>
-              )}
-            </div>
-
-            {loading ? (
-              <div className="text-white/60 text-center py-8">Loading...</div>
-            ) : jobOpenings.length === 0 ? (
-              <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-8 text-center">
-                <Briefcase className="w-12 h-12 text-white/40 mx-auto mb-4" />
-                <p className="text-white/60">No job openings at the moment.</p>
-                <p className="text-white/40 text-sm">Check back later for new opportunities.</p>
-              </div>
-            ) : (
-              <Accordion type="single" collapsible className="space-y-3">
-                {jobOpenings.map((job) => (
-                  <AccordionItem 
-                    key={job.id} 
-                    value={job.id}
-                    className="bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 px-6 overflow-hidden hover:bg-white/15 transition-colors"
-                  >
-                    <AccordionTrigger className="text-white hover:no-underline py-6">
-                      <div className="flex items-center gap-3 text-left">
-                        <Briefcase className="w-5 h-5 text-white/60 flex-shrink-0" />
-                        <span className="text-lg font-semibold">{job.title}</span>
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent className="pb-6">
-                      <div className="space-y-6">
-                        {/* Subtitle & Description */}
-                        {job.subtitle && (
-                          <h3 className="text-white/80 font-medium">{job.subtitle}</h3>
-                        )}
-                        {job.description && (
-                          <p className="text-white/70 leading-relaxed">{job.description}</p>
-                        )}
-
-                        {/* What You'll Do */}
-                        {job.responsibilities.length > 0 && (
-                          <div>
-                            <h4 className="text-white font-semibold mb-3">What You'll Do</h4>
-                            <ul className="space-y-2">
-                              {job.responsibilities.map((item, index) => (
-                                <li key={index} className="flex items-start gap-2 text-white/70">
-                                  <span className="text-white/40 mt-1">•</span>
-                                  <span>{item}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-
-                        {/* What You Must Understand */}
-                        {job.requirements.length > 0 && (
-                          <div>
-                            <h4 className="text-white font-semibold mb-3">What You Must Understand</h4>
-                            <ul className="space-y-2">
-                              {job.requirements.map((item, index) => (
-                                <li key={index} className="flex items-start gap-2 text-white/70">
-                                  <span className="text-white/40 mt-1">•</span>
-                                  <span>{item}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-
-                        {/* Who You Are */}
-                        {job.traits.length > 0 && (
-                          <div>
-                            <h4 className="text-white font-semibold mb-3">Who You Are</h4>
-                            <ul className="space-y-2">
-                              {job.traits.map((item, index) => (
-                                <li key={index} className="flex items-start gap-2 text-white/70">
-                                  <span className="text-white/40 mt-1">•</span>
-                                  <span>{item}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-
-{/* Apply Button */}
-                        <div className="pt-4">
-                          <Button
-                            onClick={() => navigate('/hiring')}
-                            className="bg-white text-black hover:bg-white/90"
-                          >
-                            Apply for this position
-                          </Button>
-                        </div>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
-            )}
-          </section>
+            </Accordion>
+          )}
         </div>
-      </main>
-
-      <Footer />
-    </div>
+      </section>
+      <section className="page-wrap py-20 sm:py-28"><Link to="/hiring" className="group flex items-center justify-between gap-8 rounded-[1.75rem] bg-[#7DEBFF] p-7 text-black sm:p-10"><div><p className="font-mono text-[9px] uppercase tracking-[0.18em] text-black/45">No exact role?</p><p className="mt-3 text-[clamp(2.5rem,6vw,6rem)] font-medium leading-[.9] tracking-[-0.06em]">Send an open application.</p></div><ArrowUpRight className="size-8 transition-transform group-hover:rotate-45 sm:size-12" /></Link></section>
+    </>
   );
 };
 

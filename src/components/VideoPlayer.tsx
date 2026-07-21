@@ -52,7 +52,7 @@ export const VideoPlayer = ({ src, title, author, isActive, unmutedDefault = fal
   const embedUrl = isYouTube ? getYouTubeEmbedUrl(src, !unmutedDefault) : src;
 
   // Helper to send commands to the YouTube iframe via postMessage API
-  const postYTCommand = (func: string, args: any[] = []) => {
+  const postYTCommand = (func: string, args: unknown[] = []) => {
     const iframe = iframeRef.current;
     if (!iframe || !iframe.contentWindow) return;
     iframe.contentWindow.postMessage(

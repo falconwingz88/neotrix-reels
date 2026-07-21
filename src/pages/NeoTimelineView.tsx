@@ -19,6 +19,11 @@ export interface CalendarEvent {
   project_id?: string;
 }
 
+type SerializedCalendarEvent = Omit<CalendarEvent, "start_time" | "end_time"> & {
+  start_time: string;
+  end_time: string;
+};
+
 const NeoTimelineView = () => {
   const [searchParams] = useSearchParams();
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -47,8 +52,8 @@ const NeoTimelineView = () => {
     try {
       const json = decodeURIComponent(escape(window.atob(data)));
       const payload = JSON.parse(json) as {
-        projects?: any[];
-        events?: any[];
+        projects?: Project[];
+        events?: SerializedCalendarEvent[];
         gradient?: { from: string; via: string; to: string };
         showHolidays?: boolean;
       };

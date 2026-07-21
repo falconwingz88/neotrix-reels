@@ -57,7 +57,7 @@ const ProjectDetail = () => {
         title={project.title + " — Project"}
         description={description.slice(0, 155)}
         path={"/projects/" + project.id}
-        image={poster.startsWith("http") ? poster : "https://reels.neotrix.asia" + poster}
+        image={poster.startsWith("http") ? poster : "https://motion.neotrix.asia" + poster}
         type="video.other"
         structuredData={{
           "@context": "https://schema.org",

@@ -40,7 +40,7 @@ export const getYouTubeEmbedUrl = (value: string, options: { autoplay?: boolean;
     showinfo: "0",
     autohide: "1",
     cc_load_policy: "0",
-    origin: typeof window === "undefined" ? "https://reels.neotrix.asia" : window.location.origin,
+    origin: typeof window === "undefined" ? "https://motion.neotrix.asia" : window.location.origin,
   });
   if (options.autoplay) params.set("autoplay", "1");
   if (options.muted) params.set("mute", "1");

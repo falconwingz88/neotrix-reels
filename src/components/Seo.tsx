@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-const SITE_URL = "https://reels.neotrix.asia";
+const SITE_URL = "https://motion.neotrix.asia";
 const DEFAULT_IMAGE = SITE_URL + "/og.png";
 
 type SeoProps = {

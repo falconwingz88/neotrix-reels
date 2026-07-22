@@ -1,73 +1,34 @@
-# Welcome to your Lovable project
+# Neotrix Motion
 
-## Project info
+The independent source for the Neotrix Motion portfolio and studio operations site.
 
-**URL**: https://lovable.dev/projects/713859dd-4f6e-41b1-84a5-df675aff540b
+## Application
 
-## How can I edit this code?
+- React, Vite, and TypeScript
+- React Router, Tailwind CSS, Framer Motion, and shadcn/ui
+- Supabase-compatible authentication, PostgreSQL data, realtime updates, and object storage
+- OpenAI Sites hosting with the custom domain `motion.neotrix.asia`
 
-There are several ways of editing your application.
+## Local development
 
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/713859dd-4f6e-41b1-84a5-df675aff540b) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+Copy `.env.example` to `.env` and provide the URL, project ID, and publishable key for the site's backend. Then run:
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Validation commands:
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```sh
+npm run lint
+npm run typecheck
+npm test
+npm run build
+```
 
-**Use GitHub Codespaces**
+## Data and security
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Database migrations are stored in `supabase/migrations`. The public catalog, administrator tools, inquiries, client logos, job openings, site settings, authentication, timeline records, and project image uploads use the configured Supabase-compatible backend. Administrator authorization is enforced with database row-level security, not only in the browser interface.
 
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/713859dd-4f6e-41b1-84a5-df675aff540b) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+Local environment files are intentionally excluded from source control.

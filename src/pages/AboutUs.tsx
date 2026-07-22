@@ -30,18 +30,18 @@ const AboutUs = () => (
       </div>
     </section>
 
-    <section className="bg-[#F4F0E8] py-16 text-black sm:py-20 lg:py-24">
+    <section className="bg-[#F4F0E8] py-14 text-black sm:py-16 lg:py-20">
       <div className="page-wrap">
-        <div className="mx-auto mb-10 flex max-w-[800px] items-end justify-between"><div><p className="font-mono text-[9px] uppercase tracking-[0.2em] text-black/45">Leadership</p><h2 className="mt-3 text-4xl font-medium tracking-[-0.05em] sm:text-5xl">Two perspectives.<br />One standard.</h2></div><span className="hidden font-mono text-[9px] uppercase tracking-[0.16em] text-black/35 sm:block">Jakarta / Indonesia</span></div>
-        <div className="mx-auto grid max-w-[800px] gap-6 md:grid-cols-2 lg:gap-8">
+        <div className="mx-auto mb-8 flex max-w-[620px] items-end justify-between"><div><p className="font-mono text-[8px] uppercase tracking-[0.2em] text-black/45">Leadership</p><h2 className="mt-2 text-3xl font-medium tracking-[-0.045em] sm:text-4xl">Two perspectives.<br />One standard.</h2></div><span className="hidden font-mono text-[8px] uppercase tracking-[0.16em] text-black/35 sm:block">Jakarta / Indonesia</span></div>
+        <div className="mx-auto grid max-w-[620px] gap-8 md:grid-cols-2 md:gap-10">
           {founders.map((founder, index) => (
             <Reveal key={founder.name} delay={index * 0.08}>
-              <article className="group">
-                <div className="relative aspect-[4/4.75] overflow-hidden rounded-[1.25rem] bg-black/10 sm:rounded-[1.5rem]">
+              <article className="group mx-auto w-full max-w-[290px]">
+                <div className="relative aspect-[4/4.6] overflow-hidden rounded-[1rem] bg-black/10 sm:rounded-[1.25rem]">
                   <img src={founder.image} alt={founder.name} loading="lazy" decoding="async" className="size-full object-cover grayscale transition duration-700 group-hover:scale-[1.025] group-hover:grayscale-0" />
-                  <span className="absolute right-4 top-4 font-mono text-[8px] uppercase tracking-[0.18em] text-white/65">0{index + 1}</span>
+                  <span className="absolute right-3 top-3 font-mono text-[8px] uppercase tracking-[0.18em] text-white/65">0{index + 1}</span>
                 </div>
-                <div className="flex items-start justify-between gap-5 pt-4"><div><h3 className="text-xl font-medium tracking-[-0.03em] sm:text-2xl">{founder.name}</h3><p className="mt-1 font-mono text-[8px] uppercase tracking-[0.14em] text-black/45">{founder.role}</p></div><a href={"mailto:" + founder.email} className="grid size-10 place-items-center rounded-full border border-black/15 transition-colors hover:bg-black hover:text-white" aria-label={"Email " + founder.short}><ArrowUpRight className="size-3.5" /></a></div>
+                <div className="flex items-start justify-between gap-4 pt-3"><div><h3 className="text-lg font-medium tracking-[-0.025em]">{founder.name}</h3><p className="mt-1 font-mono text-[7px] uppercase tracking-[0.13em] text-black/45">{founder.role}</p></div><a href={"mailto:" + founder.email} className="grid size-9 shrink-0 place-items-center rounded-full border border-black/15 transition-colors hover:bg-black hover:text-white" aria-label={"Email " + founder.short}><ArrowUpRight className="size-3" /></a></div>
               </article>
             </Reveal>
           ))}

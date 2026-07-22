@@ -1,10 +1,7 @@
 import { ArrowUpRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
 
 export const Footer = () => {
-  const { isAdmin } = useAuth();
-
   return (
     <footer className="relative overflow-hidden border-t border-white/10 bg-[#0A0B0C] text-[#F4F0E8]">
     <div className="mx-auto max-w-[1480px] px-5 py-12 sm:px-8 lg:px-10 lg:py-16">
@@ -21,9 +18,7 @@ export const Footer = () => {
           <Link className="hover:text-[#B8FF35]" to="/about-us">About the studio</Link>
           <Link className="hover:text-[#B8FF35]" to="/join-us">Join the team</Link>
           <Link className="hover:text-[#B8FF35]" to="/contact">Start a project</Link>
-          {isAdmin && (
-            <Link className="mt-2 text-white/35 hover:text-[#7DEBFF]" to="/admin">Admin dashboard</Link>
-          )}
+          <Link className="mt-2 text-white/35 hover:text-[#7DEBFF]" to="/admin-login">Admin access</Link>
         </div>
         <div className="grid content-start gap-3 font-mono text-xs uppercase tracking-[0.12em] text-white/55">
           <p className="mb-2 text-white/28">Connect</p>

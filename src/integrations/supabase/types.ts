@@ -94,46 +94,58 @@ export type Database = {
       }
       contacts: {
         Row: {
+          company: string | null
           created_at: string | null
           deck_link: string | null
           delivery_date: string | null
+          email: string | null
           has_deck: boolean | null
           id: string
           location: string | null
           name: string
+          phone: string | null
           project_status: string
           role: string
           start_date: string | null
+          submission_key: string | null
           submitted_at: string | null
           video_duration: string | null
           video_versions: string | null
         }
         Insert: {
+          company?: string | null
           created_at?: string | null
           deck_link?: string | null
           delivery_date?: string | null
+          email?: string | null
           has_deck?: boolean | null
           id?: string
           location?: string | null
           name: string
+          phone?: string | null
           project_status: string
           role: string
           start_date?: string | null
+          submission_key?: string | null
           submitted_at?: string | null
           video_duration?: string | null
           video_versions?: string | null
         }
         Update: {
+          company?: string | null
           created_at?: string | null
           deck_link?: string | null
           delivery_date?: string | null
+          email?: string | null
           has_deck?: boolean | null
           id?: string
           location?: string | null
           name?: string
+          phone?: string | null
           project_status?: string
           role?: string
           start_date?: string | null
+          submission_key?: string | null
           submitted_at?: string | null
           video_duration?: string | null
           video_versions?: string | null
@@ -296,6 +308,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      reorder_projects: { Args: { _ordered_ids: string[] }; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "user" | "account_executive"

@@ -6,6 +6,7 @@ import { Image, Upload, X, Link2, AlertCircle, Crop } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { ImageCropper } from './ImageCropper';
+import { isSafeHttpUrl } from '@/lib/url';
 
 interface ThumbnailUploadProps {
   value: string;
@@ -13,14 +14,7 @@ interface ThumbnailUploadProps {
   hasError?: boolean;
 }
 
-const isValidUrl = (string: string): boolean => {
-  try {
-    new URL(string);
-    return true;
-  } catch (_) {
-    return false;
-  }
-};
+const isValidUrl = isSafeHttpUrl;
 
 export const ThumbnailUpload = ({ value, onChange, hasError }: ThumbnailUploadProps) => {
   const [isUploading, setIsUploading] = useState(false);

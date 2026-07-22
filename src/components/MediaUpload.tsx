@@ -7,6 +7,7 @@ import { Link2, Image, Upload, X, AlertCircle, Plus, GripVertical, Trash2 } from
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { ImageCropper } from '@/components/ImageCropper';
+import { isSafeHttpUrl } from '@/lib/url';
 
 interface MediaItem {
   type: 'video' | 'image';
@@ -19,14 +20,7 @@ interface MediaUploadProps {
   hasError?: boolean;
 }
 
-const isValidUrl = (string: string): boolean => {
-  try {
-    new URL(string);
-    return true;
-  } catch (_) {
-    return false;
-  }
-};
+const isValidUrl = isSafeHttpUrl;
 
 const isImageUrl = (url: string): boolean => {
   // Check if it's from our storage bucket or common image extensions

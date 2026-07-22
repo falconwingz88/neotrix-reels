@@ -57,7 +57,7 @@ export const VideoPlayer = ({ src, title, author, isActive, unmutedDefault = fal
     if (!iframe || !iframe.contentWindow) return;
     iframe.contentWindow.postMessage(
       JSON.stringify({ event: 'command', func, args }),
-      '*'
+      'https://www.youtube.com'
     );
   };
 
@@ -231,10 +231,12 @@ export const VideoPlayer = ({ src, title, author, isActive, unmutedDefault = fal
           <div className="w-full aspect-video max-h-full flex items-center justify-center">
             <iframe
               ref={iframeRef}
+              title={title}
               src={embedUrl}
               className="w-full h-full rounded-2xl border-0"
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              referrerPolicy="strict-origin-when-cross-origin"
               allowFullScreen
               style={{ 
                 backgroundColor: 'transparent',

@@ -3,6 +3,7 @@ import { X, Calendar, Users, Clock, FolderOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import type { Project } from './ProjectsBrowser';
+import { isSafeHttpUrl } from '@/lib/url';
 
 interface ProjectDetailModalProps {
   project: Project;
@@ -63,7 +64,7 @@ export const ProjectDetailModal = ({ project, onClose, isAdmin = false }: Projec
         <div className="p-6 pb-4 overflow-y-auto scrollbar-glassmorphism" style={{ maxHeight: 'calc(80vh - 120px)' }}>
           <div className="space-y-6">
             {/* Admin File Link - Only visible to admins */}
-            {isAdmin && project.fileLink && (
+            {isAdmin && project.fileLink && isSafeHttpUrl(project.fileLink) && (
               <div className="bg-green-500/20 border border-green-500/30 rounded-lg p-4">
                 <h3 className="text-lg font-semibold text-green-300 mb-2 flex items-center gap-2">
                   <FolderOpen className="w-5 h-5" />
@@ -89,6 +90,7 @@ export const ProjectDetailModal = ({ project, onClose, isAdmin = false }: Projec
                     src={getEmbedUrl(project.primaryVideoUrl)}
                     title="Project Video"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    referrerPolicy="strict-origin-when-cross-origin"
                     allowFullScreen
                     className="w-full h-full"
                   />
@@ -106,6 +108,7 @@ export const ProjectDetailModal = ({ project, onClose, isAdmin = false }: Projec
                           src={getEmbedUrl(videoUrl)}
                           title={`Additional Video ${index + 1}`}
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          referrerPolicy="strict-origin-when-cross-origin"
                           allowFullScreen
                           className="w-full h-full"
                         />
@@ -159,7 +162,7 @@ export const ProjectDetailModal = ({ project, onClose, isAdmin = false }: Projec
               <div>
                 <h2 className="text-2xl font-semibold text-white mb-4">Delivery Files</h2>
                 <div className="space-y-2">
-                  {project.deliveryFiles.map((file, index) => (
+                  {project.deliveryFiles.filter(isSafeHttpUrl).map((file, index) => (
                     <div key={index} className="bg-white/5 rounded-lg p-3 border border-white/10">
                       <a 
                         href={file} 

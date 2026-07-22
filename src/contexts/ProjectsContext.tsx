@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { getYouTubeThumbnail } from "@/lib/youtube";
+import { useAuth } from "@/contexts/AuthContext";
 
 export interface CustomProject {
   id: string;
@@ -35,7 +36,7 @@ interface ProjectsContextType {
 
 const ProjectsContext = createContext<ProjectsContextType | undefined>(undefined);
 
-type ProjectRow = {
+export type ProjectRow = {
   id: string;
   title: string;
   description: string | null;
@@ -53,7 +54,7 @@ type ProjectRow = {
   is_restricted: boolean | null;
 };
 
-const fromRow = (row: ProjectRow): CustomProject => ({
+export const projectFromRow = (row: ProjectRow): CustomProject => ({
   id: row.id,
   title: row.title,
   description: row.description || "",
@@ -79,7 +80,6 @@ const toRow = (project: Partial<Omit<CustomProject, "id" | "createdAt">>) => {
   if (project.links !== undefined) row.links = project.links;
   if (project.credits !== undefined) row.credits = project.credits;
   if (project.thumbnail !== undefined) row.thumbnail = project.thumbnail;
-  if (project.fileLink !== undefined) row.file_link = project.fileLink;
   if (project.year !== undefined) row.year = project.year?.toString();
   if (project.client !== undefined) row.client = project.client;
   if (project.projectStartDate !== undefined) row.project_start_date = project.projectStartDate || null;
@@ -91,6 +91,7 @@ const toRow = (project: Partial<Omit<CustomProject, "id" | "createdAt">>) => {
 };
 
 export const ProjectsProvider = ({ children }: { children: ReactNode }) => {
+  const { isAdmin } = useAuth();
   const [customProjects, setCustomProjects] = useState<CustomProject[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -107,10 +108,25 @@ export const ProjectsProvider = ({ children }: { children: ReactNode }) => {
       console.error("Error fetching projects:", fetchError);
       setError("We could not load the work right now.");
     } else {
-      setCustomProjects(((data || []) as ProjectRow[]).map(fromRow));
+      const fileLinks = new Map<string, string>();
+      if (isAdmin) {
+        const { data: privateData, error: privateError } = await supabase
+          .from("project_file_links")
+          .select("project_id, file_link");
+        if (privateError) {
+          console.error("Error fetching protected project file links:", privateError);
+        } else {
+          for (const item of privateData || []) fileLinks.set(item.project_id, item.file_link);
+        }
+      }
+
+      setCustomProjects(((data || []) as ProjectRow[]).map((row) => ({
+        ...projectFromRow(row),
+        fileLink: fileLinks.get(row.id),
+      })));
     }
     setLoading(false);
-  }, []);
+  }, [isAdmin]);
 
   useEffect(() => {
     void fetchProjects();
@@ -129,15 +145,39 @@ export const ProjectsProvider = ({ children }: { children: ReactNode }) => {
         (highest, current) => Math.max(highest, current.sortOrder ?? 0),
         0,
       ) + 1;
-      const { error: actionError } = await supabase
+      const { data: inserted, error: actionError } = await supabase
         .from("projects")
-        .insert(toRow({ ...project, sortOrder: project.sortOrder ?? nextSortOrder }) as never);
+        .insert(toRow({ ...project, sortOrder: project.sortOrder ?? nextSortOrder }) as never)
+        .select("id")
+        .single();
       if (actionError) throw actionError;
+      if (project.fileLink && inserted?.id) {
+        const { error: fileLinkError } = await supabase.from("project_file_links").upsert({
+          project_id: inserted.id,
+          file_link: project.fileLink,
+          updated_at: new Date().toISOString(),
+        });
+        if (fileLinkError) {
+          await supabase.from("projects").delete().eq("id", inserted.id);
+          throw fileLinkError;
+        }
+      }
       await fetchProjects();
     },
     updateProject: async (id: string, project: Partial<Omit<CustomProject, "id" | "createdAt">>) => {
       const { error: actionError } = await supabase.from("projects").update(toRow(project) as never).eq("id", id);
       if (actionError) throw actionError;
+      if (project.fileLink !== undefined) {
+        const fileLink = project.fileLink.trim();
+        const fileLinkResult = fileLink
+          ? await supabase.from("project_file_links").upsert({
+              project_id: id,
+              file_link: fileLink,
+              updated_at: new Date().toISOString(),
+            })
+          : await supabase.from("project_file_links").delete().eq("project_id", id);
+        if (fileLinkResult.error) throw fileLinkResult.error;
+      }
       await fetchProjects();
     },
     deleteProject: async (id: string) => {

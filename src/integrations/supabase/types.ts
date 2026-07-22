@@ -194,6 +194,32 @@ export type Database = {
         }
         Relationships: []
       }
+      project_file_links: {
+        Row: {
+          file_link: string
+          project_id: string
+          updated_at: string
+        }
+        Insert: {
+          file_link: string
+          project_id: string
+          updated_at?: string
+        }
+        Update: {
+          file_link?: string
+          project_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_file_links_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: true
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       projects: {
         Row: {
           client: string | null
@@ -301,6 +327,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_shared_project: {
+        Args: {
+          _project_id: string
+        }
+        Returns: Database["public"]["Tables"]["projects"]["Row"][]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

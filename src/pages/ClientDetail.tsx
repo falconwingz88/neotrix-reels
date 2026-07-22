@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Calendar, MapPin, User, Video, FileText, Clock, Building2, Mail, Phone } from "lucide-react";
 import { format } from "date-fns";
+import { isSafeHttpUrl } from "@/lib/url";
 
 const ClientDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -135,7 +136,7 @@ const ClientDetail = () => {
                 {contact.hasDeck ? "Has deck/storyboard" : "No deck/storyboard yet"}
               </div>
             )}
-            {contact.deckLink && (
+            {contact.deckLink && isSafeHttpUrl(contact.deckLink) && (
               <a
                 href={contact.deckLink}
                 target="_blank"

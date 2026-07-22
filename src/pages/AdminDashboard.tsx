@@ -64,6 +64,7 @@ import { CLIENT_LOGO_SCALE_OPTIONS, getClientLogoScaleLabel, getClientLogoSize }
 import { supabase } from '@/integrations/supabase/client';
 import { useSiteSettings } from '@/contexts/SiteSettingsContext';
 import { Slider } from '@/components/ui/slider';
+import { isSafeHttpUrl } from '@/lib/url';
 
 interface JobOpening {
   id: string;
@@ -103,15 +104,7 @@ const getYouTubeThumbnail = (url: string): string => {
   return videoId ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : '';
 };
 
-// URL validation function
-const isValidUrl = (string: string): boolean => {
-  try {
-    new URL(string);
-    return true;
-  } catch (_) {
-    return false;
-  }
-};
+const isValidUrl = isSafeHttpUrl;
 
 const AdminDashboard = () => {
   // UI-only check - actual security enforced by RLS policies on database tables
@@ -1461,25 +1454,7 @@ const AdminDashboard = () => {
                         description: `"${projectName}" has been updated.`,
                       });
                     } else {
-                      // Add as restricted project directly
-                      const { error } = await supabase
-                        .from('projects')
-                        .insert([{
-                          title: projectData.title,
-                          description: projectData.description,
-                          tags: projectData.tags,
-                          links: projectData.links,
-                          credits: projectData.credits,
-                          thumbnail: projectData.thumbnail || (projectData.links[0] ? getYouTubeThumbnail(projectData.links[0]) : null),
-                          file_link: projectData.fileLink,
-                          year: projectData.year?.toString(),
-                          client: projectData.client,
-                          project_start_date: projectData.projectStartDate || null,
-                          delivery_date: projectData.deliveryDate || null,
-                          is_restricted: true,
-                        }]);
-                      if (error) throw error;
-                      await refetchProjects();
+                      await addProject({ ...projectData, isRestricted: true });
                       toast({
                         title: "Restricted project added!",
                         description: `"${projectName}" has been added as a restricted project.`,
@@ -1788,7 +1763,7 @@ const AdminDashboard = () => {
                                   {contact.hasDeck && (
                                     <div className="text-xs text-green-400">Has deck/storyboard</div>
                                   )}
-                                  {contact.deckLink && (
+                                  {contact.deckLink && isSafeHttpUrl(contact.deckLink) && (
                                     <a 
                                       href={contact.deckLink} 
                                       target="_blank" 

@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { getSafeHttpUrl } from "@/lib/url";
 
 export interface ContactSubmission {
   id: string;
@@ -80,6 +81,9 @@ export const ContactsProvider = ({ children }: { children: ReactNode }) => {
   }, [authLoading, fetchContacts]);
 
   const addContact = async (contact: NewContact, submissionKey: string) => {
+    const deckLink = contact.deckLink ? getSafeHttpUrl(contact.deckLink) : null;
+    if (contact.hasDeck && !deckLink) throw new Error("A valid HTTP(S) deck link is required.");
+
     const id = submissionKey;
     const { error } = await supabase.from("contacts").insert({
       id,
@@ -91,7 +95,7 @@ export const ContactsProvider = ({ children }: { children: ReactNode }) => {
       role: contact.role,
       project_status: contact.projectStatus,
       has_deck: contact.hasDeck,
-      deck_link: contact.deckLink || null,
+      deck_link: deckLink,
       video_versions: contact.videoVersions || null,
       video_duration: contact.videoDuration || null,
       delivery_date: contact.deliveryDate || null,

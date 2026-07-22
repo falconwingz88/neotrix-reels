@@ -46,7 +46,7 @@ const App = () => (
                   </Route>
                   <Route path="/neo-timeline" element={<NeoTimeline />} />
                   <Route path="/neo-timeline/view" element={<NeoTimelineView />} />
-                  <Route path="/r" element={<RestrictedProjects />} />
+                  <Route path="/r" element={<AdminRoute><RestrictedProjects /></AdminRoute>} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/admin-login" element={<AdminLogin />} />
                   <Route path="/admin" element={<AdminRoute><SiteSettingsProvider><AdminDashboard /></SiteSettingsProvider></AdminRoute>} />

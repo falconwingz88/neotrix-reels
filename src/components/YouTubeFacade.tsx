@@ -24,7 +24,10 @@ export const YouTubeFacade = ({ url, title, poster, hero = false, autoplayWhenVi
   const posterUrl = posterFailed || !poster ? getYouTubeThumbnail(url) : poster;
 
   const command = useCallback((func: string, args: unknown[] = []) => {
-    iframeRef.current?.contentWindow?.postMessage(JSON.stringify({ event: "command", func, args }), "*");
+    iframeRef.current?.contentWindow?.postMessage(
+      JSON.stringify({ event: "command", func, args }),
+      "https://www.youtube-nocookie.com",
+    );
   }, []);
 
   const start = useCallback((unmute = false) => {

@@ -1,12 +1,13 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, ArrowRight, ArrowUpRight, Check, Share2 } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { Reveal } from "@/components/Motion";
 import { Seo } from "@/components/Seo";
 import { YouTubeFacade } from "@/components/YouTubeFacade";
-import { useProjects } from "@/contexts/ProjectsContext";
+import { projectFromRow, type CustomProject, type ProjectRow, useProjects } from "@/contexts/ProjectsContext";
 import { projectPoster, publicProjects } from "@/lib/projects";
 import { getYouTubeThumbnail } from "@/lib/youtube";
+import { supabase } from "@/integrations/supabase/client";
 
 const displayDate = (value?: string) => {
   if (!value) return "Not listed";
@@ -18,11 +19,39 @@ const ProjectDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { customProjects, loading, error, refetch } = useProjects();
   const [shared, setShared] = useState(false);
+  const [sharedProject, setSharedProject] = useState<CustomProject | null>(null);
+  const [sharedLoading, setSharedLoading] = useState(false);
   const projects = useMemo(() => publicProjects(customProjects), [customProjects]);
   const index = projects.findIndex((item) => item.id === id);
-  const project = index >= 0 ? projects[index] : undefined;
+  const publicProject = index >= 0 ? projects[index] : undefined;
+  const project = publicProject || sharedProject || undefined;
   const previous = index > 0 ? projects[index - 1] : projects[projects.length - 1];
   const next = index >= 0 && index < projects.length - 1 ? projects[index + 1] : projects[0];
+
+  useEffect(() => {
+    let cancelled = false;
+    setSharedProject(null);
+
+    if (loading || publicProject || !id) {
+      setSharedLoading(false);
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    setSharedLoading(true);
+    void supabase.rpc("get_shared_project", { _project_id: id }).then(({ data, error: sharedError }) => {
+      if (cancelled) return;
+      if (sharedError) console.error("Error loading shared project:", sharedError);
+      const row = ((data || []) as ProjectRow[])[0];
+      setSharedProject(row ? projectFromRow(row) : null);
+      setSharedLoading(false);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [id, loading, publicProject]);
 
   const share = async () => {
     if (!project) return;
@@ -36,7 +65,7 @@ const ProjectDetail = () => {
     }
   };
 
-  if (loading) return <div className="page-wrap min-h-screen pb-24 pt-36"><div className="aspect-video animate-pulse rounded-[2rem] bg-white/6" /></div>;
+  if (loading || sharedLoading) return <div className="page-wrap min-h-screen pb-24 pt-36"><div className="aspect-video animate-pulse rounded-[2rem] bg-white/6" /></div>;
   if (error) return (
     <section className="page-wrap flex min-h-[75vh] items-center pt-28">
       <div><p className="eyebrow">Project unavailable</p><h1 className="mt-4 text-5xl tracking-[-0.05em]">The case study did not load.</h1><button onClick={() => void refetch()} className="mt-7 rounded-full bg-white px-5 py-3 text-sm font-semibold text-black">Try again</button></div>

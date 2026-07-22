@@ -1,5 +1,5 @@
-import { useMemo, useState, type PointerEvent } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { AnimatePresence, motion, useMotionValue, useReducedMotion } from "framer-motion";
 import { Filter, Search, X } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { ProjectCard } from "@/components/ProjectCard";
@@ -76,7 +76,10 @@ const FilterControls = ({ filters, setFilters, tags, years, vertical = false }: 
 export const ProjectsBrowser = () => {
   const { customProjects, loading, error, refetch } = useProjects();
   const [params, setParams] = useSearchParams();
-  const [cursor, setCursor] = useState({ visible: false, x: 0, y: 0 });
+  const [cursorVisible, setCursorVisible] = useState(false);
+  const cursorX = useMotionValue(-100);
+  const cursorY = useMotionValue(-100);
+  const lastPointer = useRef({ x: -100, y: -100, insideWindow: false });
   const reduced = useReducedMotion();
   const filters = useMemo(() => filtersFromSearchParams(params), [params]);
   const facets = useMemo(() => deriveProjectFacets(customProjects), [customProjects]);
@@ -85,11 +88,50 @@ export const ProjectsBrowser = () => {
   const activeCount = filters.tags.length + (filters.year ? 1 : 0) + (filters.query ? 1 : 0);
   const setFilters = (next: ProjectFilters) => setParams(filtersToSearchParams(next), { replace: true });
   const clear = () => setFilters({ query: "", tags: [], year: null });
-  const handlePointer = (event: PointerEvent<HTMLDivElement>) => {
-    if (reduced || !window.matchMedia("(pointer:fine)").matches) return;
-    const target = event.target as HTMLElement;
-    setCursor({ visible: Boolean(target.closest("[data-project-link]")), x: event.clientX, y: event.clientY });
-  };
+
+  useEffect(() => {
+    if (reduced || !window.matchMedia("(pointer:fine)").matches) {
+      setCursorVisible(false);
+      return;
+    }
+
+    let scrollFrame = 0;
+    const syncCursor = (x: number, y: number) => {
+      cursorX.set(x - 30);
+      cursorY.set(y - 30);
+      const element = document.elementFromPoint(x, y);
+      setCursorVisible(Boolean(element?.closest("[data-project-link]")));
+    };
+    const handlePointerMove = (event: globalThis.PointerEvent) => {
+      lastPointer.current = { x: event.clientX, y: event.clientY, insideWindow: true };
+      syncCursor(event.clientX, event.clientY);
+    };
+    const handleScroll = () => {
+      if (!lastPointer.current.insideWindow) return;
+      window.cancelAnimationFrame(scrollFrame);
+      scrollFrame = window.requestAnimationFrame(() => {
+        syncCursor(lastPointer.current.x, lastPointer.current.y);
+      });
+    };
+    const handlePointerOut = (event: globalThis.PointerEvent) => {
+      if (event.relatedTarget) return;
+      lastPointer.current.insideWindow = false;
+      setCursorVisible(false);
+    };
+    const hideCursor = () => setCursorVisible(false);
+
+    window.addEventListener("pointermove", handlePointerMove, { passive: true });
+    window.addEventListener("pointerout", handlePointerOut);
+    window.addEventListener("scroll", handleScroll, { passive: true, capture: true });
+    window.addEventListener("blur", hideCursor);
+    return () => {
+      window.cancelAnimationFrame(scrollFrame);
+      window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("pointerout", handlePointerOut);
+      window.removeEventListener("scroll", handleScroll, true);
+      window.removeEventListener("blur", hideCursor);
+    };
+  }, [cursorX, cursorY, reduced]);
 
   return (
     <>
@@ -130,7 +172,7 @@ export const ProjectsBrowser = () => {
         </Sheet>
       </div>
 
-      <div onPointerMove={handlePointer} onPointerLeave={() => setCursor((value) => ({ ...value, visible: false }))} className="relative grid gap-7 py-8 lg:grid-cols-[12rem_1fr] lg:gap-6 lg:py-10">
+      <div className="relative grid gap-7 py-8 lg:grid-cols-[12rem_1fr] lg:gap-6 lg:py-10">
         <aside className="hidden lg:block" aria-label="Project filters">
           <div className="sticky top-28">
             <div className="mb-6 flex items-center justify-between border-b border-white/10 pb-4">
@@ -167,8 +209,9 @@ export const ProjectsBrowser = () => {
 
       <motion.div
         aria-hidden
-        animate={{ x: cursor.x - 30, y: cursor.y - 30, opacity: cursor.visible ? 1 : 0, scale: cursor.visible ? 1 : 0.7 }}
-        transition={{ type: "spring", stiffness: 280, damping: 24 }}
+        style={{ x: cursorX, y: cursorY }}
+        animate={{ opacity: cursorVisible ? 1 : 0, scale: cursorVisible ? 1 : 0.7 }}
+        transition={{ duration: 0.16, ease: "easeOut" }}
         className="pointer-events-none fixed left-0 top-0 z-[85] hidden size-[60px] place-items-center rounded-full bg-[#B8FF35] font-mono text-[8px] uppercase tracking-[0.14em] text-black lg:grid"
       >
         View

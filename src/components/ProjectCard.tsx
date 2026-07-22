@@ -1,9 +1,11 @@
 import { useState, type SyntheticEvent } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, FolderOpen } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { CustomProject } from "@/contexts/ProjectsContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { curatedCatalogPoster } from "@/lib/projectCatalogPosters";
+import { getAdminProjectFileUrl } from "@/lib/projectFiles";
 import { optimizedProjectPoster } from "@/lib/projects";
 import { getYouTubeThumbnail } from "@/lib/youtube";
 
@@ -21,6 +23,8 @@ const FALLBACK_POSTER = "/lovable-uploads/095c66ca-08f0-405a-a24e-5d161594a887.p
 
 export const ProjectCard = ({ project, index = 0, featured = false, compact = false, priority = false }: ProjectCardProps) => {
   const reduced = useReducedMotion();
+  const { isAdmin } = useAuth();
+  const adminFileUrl = getAdminProjectFileUrl(isAdmin, project.fileLink);
   const offset = index % 5 === 1 || index % 5 === 4;
   const curatedPoster = compact ? curatedCatalogPoster(project.id) : "";
   const [posterMode, setPosterMode] = useState<PosterMode>(curatedPoster ? "curated" : "stored");
@@ -148,6 +152,19 @@ export const ProjectCard = ({ project, index = 0, featured = false, compact = fa
           <span className={`${compact ? "text-[7px] sm:text-[8px]" : "pt-1 text-[9px]"} shrink-0 font-mono text-white/55`}>{String(index + 1).padStart(2, "0")}</span>
         </div>
       </Link>
+      {adminFileUrl && (
+        <a
+          href={adminFileUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`Open high-resolution files for ${project.title}`}
+          title="Open high-resolution files"
+          data-admin-file-link
+          className={`group/folder absolute z-40 flex items-center justify-center border border-[#B8FF35]/35 bg-[#0A0B0C]/90 font-mono uppercase tracking-[0.12em] text-[#B8FF35] shadow-lg backdrop-blur-md transition-[background-color,color,border-color,transform] hover:scale-105 hover:border-[#B8FF35] hover:bg-[#B8FF35] hover:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8FF35] ${compact ? "right-2.5 top-12 size-8 rounded-full sm:right-3 sm:top-14 sm:size-9" : "right-4 top-[4.25rem] size-11 rounded-full sm:right-5 sm:top-[4.75rem]"}`}
+        >
+          <FolderOpen className={compact ? "size-3.5" : "size-4"} aria-hidden="true" />
+        </a>
+      )}
     </motion.article>
   );
 };

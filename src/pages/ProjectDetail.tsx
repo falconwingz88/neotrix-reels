@@ -1,13 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, ArrowRight, ArrowUpRight, Check, Share2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUpRight, Check, ExternalLink, FolderOpen, Share2 } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { Reveal } from "@/components/Motion";
 import { Seo } from "@/components/Seo";
 import { YouTubeFacade } from "@/components/YouTubeFacade";
 import { projectFromRow, type CustomProject, type ProjectRow, useProjects } from "@/contexts/ProjectsContext";
 import { projectPoster, publicProjects } from "@/lib/projects";
+import { getAdminProjectFileUrl } from "@/lib/projectFiles";
 import { getYouTubeThumbnail } from "@/lib/youtube";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 const displayDate = (value?: string) => {
   if (!value) return "Not listed";
@@ -18,13 +20,15 @@ const displayDate = (value?: string) => {
 const ProjectDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { customProjects, loading, error, refetch } = useProjects();
+  const { isAdmin } = useAuth();
   const [shared, setShared] = useState(false);
   const [sharedProject, setSharedProject] = useState<CustomProject | null>(null);
   const [sharedLoading, setSharedLoading] = useState(false);
   const projects = useMemo(() => publicProjects(customProjects), [customProjects]);
   const index = projects.findIndex((item) => item.id === id);
   const publicProject = index >= 0 ? projects[index] : undefined;
-  const project = publicProject || sharedProject || undefined;
+  const adminProject = isAdmin ? customProjects.find((item) => item.id === id) : undefined;
+  const project = publicProject || adminProject || sharedProject || undefined;
   const previous = index > 0 ? projects[index - 1] : projects[projects.length - 1];
   const next = index >= 0 && index < projects.length - 1 ? projects[index + 1] : projects[0];
 
@@ -32,7 +36,7 @@ const ProjectDetail = () => {
     let cancelled = false;
     setSharedProject(null);
 
-    if (loading || publicProject || !id) {
+    if (loading || publicProject || adminProject || !id) {
       setSharedLoading(false);
       return () => {
         cancelled = true;
@@ -51,7 +55,7 @@ const ProjectDetail = () => {
     return () => {
       cancelled = true;
     };
-  }, [id, loading, publicProject]);
+  }, [adminProject, id, loading, publicProject]);
 
   const share = async () => {
     if (!project) return;
@@ -79,6 +83,7 @@ const ProjectDetail = () => {
 
   const poster = projectPoster(project);
   const description = project.description || "A commercial moving-image project created by Neotrix.";
+  const adminFileUrl = getAdminProjectFileUrl(isAdmin, project.fileLink);
 
   return (
     <>
@@ -125,6 +130,33 @@ const ProjectDetail = () => {
             <YouTubeFacade url={project.links[0] || ""} poster={poster} title={project.title} hero className="rounded-[1.3rem] sm:rounded-[2.2rem]" />
           </Reveal>
         </section>
+
+        {adminFileUrl && (
+          <section className="page-wrap mt-4 sm:mt-5" aria-label="Administrator project files">
+            <Reveal>
+              <div className="flex flex-col gap-4 rounded-[1.2rem] border border-[#B8FF35]/25 bg-[#B8FF35]/[.07] p-4 sm:flex-row sm:items-center sm:justify-between sm:rounded-[1.5rem] sm:p-5">
+                <div className="flex items-center gap-3">
+                  <span className="grid size-10 shrink-0 place-items-center rounded-full bg-[#B8FF35] text-black">
+                    <FolderOpen className="size-4" aria-hidden="true" />
+                  </span>
+                  <div>
+                    <p className="font-mono text-[8px] uppercase tracking-[0.16em] text-[#B8FF35]">Admin only</p>
+                    <p className="mt-1 text-sm text-white/70">High-resolution project files</p>
+                  </div>
+                </div>
+                <a
+                  href={adminFileUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#B8FF35] px-5 py-3 text-sm font-semibold text-black transition-transform hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B8FF35]"
+                >
+                  Open high-res files
+                  <ExternalLink className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden="true" />
+                </a>
+              </div>
+            </Reveal>
+          </section>
+        )}
 
         {project.links.length > 1 && (
           <section className="page-wrap border-b border-white/10 py-12 sm:py-16">

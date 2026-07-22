@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 
 const AdminLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const [email, setEmail] = useState('neotrix.ai@gmail.com');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { isAuthenticated, isAdmin, loading, login } = useAuth();
   const navigate = useNavigate();
@@ -107,6 +107,7 @@ const AdminLogin = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your admin email"
+                autoComplete="username"
                 className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
                 required
               />
@@ -120,6 +121,7 @@ const AdminLogin = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter password"
+                autoComplete="current-password"
                 className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
                 required
               />

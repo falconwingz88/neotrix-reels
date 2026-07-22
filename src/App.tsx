@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import { PublicLayout } from "@/components/PublicLayout";
+import { AdminRoute } from "@/components/AdminRoute";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ContactsProvider } from "@/contexts/ContactsContext";
 import { ProjectsProvider } from "@/contexts/ProjectsContext";
@@ -48,8 +49,8 @@ const App = () => (
                   <Route path="/r" element={<RestrictedProjects />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/admin-login" element={<AdminLogin />} />
-                  <Route path="/admin" element={<SiteSettingsProvider><AdminDashboard /></SiteSettingsProvider>} />
-                  <Route path="/client/:id" element={<ClientDetail />} />
+                  <Route path="/admin" element={<AdminRoute><SiteSettingsProvider><AdminDashboard /></SiteSettingsProvider></AdminRoute>} />
+                  <Route path="/client/:id" element={<AdminRoute><ClientDetail /></AdminRoute>} />
                   <Route path="*" element={<NotFound />} />
                   </Routes>
                 </Suspense>

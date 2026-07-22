@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { AnimatePresence, motion, useMotionValue, useReducedMotion } from "framer-motion";
 import { Filter, Search, X } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
@@ -207,15 +208,19 @@ export const ProjectsBrowser = () => {
         </div>
       </div>
 
-      <motion.div
-        aria-hidden
-        style={{ x: cursorX, y: cursorY }}
-        animate={{ opacity: cursorVisible ? 1 : 0, scale: cursorVisible ? 1 : 0.7 }}
-        transition={{ duration: 0.16, ease: "easeOut" }}
-        className="pointer-events-none fixed left-0 top-0 z-[85] hidden size-[60px] place-items-center rounded-full bg-[#B8FF35] font-mono text-[8px] uppercase tracking-[0.14em] text-black lg:grid"
-      >
-        View
-      </motion.div>
+      {typeof document !== "undefined" && createPortal(
+        <motion.div
+          aria-hidden
+          data-project-cursor
+          style={{ x: cursorX, y: cursorY }}
+          animate={{ opacity: cursorVisible ? 1 : 0, scale: cursorVisible ? 1 : 0.7 }}
+          transition={{ duration: 0.16, ease: "easeOut" }}
+          className="pointer-events-none fixed left-0 top-0 z-[85] hidden size-[60px] place-items-center rounded-full bg-[#B8FF35] font-mono text-[8px] uppercase tracking-[0.14em] text-black lg:grid"
+        >
+          View
+        </motion.div>,
+        document.body,
+      )}
     </>
   );
 };

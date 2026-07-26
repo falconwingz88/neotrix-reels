@@ -179,6 +179,29 @@ const ArticleDetail = () => {
                 </div>
               </Reveal>
             </section>
+
+            {article.relatedWork && article.relatedWork.length > 0 && (
+              <section className="border-t border-white/10 py-12 sm:py-16" aria-labelledby="related-work-heading">
+                <Reveal>
+                  <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#7DEBFF]">From the Neotrix archive</p>
+                  <div className="mt-4 flex items-end justify-between gap-6">
+                    <h2 id="related-work-heading" className="text-4xl font-medium tracking-[-0.05em] sm:text-5xl">See it in motion.</h2>
+                    <ArrowUpRight className="hidden size-6 text-[#B8FF35] sm:block" />
+                  </div>
+                  <div className="mt-7 flex flex-wrap gap-3">
+                    {article.relatedWork.map((work) => (
+                      <Link
+                        key={work.label}
+                        to={work.query ? "/projects?query=" + encodeURIComponent(work.query) : "/projects"}
+                        className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-3 font-mono text-[9px] uppercase tracking-[0.12em] text-white/65 hover:border-[#B8FF35] hover:text-[#B8FF35]"
+                      >
+                        {work.label} <ArrowUpRight className="size-3" />
+                      </Link>
+                    ))}
+                  </div>
+                </Reveal>
+              </section>
+            )}
           </div>
         </div>
       </article>
@@ -215,4 +238,3 @@ const ArticleDetail = () => {
 };
 
 export default ArticleDetail;
-

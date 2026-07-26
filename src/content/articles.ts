@@ -1,3 +1,5 @@
+import { additionalArticles } from "@/content/additionalArticles";
+
 export type ArticleSection = {
   id: string;
   heading: string;
@@ -8,6 +10,11 @@ export type ArticleSection = {
 export type ArticleFaq = {
   question: string;
   answer: string;
+};
+
+export type RelatedWork = {
+  label: string;
+  query: string;
 };
 
 export type Article = {
@@ -23,11 +30,12 @@ export type Article = {
   accent: "cyan" | "lime";
   keywords: string[];
   takeaway: string;
+  relatedWork?: RelatedWork[];
   sections: ArticleSection[];
   faqs: ArticleFaq[];
 };
 
-export const articles: Article[] = [
+const coreArticles: Article[] = [
   {
     slug: "how-to-choose-3d-animation-studio-jakarta",
     title: "How to Choose a 3D Animation Studio in Jakarta",
@@ -50,6 +58,10 @@ export const articles: Article[] = [
     ],
     takeaway:
       "Choose a 3D animation partner by testing the fit between creative thinking, production clarity, relevant craft, and communication—not by reel aesthetics alone.",
+    relatedWork: [
+      { label: "Browse all selected work", query: "" },
+      { label: "Oppo product films", query: "oppo" },
+    ],
     sections: [
       {
         id: "start-with-the-problem",
@@ -184,6 +196,10 @@ export const articles: Article[] = [
     ],
     takeaway:
       "Use 3D when control, visualization, transformation, or scalable asset reuse drives the idea; use live action when human truth and real-world performance are central; combine them when the concept needs both.",
+    relatedWork: [
+      { label: "See Oppo product films", query: "oppo" },
+      { label: "See Wuling product work", query: "wuling" },
+    ],
     sections: [
       {
         id: "different-strengths",
@@ -307,10 +323,11 @@ export const articles: Article[] = [
   },
 ];
 
+export const articles: Article[] = [...coreArticles, ...additionalArticles];
+
 export const getArticleBySlug = (slug?: string) => articles.find((article) => article.slug === slug);
 
 export const formatArticleDate = (date: string) =>
   new Intl.DateTimeFormat("en", { day: "numeric", month: "long", year: "numeric" }).format(
     new Date(`${date}T00:00:00Z`),
   );
-

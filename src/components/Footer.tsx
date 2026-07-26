@@ -16,6 +16,7 @@ export const Footer = () => {
           <p className="mb-2 text-white/28">Navigate</p>
           <Link className="hover:text-[#B8FF35]" to="/projects">Selected work</Link>
           <Link className="hover:text-[#B8FF35]" to="/about-us">About the studio</Link>
+          <Link className="hover:text-[#B8FF35]" to="/articles">Articles</Link>
           <Link className="hover:text-[#B8FF35]" to="/join-us">Join the team</Link>
           <Link className="hover:text-[#B8FF35]" to="/contact">Start a project</Link>
           <Link className="mt-2 text-white/35 hover:text-[#7DEBFF]" to="/admin-login">Admin access</Link>

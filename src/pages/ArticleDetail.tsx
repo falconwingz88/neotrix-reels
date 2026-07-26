@@ -1,0 +1,218 @@
+import { ArrowLeft, ArrowUpRight, Clock3 } from "lucide-react";
+import { Link, Navigate, useParams } from "react-router-dom";
+import { Reveal } from "@/components/Motion";
+import { Seo } from "@/components/Seo";
+import { articles, formatArticleDate, getArticleBySlug, type Article } from "@/content/articles";
+
+const SITE_URL = "https://motion.neotrix.asia";
+
+const createArticleSchema = (article: Article) => ({
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Article",
+      headline: article.title,
+      description: article.description,
+      datePublished: article.publishedAt,
+      dateModified: article.modifiedAt,
+      mainEntityOfPage: `${SITE_URL}/articles/${article.slug}`,
+      inLanguage: "en",
+      author: {
+        "@type": "Organization",
+        name: "Neotrix",
+        url: SITE_URL,
+      },
+      publisher: {
+        "@type": "Organization",
+        name: "Neotrix",
+        url: SITE_URL,
+        logo: {
+          "@type": "ImageObject",
+          url: `${SITE_URL}/neotrix-favicon-blue.jpg`,
+        },
+      },
+      about: article.keywords,
+      keywords: article.keywords.join(", "),
+    },
+    {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+        { "@type": "ListItem", position: 2, name: "Articles", item: `${SITE_URL}/articles` },
+        { "@type": "ListItem", position: 3, name: article.shortTitle, item: `${SITE_URL}/articles/${article.slug}` },
+      ],
+    },
+    {
+      "@type": "FAQPage",
+      mainEntity: article.faqs.map((faq) => ({
+        "@type": "Question",
+        name: faq.question,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: faq.answer,
+        },
+      })),
+    },
+  ],
+});
+
+const ArticleDetail = () => {
+  const { slug } = useParams();
+  const article = getArticleBySlug(slug);
+  if (!article) return <Navigate to="/articles" replace />;
+
+  const related = articles.find((candidate) => candidate.slug !== article.slug);
+  const schema = createArticleSchema(article);
+
+  return (
+    <>
+      <Seo
+        title={article.title}
+        description={article.description}
+        path={`/articles/${article.slug}`}
+        type="article"
+        publishedTime={article.publishedAt}
+        modifiedTime={article.modifiedAt}
+        structuredData={schema}
+      />
+
+      <article>
+        <header className="page-wrap pb-14 pt-32 sm:pt-40 lg:pb-20">
+          <Reveal>
+            <Link
+              to="/articles"
+              className="inline-flex items-center gap-2 font-mono text-[9px] uppercase tracking-[0.17em] text-white/42 hover:text-[#7DEBFF]"
+            >
+              <ArrowLeft className="size-3.5" /> All articles
+            </Link>
+            <div className="mt-8 border-y border-white/10 py-5">
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-2 font-mono text-[9px] uppercase tracking-[0.16em] text-white/40">
+                <span className={article.accent === "cyan" ? "text-[#7DEBFF]" : "text-[#B8FF35]"}>{article.category}</span>
+                <time dateTime={article.publishedAt}>{formatArticleDate(article.publishedAt)}</time>
+                <span className="flex items-center gap-1.5"><Clock3 className="size-3" />{article.readingTime}</span>
+              </div>
+            </div>
+            <h1 className="mt-8 max-w-[15ch] text-[clamp(3.5rem,8vw,8.8rem)] font-medium leading-[.87] tracking-[-0.068em]">
+              {article.title}
+            </h1>
+            <p className="mt-8 max-w-4xl text-[clamp(1.25rem,2.2vw,2rem)] leading-[1.28] tracking-[-0.022em] text-white/56">
+              {article.dek}
+            </p>
+          </Reveal>
+        </header>
+
+        <div className="page-wrap grid gap-12 pb-24 lg:grid-cols-[14rem_minmax(0,46rem)] lg:justify-center lg:gap-20 lg:pb-36">
+          <aside className="hidden lg:block">
+            <nav aria-label="Article contents" className="sticky top-28 border-l border-white/12 pl-5">
+              <p className="mb-4 font-mono text-[8px] uppercase tracking-[0.18em] text-white/28">In this article</p>
+              <div className="grid gap-3">
+                {article.sections.map((section, index) => (
+                  <a
+                    key={section.id}
+                    href={`#${section.id}`}
+                    className="group grid grid-cols-[1.5rem_1fr] gap-2 text-[11px] leading-snug text-white/38 hover:text-white"
+                  >
+                    <span className="font-mono text-[8px] text-white/20 group-hover:text-[#B8FF35]">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                    <span>{section.heading}</span>
+                  </a>
+                ))}
+              </div>
+            </nav>
+          </aside>
+
+          <div className="min-w-0">
+            <Reveal>
+              <div className={`mb-14 rounded-[1.35rem] border p-6 sm:p-8 ${
+                article.accent === "cyan"
+                  ? "border-[#7DEBFF]/25 bg-[#7DEBFF]/[.065]"
+                  : "border-[#B8FF35]/25 bg-[#B8FF35]/[.06]"
+              }`}>
+                <p className="font-mono text-[8px] uppercase tracking-[0.18em] text-white/35">The short answer</p>
+                <p className="mt-4 text-xl leading-relaxed tracking-[-0.02em] text-white/82 sm:text-2xl">{article.takeaway}</p>
+              </div>
+            </Reveal>
+
+            <div className="divide-y divide-white/10 border-t border-white/10">
+              {article.sections.map((section, index) => (
+                <section key={section.id} id={section.id} className="scroll-mt-28 py-12 sm:py-16">
+                  <Reveal>
+                    <div className="mb-7 flex items-start gap-4">
+                      <span className={`mt-2 font-mono text-[9px] ${article.accent === "cyan" ? "text-[#7DEBFF]" : "text-[#B8FF35]"}`}>
+                        {String(index + 1).padStart(2, "0")}
+                      </span>
+                      <h2 className="text-[clamp(2rem,4vw,3.4rem)] font-medium leading-[1.02] tracking-[-0.045em]">{section.heading}</h2>
+                    </div>
+                    <div className="space-y-6 text-[1.05rem] leading-[1.78] text-white/62 sm:text-[1.12rem]">
+                      {section.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+                      {section.bullets && (
+                        <ul className="grid gap-3 pt-2">
+                          {section.bullets.map((bullet) => (
+                            <li key={bullet} className="grid grid-cols-[.65rem_1fr] gap-3">
+                              <span className={`mt-[.72rem] size-1.5 rounded-full ${article.accent === "cyan" ? "bg-[#7DEBFF]" : "bg-[#B8FF35]"}`} />
+                              <span>{bullet}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  </Reveal>
+                </section>
+              ))}
+            </div>
+
+            <section className="border-t border-white/10 py-12 sm:py-16" aria-labelledby="article-faq-heading">
+              <Reveal>
+                <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#7DEBFF]">Frequently asked</p>
+                <h2 id="article-faq-heading" className="mt-4 text-4xl font-medium tracking-[-0.05em] sm:text-5xl">Clear answers.</h2>
+                <div className="mt-8 divide-y divide-white/10 border-y border-white/10">
+                  {article.faqs.map((faq) => (
+                    <details key={faq.question} className="group py-5">
+                      <summary className="flex cursor-pointer list-none items-start justify-between gap-6 text-lg font-medium tracking-[-0.02em] marker:hidden">
+                        {faq.question}
+                        <span className="font-mono text-lg font-light text-[#B8FF35] transition-transform group-open:rotate-45">+</span>
+                      </summary>
+                      <p className="max-w-2xl pt-4 leading-relaxed text-white/56">{faq.answer}</p>
+                    </details>
+                  ))}
+                </div>
+              </Reveal>
+            </section>
+          </div>
+        </div>
+      </article>
+
+      {related && (
+        <section className="border-t border-white/10 bg-[#111315]">
+          <Link to={`/articles/${related.slug}`} className="group page-wrap flex items-end justify-between gap-8 py-16 sm:py-24">
+            <div>
+              <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-white/35">Read next</p>
+              <h2 className="mt-5 max-w-[16ch] text-[clamp(2.7rem,6vw,6rem)] font-medium leading-[.91] tracking-[-0.058em] group-hover:text-[#7DEBFF]">
+                {related.shortTitle}
+              </h2>
+            </div>
+            <span className="grid size-14 shrink-0 place-items-center rounded-full bg-[#F4F0E8] text-black transition-transform group-hover:rotate-45 sm:size-20">
+              <ArrowUpRight className="size-5 sm:size-7" />
+            </span>
+          </Link>
+        </section>
+      )}
+
+      <section className="bg-[#B8FF35] text-black">
+        <div className="page-wrap flex flex-col gap-7 py-14 sm:flex-row sm:items-end sm:justify-between sm:py-20">
+          <div>
+            <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-black/45">Planning a commercial project?</p>
+            <p className="mt-4 text-[clamp(2.5rem,6vw,6rem)] font-medium leading-[.9] tracking-[-0.06em]">Bring us the brief.</p>
+          </div>
+          <Link to="/contact" className="inline-flex w-fit items-center gap-3 rounded-full bg-black px-6 py-4 text-sm font-semibold text-white">
+            Start a project <ArrowUpRight className="size-4" />
+          </Link>
+        </div>
+      </section>
+    </>
+  );
+};
+
+export default ArticleDetail;
+

@@ -16,6 +16,8 @@ const Contact = lazy(() => import("@/pages/Contact"));
 const AboutUs = lazy(() => import("@/pages/AboutUs"));
 const JoinUs = lazy(() => import("@/pages/JoinUs"));
 const Hiring = lazy(() => import("@/pages/Hiring"));
+const Articles = lazy(() => import("@/pages/Articles"));
+const ArticleDetail = lazy(() => import("@/pages/ArticleDetail"));
 const Login = lazy(() => import("@/pages/Login"));
 const AdminLogin = lazy(() => import("@/pages/AdminLogin"));
 const AdminDashboard = lazy(() => import("@/pages/AdminDashboard"));
@@ -43,6 +45,8 @@ const App = () => (
                     <Route path="/about-us" element={<AboutUs />} />
                     <Route path="/join-us" element={<JoinUs />} />
                     <Route path="/hiring" element={<Hiring />} />
+                    <Route path="/articles" element={<Articles />} />
+                    <Route path="/articles/:slug" element={<ArticleDetail />} />
                   </Route>
                   <Route path="/neo-timeline" element={<NeoTimeline />} />
                   <Route path="/neo-timeline/view" element={<NeoTimelineView />} />

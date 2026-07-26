@@ -8,7 +8,9 @@ type SeoProps = {
   description: string;
   path?: string;
   image?: string;
-  type?: "website" | "video.other";
+  type?: "website" | "video.other" | "article";
+  publishedTime?: string;
+  modifiedTime?: string;
   structuredData?: Record<string, unknown>;
 };
 
@@ -22,7 +24,7 @@ const upsertMeta = (selector: string, attribute: "name" | "property", key: strin
   node.content = content;
 };
 
-export const Seo = ({ title, description, path = "/", image = DEFAULT_IMAGE, type = "website", structuredData }: SeoProps) => {
+export const Seo = ({ title, description, path = "/", image = DEFAULT_IMAGE, type = "website", publishedTime, modifiedTime, structuredData }: SeoProps) => {
   useEffect(() => {
     const fullTitle = title.includes("Neotrix") ? title : title + " — Neotrix";
     const canonical = SITE_URL + (path === "/" ? "/" : path);
@@ -33,9 +35,16 @@ export const Seo = ({ title, description, path = "/", image = DEFAULT_IMAGE, typ
     upsertMeta('meta[property="og:url"]', "property", "og:url", canonical);
     upsertMeta('meta[property="og:type"]', "property", "og:type", type);
     upsertMeta('meta[property="og:image"]', "property", "og:image", image);
+    upsertMeta('meta[name="twitter:card"]', "name", "twitter:card", "summary_large_image");
     upsertMeta('meta[name="twitter:title"]', "name", "twitter:title", fullTitle);
     upsertMeta('meta[name="twitter:description"]', "name", "twitter:description", description);
     upsertMeta('meta[name="twitter:image"]', "name", "twitter:image", image);
+    const updateOptionalMeta = (selector: string, property: string, content?: string) => {
+      if (content) upsertMeta(selector, "property", property, content);
+      else document.head.querySelector(selector)?.remove();
+    };
+    updateOptionalMeta('meta[property="article:published_time"]', "article:published_time", publishedTime);
+    updateOptionalMeta('meta[property="article:modified_time"]', "article:modified_time", modifiedTime);
     let link = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
     if (!link) {
       link = document.createElement("link");
@@ -52,6 +61,6 @@ export const Seo = ({ title, description, path = "/", image = DEFAULT_IMAGE, typ
       script.text = JSON.stringify(structuredData);
       document.head.appendChild(script);
     }
-  }, [description, image, path, structuredData, title, type]);
+  }, [description, image, modifiedTime, path, publishedTime, structuredData, title, type]);
   return null;
 };

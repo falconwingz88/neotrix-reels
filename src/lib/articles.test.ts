@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Article } from "@/content/articles";
-import { getPublishedArticles, hasDuplicateArticleSlug, isValidArticleMedia, normalizeArticleSlug, sanitizeArticleLinks } from "@/lib/articles";
+import { getArticleIdentity, getPublishedArticles, hasDuplicateArticleSlug, isValidArticleMedia, normalizeArticleSlug, sanitizeArticleLinks } from "@/lib/articles";
 
 const article = (slug: string, isPublished = true): Article => ({
   slug,
@@ -24,6 +24,8 @@ describe("article management helpers", () => {
   it("normalizes slugs and catches duplicate URLs", () => {
     expect(normalizeArticleSlug(" AI + 3D / Production ")).toBe("ai-3d-production");
     expect(hasDuplicateArticleSlug([article("AI Guide"), article("ai-guide")] )).toBe(true);
+    expect(getArticleIdentity(article("AI Guide"))).toBe("ai-guide");
+    expect(getArticleIdentity({ ...article("AI Guide"), id: "stable-article-id" })).toBe("stable-article-id");
   });
 
   it("keeps drafts out of the public collection", () => {

@@ -4,6 +4,9 @@ import { isSafeHttpUrl } from "@/lib/url";
 export const normalizeArticleSlug = (value: string) =>
   value.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 90);
 
+export const getArticleIdentity = (article: Pick<Article, "id" | "slug">) =>
+  article.id?.trim() || normalizeArticleSlug(article.slug);
+
 export const hasDuplicateArticleSlug = (articles: Article[]) => {
   const slugs = articles.map((article) => normalizeArticleSlug(article.slug)).filter(Boolean);
   return new Set(slugs).size !== slugs.length;

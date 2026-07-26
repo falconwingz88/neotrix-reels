@@ -68,7 +68,7 @@ import { isSafeHttpUrl } from '@/lib/url';
 import { useArticles } from '@/contexts/ArticlesContext';
 import { Article } from '@/content/articles';
 import { ArticleEditor } from '@/components/admin/ArticleEditor';
-import { hasDuplicateArticleSlug, normalizeArticleSlug } from '@/lib/articles';
+import { getArticleIdentity, hasDuplicateArticleSlug, normalizeArticleSlug } from '@/lib/articles';
 
 interface JobOpening {
   id: string;
@@ -247,6 +247,7 @@ const AdminDashboard = () => {
   // Handle edit query parameter from project detail page
   useEffect(() => {
     const editId = searchParams.get('edit');
+    const editArticle = searchParams.get('editArticle');
     const tabParam = searchParams.get('tab');
     
     if (tabParam && ADMIN_TABS.includes(tabParam as (typeof ADMIN_TABS)[number])) {
@@ -275,7 +276,22 @@ const AdminDashboard = () => {
         setSearchParams(nextParams, { replace: true });
       }
     }
-  }, [searchParams, customProjects, projectsLoading, setSearchParams]);
+
+    if (editArticle && !articlesLoading) {
+      const articleToEdit = managedArticles.find((candidate) =>
+        candidate.id === editArticle
+        || (!candidate.id && normalizeArticleSlug(candidate.slug) === normalizeArticleSlug(editArticle)),
+      );
+      if (articleToEdit) {
+        setActiveTab('articles');
+        setEditingArticle({ ...articleToEdit, id: articleToEdit.id || normalizeArticleSlug(articleToEdit.slug) });
+        setShowArticleForm(true);
+        const nextParams = new URLSearchParams(searchParams);
+        nextParams.delete('editArticle');
+        setSearchParams(nextParams, { replace: true });
+      }
+    }
+  }, [searchParams, customProjects, projectsLoading, managedArticles, articlesLoading, setSearchParams]);
 
   // Fetch job openings
   const fetchJobOpenings = async () => {
@@ -928,8 +944,9 @@ const AdminDashboard = () => {
 
   const handleSaveArticle = async (article: Article) => {
     const normalizedSlug = normalizeArticleSlug(article.slug);
+    const articleIdentity = getArticleIdentity(article);
     const duplicate = managedArticles.some((candidate) =>
-      candidate.slug.trim().toLowerCase() === normalizedSlug && candidate.id !== article.id,
+      normalizeArticleSlug(candidate.slug) === normalizedSlug && getArticleIdentity(candidate) !== articleIdentity,
     );
     if (duplicate) {
       toast({
@@ -946,7 +963,7 @@ const AdminDashboard = () => {
       slug: normalizedSlug,
       isPublished: article.isPublished !== false,
     };
-    const existingIndex = managedArticles.findIndex((candidate) => candidate.id === article.id);
+    const existingIndex = managedArticles.findIndex((candidate) => getArticleIdentity(candidate) === articleIdentity);
     const nextArticles = existingIndex >= 0
       ? managedArticles.map((candidate, index) => index === existingIndex ? nextArticle : candidate)
       : [...managedArticles, nextArticle];
@@ -1789,7 +1806,7 @@ const AdminDashboard = () => {
                           </div>
                           {article.coverImage ? <img src={article.coverImage} alt="" className="size-16 shrink-0 rounded-lg border border-white/10 object-cover" /> : <div className="grid size-16 shrink-0 place-items-center rounded-lg border border-white/10 bg-black/15"><FileText className="size-5 text-white/20" /></div>}
                         </div>
-                        <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4"><div className="flex flex-wrap gap-3 font-mono text-[9px] uppercase tracking-[.12em] text-white/35"><span>{article.media?.length || 0} media</span><span>{article.relatedProjectIds?.length || 0} projects</span><span>{article.externalLinks?.length || 0} links</span></div><div className="flex items-center gap-1"><Button variant="ghost" size="sm" onClick={() => { setEditingArticle(article); setShowArticleForm(true); }} className="text-white/70 hover:bg-white/10 hover:text-white"><Edit2 className="mr-1.5 size-3.5" /> Edit</Button><Button variant="ghost" size="icon" onClick={() => handleDeleteArticle(article)} aria-label={`Delete ${article.title}`} className="text-red-300 hover:bg-red-500/10 hover:text-red-200"><Trash2 className="size-4" /></Button></div></div>
+                          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4"><div className="flex flex-wrap gap-3 font-mono text-[9px] uppercase tracking-[.12em] text-white/35"><span>{article.media?.length || 0} media</span><span>{article.relatedProjectIds?.length || 0} projects</span><span>{article.externalLinks?.length || 0} links</span></div><div className="flex items-center gap-1"><Button variant="ghost" size="sm" onClick={() => { setEditingArticle({ ...article, id: article.id || normalizeArticleSlug(article.slug) }); setShowArticleForm(true); }} className="text-white/70 hover:bg-white/10 hover:text-white"><Edit2 className="mr-1.5 size-3.5" /> Edit</Button><Button variant="ghost" size="icon" onClick={() => handleDeleteArticle(article)} aria-label={`Delete ${article.title}`} className="text-red-300 hover:bg-red-500/10 hover:text-red-200"><Trash2 className="size-4" /></Button></div></div>
                       </article>
                     ))}
                   </div>

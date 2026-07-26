@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowUpRight, Clock3, ExternalLink } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, Clock3, Edit2, ExternalLink } from "lucide-react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import { Reveal } from "@/components/Motion";
 import { Seo } from "@/components/Seo";
@@ -8,6 +8,7 @@ import { useProjects } from "@/contexts/ProjectsContext";
 import { YouTubeFacade } from "@/components/YouTubeFacade";
 import { getYouTubeVideoId } from "@/lib/youtube";
 import { getPublishedArticles } from "@/lib/articles";
+import { useAuth } from "@/contexts/AuthContext";
 
 const SITE_URL = "https://motion.neotrix.asia";
 
@@ -65,6 +66,7 @@ const ArticleDetail = () => {
   const { slug } = useParams();
   const { articles, loading } = useArticles();
   const { customProjects } = useProjects();
+  const { isAdmin } = useAuth();
   const article = getPublishedArticles(articles).find((candidate) => candidate.slug === slug);
   if (loading) {
     return <div className="page-wrap min-h-screen pb-24 pt-40"><div className="h-24 w-3/4 animate-pulse rounded-2xl bg-white/[.06]" /></div>;
@@ -94,12 +96,22 @@ const ArticleDetail = () => {
       <article>
         <header className="page-wrap pb-14 pt-32 sm:pt-40 lg:pb-20">
           <Reveal>
-            <Link
-              to="/articles"
-              className="inline-flex items-center gap-2 font-mono text-[9px] uppercase tracking-[0.17em] text-white/42 hover:text-[#7DEBFF]"
-            >
-              <ArrowLeft className="size-3.5" /> All articles
-            </Link>
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <Link
+                to="/articles"
+                className="inline-flex items-center gap-2 font-mono text-[9px] uppercase tracking-[0.17em] text-white/42 hover:text-[#7DEBFF]"
+              >
+                <ArrowLeft className="size-3.5" /> All articles
+              </Link>
+              {isAdmin && (
+                <Link
+                  to={`/admin?tab=articles&editArticle=${encodeURIComponent(article.id || article.slug)}`}
+                  className="inline-flex items-center gap-2 rounded-full border border-[#B8FF35]/35 bg-[#B8FF35]/10 px-4 py-2 font-mono text-[9px] uppercase tracking-[0.15em] text-[#B8FF35] transition-colors hover:border-[#B8FF35] hover:bg-[#B8FF35]/20"
+                >
+                  <Edit2 className="size-3.5" /> Edit article
+                </Link>
+              )}
+            </div>
             <div className="mt-8 border-y border-white/10 py-5">
               <div className="flex flex-wrap items-center gap-x-5 gap-y-2 font-mono text-[9px] uppercase tracking-[0.16em] text-white/40">
                 <span className={article.accent === "cyan" ? "text-[#7DEBFF]" : "text-[#B8FF35]"}>{article.category}</span>

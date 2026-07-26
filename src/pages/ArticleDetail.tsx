@@ -1,8 +1,13 @@
-import { ArrowLeft, ArrowUpRight, Clock3 } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, Clock3, ExternalLink } from "lucide-react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import { Reveal } from "@/components/Motion";
 import { Seo } from "@/components/Seo";
-import { articles, formatArticleDate, getArticleBySlug, type Article } from "@/content/articles";
+import { formatArticleDate, type Article } from "@/content/articles";
+import { useArticles } from "@/contexts/ArticlesContext";
+import { useProjects } from "@/contexts/ProjectsContext";
+import { YouTubeFacade } from "@/components/YouTubeFacade";
+import { getYouTubeVideoId } from "@/lib/youtube";
+import { getPublishedArticles } from "@/lib/articles";
 
 const SITE_URL = "https://motion.neotrix.asia";
 
@@ -58,10 +63,20 @@ const createArticleSchema = (article: Article) => ({
 
 const ArticleDetail = () => {
   const { slug } = useParams();
-  const article = getArticleBySlug(slug);
+  const { articles, loading } = useArticles();
+  const { customProjects } = useProjects();
+  const article = getPublishedArticles(articles).find((candidate) => candidate.slug === slug);
+  if (loading) {
+    return <div className="page-wrap min-h-screen pb-24 pt-40"><div className="h-24 w-3/4 animate-pulse rounded-2xl bg-white/[.06]" /></div>;
+  }
   if (!article) return <Navigate to="/articles" replace />;
 
-  const related = articles.find((candidate) => candidate.slug !== article.slug);
+  const related = getPublishedArticles(articles).find((candidate) => candidate.slug !== article.slug);
+  const attachedWork = article.relatedProjectIds
+    ?.map((id) => customProjects.find((project) => project.id === id))
+    .filter((project): project is NonNullable<typeof project> => Boolean(project))
+    .map((project) => ({ label: project.title, query: project.title })) || [];
+  const relatedWork = attachedWork.length > 0 ? attachedWork : article.relatedWork || [];
   const schema = createArticleSchema(article);
 
   return (
@@ -134,6 +149,25 @@ const ArticleDetail = () => {
               </div>
             </Reveal>
 
+            {article.media && article.media.length > 0 && (
+              <div className="mb-14 grid gap-5">
+                {article.media.map((media, index) => (
+                  <figure key={media.url + index} className="overflow-hidden rounded-[1.35rem] border border-white/10 bg-[#111315]">
+                    {media.type === "video" && getYouTubeVideoId(media.url) ? (
+                      <YouTubeFacade url={media.url} title={media.caption || article.title} />
+                    ) : media.type === "video" ? (
+                      <video className="aspect-video w-full bg-black object-cover" controls preload="metadata" src={media.url}>
+                        Your browser does not support embedded video.
+                      </video>
+                    ) : (
+                      <img src={media.url} alt={media.alt || media.caption || article.title} loading={index === 0 ? "eager" : "lazy"} decoding="async" className="max-h-[38rem] w-full object-cover" />
+                    )}
+                    {media.caption && <figcaption className="px-5 py-3 font-mono text-[9px] uppercase tracking-[0.12em] text-white/40">{media.caption}</figcaption>}
+                  </figure>
+                ))}
+              </div>
+            )}
+
             <div className="divide-y divide-white/10 border-t border-white/10">
               {article.sections.map((section, index) => (
                 <section key={section.id} id={section.id} className="scroll-mt-28 py-12 sm:py-16">
@@ -180,7 +214,7 @@ const ArticleDetail = () => {
               </Reveal>
             </section>
 
-            {article.relatedWork && article.relatedWork.length > 0 && (
+            {relatedWork.length > 0 && (
               <section className="border-t border-white/10 py-12 sm:py-16" aria-labelledby="related-work-heading">
                 <Reveal>
                   <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#7DEBFF]">From the Neotrix archive</p>
@@ -189,7 +223,7 @@ const ArticleDetail = () => {
                     <ArrowUpRight className="hidden size-6 text-[#B8FF35] sm:block" />
                   </div>
                   <div className="mt-7 flex flex-wrap gap-3">
-                    {article.relatedWork.map((work) => (
+                    {relatedWork.map((work) => (
                       <Link
                         key={work.label}
                         to={work.query ? "/projects?query=" + encodeURIComponent(work.query) : "/projects"}
@@ -197,6 +231,29 @@ const ArticleDetail = () => {
                       >
                         {work.label} <ArrowUpRight className="size-3" />
                       </Link>
+                    ))}
+                  </div>
+                </Reveal>
+              </section>
+            )}
+
+            {article.externalLinks && article.externalLinks.length > 0 && (
+              <section className="border-t border-white/10 py-12 sm:py-16" aria-labelledby="article-links-heading">
+                <Reveal>
+                  <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#7DEBFF]">Further reading</p>
+                  <h2 id="article-links-heading" className="mt-4 text-4xl font-medium tracking-[-0.05em] sm:text-5xl">Useful references.</h2>
+                  <div className="mt-7 grid gap-3 sm:grid-cols-2">
+                    {article.externalLinks.map((link) => (
+                      <a
+                        key={link.url}
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group inline-flex items-center justify-between gap-4 rounded-xl border border-white/12 bg-white/[.03] px-4 py-4 text-sm text-white/68 transition-colors hover:border-[#7DEBFF]/50 hover:text-white"
+                      >
+                        <span className="truncate">{link.label}</span>
+                        <ExternalLink className="size-4 shrink-0 text-[#B8FF35] transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                      </a>
                     ))}
                   </div>
                 </Reveal>

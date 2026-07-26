@@ -50,7 +50,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { useProjects, CustomProject } from '@/contexts/ProjectsContext';
 import { useContacts } from '@/contexts/ContactsContext';
-import { ArrowLeft, ArrowUpRight, Plus, LogOut, X, Trash2, Edit2, Users, AlertCircle, Check, Link2, FolderOpen, RefreshCw, CalendarIcon, FolderKanban, MessageSquare, MapPin, Clock, ExternalLink, GripVertical, List, LayoutGrid, Briefcase, Image, Search, Settings, Lock, Radio, Sparkles } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, Plus, LogOut, X, Trash2, Edit2, Users, AlertCircle, Check, Link2, FolderOpen, RefreshCw, CalendarIcon, FolderKanban, MessageSquare, MapPin, Clock, ExternalLink, GripVertical, List, LayoutGrid, Briefcase, Image, Search, Settings, Lock, Radio, Sparkles, FileText } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import UndoNotification, { UndoNotificationItem } from '@/components/UndoNotification';
@@ -65,6 +65,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { useSiteSettings } from '@/contexts/SiteSettingsContext';
 import { Slider } from '@/components/ui/slider';
 import { isSafeHttpUrl } from '@/lib/url';
+import { useArticles } from '@/contexts/ArticlesContext';
+import { Article } from '@/content/articles';
+import { ArticleEditor } from '@/components/admin/ArticleEditor';
+import { hasDuplicateArticleSlug, normalizeArticleSlug } from '@/lib/articles';
 
 interface JobOpening {
   id: string;
@@ -89,7 +93,7 @@ interface ClientLogo {
 
 const TAG_OPTIONS = ['Beauty', 'Liquid', 'VFX', 'Character Animation', 'Object Animation', 'AI'];
 const YEAR_OPTIONS = [2030, 2029, 2028, 2027, 2026, 2025, 2024, 2023, 2022, 2021, 2020];
-const ADMIN_TABS = ['projects', 'restricted', 'logos', 'jobs', 'contacts', 'settings'] as const;
+const ADMIN_TABS = ['projects', 'restricted', 'articles', 'logos', 'jobs', 'contacts', 'settings'] as const;
 
 // Helper function to extract YouTube video ID and generate thumbnail
 const getYouTubeVideoId = (url: string): string => {
@@ -111,6 +115,7 @@ const AdminDashboard = () => {
   const { isAuthenticated, isAdmin, user, logout, loading: authLoading } = useAuth();
   const { customProjects, addProject, updateProject, deleteProject, reorderProjectsByIds, initializeDefaultProjects, loading: projectsLoading, refetch: refetchProjects } = useProjects();
   const { contacts, deleteContact, clearAllContacts, loading: contactsLoading } = useContacts();
+  const { articles: managedArticles, saveArticles, loading: articlesLoading, managed: articlesManaged } = useArticles();
   const { settings, updateSetting } = useSiteSettings();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -170,6 +175,11 @@ const AdminDashboard = () => {
   const [logoSortOrder, setLogoSortOrder] = useState('');
   const [logoIsActive, setLogoIsActive] = useState(true);
   const [logoSearchTerm, setLogoSearchTerm] = useState('');
+
+  // Articles state
+  const [articleSearchTerm, setArticleSearchTerm] = useState('');
+  const [showArticleForm, setShowArticleForm] = useState(false);
+  const [editingArticle, setEditingArticle] = useState<Article | null>(null);
   
   // Undo notifications state
   const [undoNotifications, setUndoNotifications] = useState<UndoNotificationItem[]>([]);
@@ -911,10 +921,79 @@ const AdminDashboard = () => {
     }
   };
 
+  const closeArticleEditor = () => {
+    setShowArticleForm(false);
+    setEditingArticle(null);
+  };
+
+  const handleSaveArticle = async (article: Article) => {
+    const normalizedSlug = normalizeArticleSlug(article.slug);
+    const duplicate = managedArticles.some((candidate) =>
+      candidate.slug.trim().toLowerCase() === normalizedSlug && candidate.id !== article.id,
+    );
+    if (duplicate) {
+      toast({
+        title: 'Slug already in use',
+        description: 'Choose a unique URL slug before saving this article.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const nextArticle: Article = {
+      ...article,
+      id: article.id || crypto.randomUUID(),
+      slug: normalizedSlug,
+      isPublished: article.isPublished !== false,
+    };
+    const existingIndex = managedArticles.findIndex((candidate) => candidate.id === article.id);
+    const nextArticles = existingIndex >= 0
+      ? managedArticles.map((candidate, index) => index === existingIndex ? nextArticle : candidate)
+      : [...managedArticles, nextArticle];
+    if (hasDuplicateArticleSlug(nextArticles)) {
+      toast({ title: 'Slug already in use', description: 'Choose a unique URL slug before saving this article.', variant: 'destructive' });
+      return;
+    }
+
+    try {
+      await saveArticles(nextArticles);
+      toast({
+        title: existingIndex >= 0 ? 'Article updated' : 'Article created',
+        description: `“${nextArticle.title}” is now connected to the public article archive.`,
+      });
+      closeArticleEditor();
+    } catch (error) {
+      console.error('Failed to save article:', error);
+      toast({
+        title: 'Article not saved',
+        description: 'The database rejected this change. Check your connection and try again.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleDeleteArticle = async (article: Article) => {
+    if (!window.confirm(`Delete “${article.title}”? Uploaded media will remain in storage.`)) return;
+    try {
+      await saveArticles(managedArticles.filter((candidate) => candidate.id !== article.id && candidate.slug !== article.slug));
+      toast({ title: 'Article deleted', description: `“${article.title}” has been removed from the public archive.` });
+    } catch (error) {
+      console.error('Failed to delete article:', error);
+      toast({ title: 'Article not deleted', description: 'The database rejected this change. Try again.', variant: 'destructive' });
+    }
+  };
+
   const publicProjectCount = customProjects.filter((project) => !project.isRestricted).length;
   const restrictedProjectCount = customProjects.length - publicProjectCount;
   const activeLogoCount = clientLogos.filter((logo) => logo.is_active).length;
   const activeJobCount = jobOpenings.filter((job) => job.is_active).length;
+  const publishedArticleCount = managedArticles.filter((article) => article.isPublished !== false).length;
+  const filteredArticles = managedArticles.filter((article) => {
+    const query = articleSearchTerm.trim().toLowerCase();
+    if (!query) return true;
+    return [article.title, article.slug, article.category, article.description, ...article.keywords]
+      .some((value) => value.toLowerCase().includes(query));
+  });
 
   return (
     <div className="admin-console min-h-screen overflow-x-hidden bg-[#0a0b0c] text-[#f4f0e8]">
@@ -994,6 +1073,9 @@ const AdminDashboard = () => {
             </TabsTrigger>
             <TabsTrigger value="restricted" className="admin-nav-item admin-nav-restricted">
               <Lock /> <span>Restricted</span><b>{restrictedProjectCount}</b>
+            </TabsTrigger>
+            <TabsTrigger value="articles" className="admin-nav-item">
+              <FileText /> <span>Articles</span><b>{managedArticles.length}</b>
             </TabsTrigger>
             <TabsTrigger value="logos" className="admin-nav-item">
               <Image /> <span>Client logos</span><b>{clientLogos.length}</b>
@@ -1661,6 +1743,57 @@ const AdminDashboard = () => {
                     </div>
                   </div>
                 ))}
+              </div>
+            )}
+          </TabsContent>
+
+          {/* Articles Tab */}
+          <TabsContent value="articles">
+            {showArticleForm ? (
+              <ArticleEditor
+                key={editingArticle?.id || 'new-article'}
+                article={editingArticle}
+                projects={customProjects.filter((project) => !project.isRestricted)}
+                onCancel={closeArticleEditor}
+                onSave={handleSaveArticle}
+              />
+            ) : (
+              <div className="space-y-6">
+                <div className="flex flex-col gap-4 rounded-2xl border border-white/15 bg-white/[.06] p-5 backdrop-blur-md md:flex-row md:items-center md:justify-between">
+                  <div>
+                    <p className="admin-eyebrow">Search surface / structured content</p>
+                    <h2 className="mt-1 text-2xl font-semibold text-white">Articles <span className="text-white/35">{managedArticles.length}</span></h2>
+                    <p className="mt-2 text-sm text-white/45">{publishedArticleCount} published · {managedArticles.length - publishedArticleCount} drafts · {articlesManaged ? 'managed in Supabase' : 'using the built-in fallback until the first save'}</p>
+                  </div>
+                  <Button onClick={() => { setEditingArticle(null); setShowArticleForm(true); }} className="w-fit bg-[#B8FF35] text-black hover:bg-[#d0ff73]"><Plus className="mr-2 size-4" /> New article</Button>
+                </div>
+
+                <div className="relative max-w-xl">
+                  <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-white/35" />
+                  <Input value={articleSearchTerm} onChange={(event) => setArticleSearchTerm(event.target.value)} placeholder="Search title, slug, category, or keyword..." className="border-white/15 bg-white/[.06] pl-10 text-white placeholder:text-white/35" />
+                </div>
+
+                {articlesLoading ? (
+                  <div className="grid gap-4 md:grid-cols-2"><div className="h-56 animate-pulse rounded-2xl border border-white/10 bg-white/[.04]" /><div className="h-56 animate-pulse rounded-2xl border border-white/10 bg-white/[.04]" /></div>
+                ) : filteredArticles.length === 0 ? (
+                  <div className="rounded-2xl border border-dashed border-white/15 bg-white/[.04] p-12 text-center"><FileText className="mx-auto mb-4 size-10 text-white/25" /><p className="text-white/60">{managedArticles.length === 0 ? 'No articles yet.' : 'No articles match this search.'}</p><p className="mt-1 text-sm text-white/35">Create or edit content here and it will appear on the public articles page.</p></div>
+                ) : (
+                  <div className="grid gap-4 xl:grid-cols-2">
+                    {filteredArticles.map((article) => (
+                      <article key={article.id || article.slug} className={cn('group rounded-2xl border border-white/12 bg-white/[.055] p-5 transition-colors hover:border-white/25', article.isPublished === false && 'opacity-70')}>
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="min-w-0">
+                            <div className="mb-3 flex flex-wrap items-center gap-2 font-mono text-[9px] uppercase tracking-[.14em] text-white/40"><span className={article.accent === 'cyan' ? 'text-[#7DEBFF]' : 'text-[#B8FF35]'}>{article.category || 'Article'}</span><span>·</span><span>{article.publishedAt}</span><Badge variant="secondary" className={cn('border-0 text-[9px] uppercase tracking-[.12em]', article.isPublished === false ? 'bg-white/10 text-white/45' : 'bg-[#B8FF35]/15 text-[#B8FF35]')}>{article.isPublished === false ? 'Draft' : 'Published'}</Badge></div>
+                            <h3 className="truncate text-xl font-medium tracking-[-.03em] text-white">{article.title}</h3>
+                            <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-white/45">{article.description}</p>
+                          </div>
+                          {article.coverImage ? <img src={article.coverImage} alt="" className="size-16 shrink-0 rounded-lg border border-white/10 object-cover" /> : <div className="grid size-16 shrink-0 place-items-center rounded-lg border border-white/10 bg-black/15"><FileText className="size-5 text-white/20" /></div>}
+                        </div>
+                        <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4"><div className="flex flex-wrap gap-3 font-mono text-[9px] uppercase tracking-[.12em] text-white/35"><span>{article.media?.length || 0} media</span><span>{article.relatedProjectIds?.length || 0} projects</span><span>{article.externalLinks?.length || 0} links</span></div><div className="flex items-center gap-1"><Button variant="ghost" size="sm" onClick={() => { setEditingArticle(article); setShowArticleForm(true); }} className="text-white/70 hover:bg-white/10 hover:text-white"><Edit2 className="mr-1.5 size-3.5" /> Edit</Button><Button variant="ghost" size="icon" onClick={() => handleDeleteArticle(article)} aria-label={`Delete ${article.title}`} className="text-red-300 hover:bg-red-500/10 hover:text-red-200"><Trash2 className="size-4" /></Button></div></div>
+                      </article>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </TabsContent>

@@ -8,6 +8,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ContactsProvider } from "@/contexts/ContactsContext";
 import { ProjectsProvider } from "@/contexts/ProjectsContext";
 import { SiteSettingsProvider } from "@/contexts/SiteSettingsContext";
+import { ArticlesProvider } from "@/contexts/ArticlesContext";
 const Index = lazy(() => import("@/pages/Index"));
 const Reels = lazy(() => import("@/pages/Reels"));
 const Projects = lazy(() => import("@/pages/Projects").then((module) => ({ default: module.Projects })));
@@ -29,8 +30,9 @@ const NotFound = lazy(() => import("@/pages/NotFound"));
 
 const App = () => (
   <AuthProvider>
-    <ProjectsProvider>
-      <ContactsProvider>
+    <ArticlesProvider>
+      <ProjectsProvider>
+        <ContactsProvider>
               <Toaster />
               <Sonner />
               <BrowserRouter>
@@ -59,8 +61,9 @@ const App = () => (
                   </Routes>
                 </Suspense>
               </BrowserRouter>
-      </ContactsProvider>
-    </ProjectsProvider>
+        </ContactsProvider>
+      </ProjectsProvider>
+    </ArticlesProvider>
   </AuthProvider>
 );
 

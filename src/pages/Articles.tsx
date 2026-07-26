@@ -1,10 +1,13 @@
+import { useMemo } from "react";
 import { ArrowUpRight, Clock3 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Reveal } from "@/components/Motion";
 import { Seo } from "@/components/Seo";
-import { articles, formatArticleDate } from "@/content/articles";
+import { formatArticleDate } from "@/content/articles";
+import { useArticles } from "@/contexts/ArticlesContext";
+import { getPublishedArticles } from "@/lib/articles";
 
-const articleListSchema = {
+const createArticleListSchema = (articles: { slug: string; title: string }[]) => ({
   "@context": "https://schema.org",
   "@type": "CollectionPage",
   name: "Articles — Neotrix",
@@ -24,16 +27,20 @@ const articleListSchema = {
       name: article.title,
     })),
   },
-};
+});
 
-const Articles = () => (
-  <>
+const Articles = () => {
+  const { articles, loading } = useArticles();
+  const visibleArticles = useMemo(() => getPublishedArticles(articles), [articles]);
+  const articleListSchema = useMemo(() => createArticleListSchema(visibleArticles), [visibleArticles]);
+  return (
+    <>
     <Seo
       title="Articles on 3D Animation, VFX & Production"
       description="Practical guides from Neotrix on 3D animation, product films, VFX, and commercial production in Jakarta and beyond."
       path="/articles"
-      structuredData={articleListSchema}
-    />
+        structuredData={articleListSchema}
+      />
 
     <section className="page-wrap pb-16 pt-32 sm:pt-40 lg:pb-24">
       <Reveal>
@@ -52,7 +59,10 @@ const Articles = () => (
 
     <section className="page-wrap pb-24 lg:pb-36">
       <div className="grid gap-5 lg:grid-cols-2">
-        {articles.map((article, index) => (
+        {loading && Array.from({ length: 2 }).map((_, index) => (
+          <div key={index} className="min-h-[31rem] animate-pulse rounded-[1.6rem] border border-white/10 bg-white/[.04] sm:min-h-[35rem]" />
+        ))}
+        {!loading && visibleArticles.map((article, index) => (
           <Reveal key={article.slug} delay={index * 0.08}>
             <Link
               to={`/articles/${article.slug}`}
@@ -99,8 +109,8 @@ const Articles = () => (
         <ArrowUpRight className="size-9 shrink-0 transition-transform group-hover:rotate-45 sm:size-14" />
       </div>
     </Link>
-  </>
-);
+    </>
+  );
+};
 
 export default Articles;
-

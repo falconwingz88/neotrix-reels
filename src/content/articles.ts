@@ -17,7 +17,20 @@ export type RelatedWork = {
   query: string;
 };
 
+export type ArticleMedia = {
+  type: "image" | "video";
+  url: string;
+  alt?: string;
+  caption?: string;
+};
+
+export type ArticleLink = {
+  label: string;
+  url: string;
+};
+
 export type Article = {
+  id?: string;
   slug: string;
   title: string;
   shortTitle: string;
@@ -31,6 +44,11 @@ export type Article = {
   keywords: string[];
   takeaway: string;
   relatedWork?: RelatedWork[];
+  relatedProjectIds?: string[];
+  externalLinks?: ArticleLink[];
+  media?: ArticleMedia[];
+  coverImage?: string;
+  isPublished?: boolean;
   sections: ArticleSection[];
   faqs: ArticleFaq[];
 };

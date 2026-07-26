@@ -78,13 +78,18 @@ export const ArticleEditor = ({ article, projects, onCancel, onSave }: Props) =>
   };
 
   const toggleProject = (project: CustomProject) => {
-    const current = draft.relatedProjectIds || [];
-    const next = current.includes(project.id) ? current.filter((id) => id !== project.id) : [...current, project.id];
-    update("relatedProjectIds", next);
-    update("relatedWork", next.map((id) => {
-      const selected = projects.find((item) => item.id === id);
-      return selected ? { label: selected.title, query: selected.title } : null;
-    }).filter((item): item is { label: string; query: string } => Boolean(item)));
+    setDraft((currentDraft) => {
+      const current = currentDraft.relatedProjectIds || [];
+      const next = current.includes(project.id) ? current.filter((id) => id !== project.id) : [...current, project.id];
+      return {
+        ...currentDraft,
+        relatedProjectIds: next,
+        relatedWork: next.map((id) => {
+          const selected = projects.find((item) => item.id === id);
+          return selected ? { label: selected.title, query: selected.title } : null;
+        }).filter((item): item is { label: string; query: string } => Boolean(item)),
+      };
+    });
   };
 
   const submit = async (event: FormEvent) => {

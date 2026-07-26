@@ -1,4 +1,4 @@
-import type { Article, ArticleLink, ArticleMedia } from "@/content/articles";
+import type { Article, ArticleLink, ArticleMedia, RelatedWork } from "@/content/articles";
 import { isSafeHttpUrl } from "@/lib/url";
 
 export const normalizeArticleSlug = (value: string) =>
@@ -6,6 +6,16 @@ export const normalizeArticleSlug = (value: string) =>
 
 export const getArticleIdentity = (article: Pick<Article, "id" | "slug">) =>
   article.id?.trim() || normalizeArticleSlug(article.slug);
+
+export const mergeRelatedWork = (saved: RelatedWork[] | undefined, resolved: RelatedWork[]) => {
+  const seen = new Set<string>();
+  return [...(saved || []), ...resolved].filter((work) => {
+    const key = `${work.label.trim().toLowerCase()}|${work.query.trim().toLowerCase()}`;
+    if (!work.label.trim() || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+};
 
 export const hasDuplicateArticleSlug = (articles: Article[]) => {
   const slugs = articles.map((article) => normalizeArticleSlug(article.slug)).filter(Boolean);

@@ -7,7 +7,7 @@ import { useArticles } from "@/contexts/ArticlesContext";
 import { useProjects } from "@/contexts/ProjectsContext";
 import { YouTubeFacade } from "@/components/YouTubeFacade";
 import { getYouTubeVideoId } from "@/lib/youtube";
-import { getPublishedArticles } from "@/lib/articles";
+import { getPublishedArticles, mergeRelatedWork } from "@/lib/articles";
 import { useAuth } from "@/contexts/AuthContext";
 
 const SITE_URL = "https://motion.neotrix.asia";
@@ -78,7 +78,7 @@ const ArticleDetail = () => {
     ?.map((id) => customProjects.find((project) => project.id === id))
     .filter((project): project is NonNullable<typeof project> => Boolean(project))
     .map((project) => ({ label: project.title, query: project.title })) || [];
-  const relatedWork = attachedWork.length > 0 ? attachedWork : article.relatedWork || [];
+  const relatedWork = mergeRelatedWork(article.relatedWork, attachedWork);
   const schema = createArticleSchema(article);
 
   return (

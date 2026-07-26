@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Article } from "@/content/articles";
-import { getArticleIdentity, getPublishedArticles, hasDuplicateArticleSlug, isValidArticleMedia, normalizeArticleSlug, sanitizeArticleLinks } from "@/lib/articles";
+import { getArticleIdentity, getPublishedArticles, hasDuplicateArticleSlug, isValidArticleMedia, mergeRelatedWork, normalizeArticleSlug, sanitizeArticleLinks } from "@/lib/articles";
 
 const article = (slug: string, isPublished = true): Article => ({
   slug,
@@ -30,6 +30,13 @@ describe("article management helpers", () => {
 
   it("keeps drafts out of the public collection", () => {
     expect(getPublishedArticles([article("live"), article("draft", false)]).map((item) => item.slug)).toEqual(["live"]);
+  });
+
+  it("keeps saved project links visible while live project records resolve", () => {
+    expect(mergeRelatedWork([{ label: "Attached project", query: "attached" }], [{ label: "Attached project", query: "attached" }, { label: "Resolved project", query: "resolved" }])).toEqual([
+      { label: "Attached project", query: "attached" },
+      { label: "Resolved project", query: "resolved" },
+    ]);
   });
 
   it("only keeps labeled secure links and valid media", () => {

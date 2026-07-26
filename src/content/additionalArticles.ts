@@ -394,7 +394,7 @@ const allAdditionalArticles: Article[] = [
     takeaway: "Responsible commercial AI means documenting sources, controlling what can change, reviewing claims and identity, and keeping a human approval chain from first experiment to final delivery.",
     relatedWork: [
       { label: "Review Neotrix project details", query: "" },
-      { label: "Start a production conversation", query: "" },
+      { label: "Browse all selected work", query: "" },
     ],
     sections: [
       {

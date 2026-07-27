@@ -6,7 +6,8 @@ import { useSearchParams } from "react-router-dom";
 import { ProjectCard } from "@/components/ProjectCard";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useProjects } from "@/contexts/ProjectsContext";
-import { deriveProjectFacets, filterProjects, filtersFromSearchParams, filtersToSearchParams, resolveResourceState, type ProjectFilters } from "@/lib/projects";
+import { useSiteSettings } from "@/contexts/SiteSettingsContext";
+import { deriveProjectFacets, displayProjects, filterProjects, filtersFromSearchParams, filtersToSearchParams, resolveResourceState, type ProjectFilters } from "@/lib/projects";
 
 // Retained for the legacy admin modal contract.
 export interface Project {
@@ -76,6 +77,7 @@ const FilterControls = ({ filters, setFilters, tags, years, vertical = false }: 
 
 export const ProjectsBrowser = () => {
   const { customProjects, loading, error, refetch } = useProjects();
+  const { settings } = useSiteSettings();
   const [params, setParams] = useSearchParams();
   const [cursorVisible, setCursorVisible] = useState(false);
   const cursorX = useMotionValue(-100);
@@ -85,8 +87,12 @@ export const ProjectsBrowser = () => {
   const filters = useMemo(() => filtersFromSearchParams(params), [params]);
   const facets = useMemo(() => deriveProjectFacets(customProjects), [customProjects]);
   const projects = useMemo(() => filterProjects(customProjects, filters), [customProjects, filters]);
-  const state = resolveResourceState(loading, error, projects);
   const activeCount = filters.tags.length + (filters.year ? 1 : 0) + (filters.query ? 1 : 0);
+  const displayedProjects = useMemo(
+    () => displayProjects(projects, settings.projectsDuplicationEnabled, activeCount > 0),
+    [projects, settings.projectsDuplicationEnabled, activeCount],
+  );
+  const state = resolveResourceState(loading, error, projects);
   const setFilters = (next: ProjectFilters) => setParams(filtersToSearchParams(next), { replace: true });
   const clear = () => setFilters({ query: "", tags: [], year: null });
 
@@ -201,7 +207,7 @@ export const ProjectsBrowser = () => {
           {state === "ready" && (
             <motion.div layout className="grid grid-cols-2 gap-x-3 gap-y-7 sm:gap-x-4 sm:gap-y-9 md:grid-cols-3 xl:grid-cols-4">
               <AnimatePresence mode="popLayout">
-                {projects.map((project, index) => <ProjectCard key={project.id} project={project} index={index} compact priority />)}
+                {displayedProjects.map((project, index) => <ProjectCard key={`${project.id}-${index}`} project={project} index={index} compact priority />)}
               </AnimatePresence>
             </motion.div>
           )}

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { CustomProject } from "@/contexts/ProjectsContext";
 import { curatedCatalogPoster } from "./projectCatalogPosters";
-import { featuredProjects, filterProjects, filtersFromSearchParams, filtersToSearchParams, projectPoster, projectVideoPoster, resolveResourceState } from "./projects";
+import { displayProjects, featuredProjects, filterProjects, filtersFromSearchParams, filtersToSearchParams, projectPoster, projectVideoPoster, resolveResourceState } from "./projects";
 
 const project = (partial: Partial<CustomProject>): CustomProject => ({
   id: "id",
@@ -48,6 +48,19 @@ describe("project selection and filters", () => {
     const links = ["https://drive.google.com/file/d/project-preview", "https://youtu.be/LP5ybY7O2zc"];
     expect(projectVideoPoster({ links })).toContain("LP5ybY7O2zc/maxresdefault.jpg");
     expect(projectPoster(project({ links }))).toContain("LP5ybY7O2zc/maxresdefault.jpg");
+  });
+
+  it("adds one display-only duplicate pass when enabled and unfiltered", () => {
+    const displayed = displayProjects(projects, true, false);
+    expect(displayed).toHaveLength(projects.length * 2);
+    expect(displayed.slice(0, projects.length).map((item) => item.id)).toEqual(projects.map((item) => item.id));
+    expect(displayed.slice(projects.length).map((item) => item.id)).toEqual(projects.map((item) => item.id));
+    expect(displayed[projects.length].links).toBe(projects[0].links);
+  });
+
+  it("does not duplicate when disabled or when any archive filter is active", () => {
+    expect(displayProjects(projects, false, false)).toEqual(projects);
+    expect(displayProjects(projects, true, true)).toEqual(projects);
   });
 
   it("keeps dedicated extracted-frame thumbnails for the seven protected projects", () => {

@@ -116,6 +116,7 @@ const AdminDashboard = () => {
   const [localOpacity, setLocalOpacity] = useState(settings.glassmorphismOpacity);
   const [localColor, setLocalColor] = useState(settings.glassmorphismColor);
   const [localToolsVisible, setLocalToolsVisible] = useState(settings.toolsVisible);
+  const [localProjectsDuplicationEnabled, setLocalProjectsDuplicationEnabled] = useState(settings.projectsDuplicationEnabled);
   const [isApplyingSettings, setIsApplyingSettings] = useState(false);
 
   const [showForm, setShowForm] = useState(false);
@@ -189,7 +190,8 @@ const AdminDashboard = () => {
     setLocalOpacity(settings.glassmorphismOpacity);
     setLocalColor(settings.glassmorphismColor);
     setLocalToolsVisible(settings.toolsVisible);
-  }, [settings.glassmorphismOpacity, settings.glassmorphismColor, settings.toolsVisible]);
+    setLocalProjectsDuplicationEnabled(settings.projectsDuplicationEnabled);
+  }, [settings.glassmorphismOpacity, settings.glassmorphismColor, settings.toolsVisible, settings.projectsDuplicationEnabled]);
 
   const handleApplySettings = async () => {
     setIsApplyingSettings(true);
@@ -197,6 +199,7 @@ const AdminDashboard = () => {
       await updateSetting('glassmorphism_opacity', localOpacity.toString());
       await updateSetting('glassmorphism_color', localColor);
       await updateSetting('tools_visible', localToolsVisible.toString());
+      await updateSetting('projects_duplication_enabled', localProjectsDuplicationEnabled.toString());
       toast({
         title: "Settings applied",
         description: "Site settings have been updated for all users.",
@@ -214,7 +217,8 @@ const AdminDashboard = () => {
 
   const hasSettingsChanged = localOpacity !== settings.glassmorphismOpacity || 
     localColor !== settings.glassmorphismColor || 
-    localToolsVisible !== settings.toolsVisible;
+    localToolsVisible !== settings.toolsVisible ||
+    localProjectsDuplicationEnabled !== settings.projectsDuplicationEnabled;
 
   // Redirect if not authenticated or not admin
   useEffect(() => {
@@ -2426,6 +2430,24 @@ const AdminDashboard = () => {
                     <Switch
                       checked={localToolsVisible}
                       onCheckedChange={setLocalToolsVisible}
+                    />
+                  </div>
+                </div>
+
+                <div className="border-t border-white/10" />
+
+                {/* Project Archive Duplication Toggle */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between gap-6">
+                    <div>
+                      <Label className="text-white text-base">Repeat Project Archive</Label>
+                      <p className="text-white/60 text-sm mt-1">
+                        Show one visual duplicate pass after the real projects on the public archive. Duplicates disappear whenever search or filters are active.
+                      </p>
+                    </div>
+                    <Switch
+                      checked={localProjectsDuplicationEnabled}
+                      onCheckedChange={setLocalProjectsDuplicationEnabled}
                     />
                   </div>
                 </div>

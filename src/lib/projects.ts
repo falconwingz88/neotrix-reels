@@ -44,6 +44,9 @@ export const filterProjects = (projects: CustomProject[], filters: ProjectFilter
   });
 };
 
+export const displayProjects = (projects: CustomProject[], duplicationEnabled: boolean, hasActiveFilters: boolean) =>
+  duplicationEnabled && !hasActiveFilters ? [...projects, ...projects] : projects;
+
 export const filtersFromSearchParams = (params: URLSearchParams): ProjectFilters => {
   const parsedYear = Number.parseInt(params.get("year") || "", 10);
   return {

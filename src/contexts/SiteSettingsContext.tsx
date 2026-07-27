@@ -5,6 +5,7 @@ interface SiteSettings {
   glassmorphismOpacity: number;
   glassmorphismColor: string;
   toolsVisible: boolean;
+  projectsDuplicationEnabled: boolean;
 }
 
 interface SiteSettingsContextType {
@@ -18,6 +19,7 @@ const defaultSettings: SiteSettings = {
   glassmorphismOpacity: 0.1,
   glassmorphismColor: '#ffffff',
   toolsVisible: true,
+  projectsDuplicationEnabled: true,
 };
 
 const SiteSettingsContext = createContext<SiteSettingsContextType | undefined>(undefined);
@@ -73,6 +75,8 @@ const processSettingsData = (data: { key: string; value: string }[]) => {
       loadedSettings.glassmorphismColor = row.value || defaultSettings.glassmorphismColor;
     } else if (row.key === 'tools_visible') {
       loadedSettings.toolsVisible = row.value === 'true';
+    } else if (row.key === 'projects_duplication_enabled') {
+      loadedSettings.projectsDuplicationEnabled = row.value === 'true';
     }
   });
 
@@ -134,6 +138,8 @@ export const SiteSettingsProvider = ({ children }: { children: ReactNode }) => {
                 updated.glassmorphismColor = newRecord.value || defaultSettings.glassmorphismColor;
               } else if (newRecord.key === 'tools_visible') {
                 updated.toolsVisible = newRecord.value === 'true';
+              } else if (newRecord.key === 'projects_duplication_enabled') {
+                updated.projectsDuplicationEnabled = newRecord.value === 'true';
               }
 
               applyGlassStyles(updated.glassmorphismOpacity, updated.glassmorphismColor);

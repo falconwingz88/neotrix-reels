@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { ArrowUpRight, Clock3 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { ArticleCover } from "@/components/ArticleCover";
 import { Reveal } from "@/components/Motion";
 import { Seo } from "@/components/Seo";
 import { formatArticleDate } from "@/content/articles";
@@ -65,7 +66,9 @@ const Articles = () => {
         {loading && Array.from({ length: 2 }).map((_, index) => (
           <div key={index} className="min-h-[31rem] animate-pulse rounded-[1.6rem] border border-white/10 bg-white/[.04] sm:min-h-[35rem]" />
         ))}
-        {!loading && visibleArticles.map((article, index) => (
+        {!loading && visibleArticles.map((article, index) => {
+          const coverImage = resolveArticleCover(article, customProjects, 900);
+          return (
           <Reveal key={article.slug} delay={index * 0.08}>
             <Link
               to={`/articles/${article.slug}`}
@@ -76,20 +79,15 @@ const Articles = () => {
                   article.accent === "cyan" ? "bg-[#7DEBFF]/16" : "bg-[#B8FF35]/14"
                 }`}
               />
-              {resolveArticleCover(article, customProjects, 900) && (
-                <div className="relative mt-5 aspect-[16/9] overflow-hidden rounded-[1.1rem] border border-white/10 bg-[#0b0d0e]">
-                  <img
-                    src={resolveArticleCover(article, customProjects, 900)}
-                    alt=""
-                    aria-hidden="true"
-                    loading={index < 2 ? "eager" : "lazy"}
-                    decoding="async"
-                    width="900"
-                    height="506"
-                    className="absolute inset-0 size-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.035]"
-                  />
-                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent" />
-                </div>
+              {coverImage && (
+                <ArticleCover
+                  src={coverImage}
+                  alt={`${article.shortTitle} project screenshot`}
+                  loading={index < 2 ? "eager" : "lazy"}
+                  width={900}
+                  height={506}
+                  className="mt-5 aspect-[16/9] rounded-[1.1rem] border border-white/10 transition-transform duration-700 ease-out group-hover:scale-[1.01]"
+                />
               )}
               <div className="relative flex items-center justify-between border-b border-white/10 pb-4 font-mono text-[9px] uppercase tracking-[0.17em] text-white/40">
                 <span>{article.category}</span>
@@ -114,7 +112,8 @@ const Articles = () => {
               </div>
             </Link>
           </Reveal>
-        ))}
+          );
+        })}
       </div>
     </section>
 

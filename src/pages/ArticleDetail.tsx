@@ -1,5 +1,6 @@
 import { ArrowLeft, ArrowUpRight, Clock3, Edit2, ExternalLink } from "lucide-react";
 import { Link, Navigate, useParams } from "react-router-dom";
+import { ArticleCover } from "@/components/ArticleCover";
 import { Reveal } from "@/components/Motion";
 import { Seo } from "@/components/Seo";
 import { formatArticleDate, type Article } from "@/content/articles";
@@ -140,19 +141,14 @@ const ArticleDetail = () => {
 
         {coverImage && (
           <div className="page-wrap pb-14 lg:pb-20">
-            <div className="relative aspect-[16/7] overflow-hidden rounded-[1.35rem] border border-white/10 bg-[#111315]">
-              <img
-                src={coverImage}
-                alt=""
-                aria-hidden="true"
-                loading="eager"
-                decoding="async"
-                width="1400"
-                height="613"
-                className="absolute inset-0 size-full object-cover object-center"
-              />
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
-            </div>
+            <ArticleCover
+              src={coverImage}
+              alt={`${article.shortTitle} project screenshot`}
+              loading="eager"
+              width={1400}
+              height={613}
+              className="aspect-[16/7] rounded-[1.35rem] border border-white/10"
+            />
           </div>
         )}
 
@@ -270,14 +266,14 @@ const ArticleDetail = () => {
                         className="group overflow-hidden rounded-[1.2rem] border border-white/12 bg-white/[.035] transition-colors hover:border-[#B8FF35]/70"
                       >
                         <div className="relative aspect-[16/9] overflow-hidden bg-[#111315]">
-                          <img
+                          <ArticleCover
                             src={optimizedProjectPoster(project, 720)}
                             alt={`${project.title} project thumbnail`}
                             loading="lazy"
-                            decoding="async"
-                            className="h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-[1.04]"
+                            width={720}
+                            height={405}
+                            className="size-full transition-transform duration-700 group-hover:scale-[1.04]"
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/5 to-transparent" />
                           <ArrowUpRight className="absolute bottom-4 right-4 size-4 text-[#B8FF35] transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                         </div>
                         <div className="flex items-end justify-between gap-4 p-4">

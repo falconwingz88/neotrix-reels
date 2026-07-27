@@ -9,7 +9,7 @@ import { useProjects } from "@/contexts/ProjectsContext";
 import { YouTubeFacade } from "@/components/YouTubeFacade";
 import { getYouTubeVideoId } from "@/lib/youtube";
 import { getPublishedArticles, mergeRelatedWork } from "@/lib/articles";
-import { resolveArticleCover } from "@/lib/articleCover";
+import { resolveArticleCovers } from "@/lib/articleCover";
 import { optimizedProjectPoster, publicProjects } from "@/lib/projects";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -76,7 +76,9 @@ const ArticleDetail = () => {
   }
   if (!article) return <Navigate to="/articles" replace />;
 
-  const related = getPublishedArticles(articles).find((candidate) => candidate.slug !== article.slug);
+  const publishedArticles = getPublishedArticles(articles);
+  const articleCovers = resolveArticleCovers(publishedArticles, customProjects, 1400);
+  const related = publishedArticles.find((candidate) => candidate.slug !== article.slug);
   const visibleProjects = publicProjects(customProjects);
   const attachedProjects = article.relatedProjectIds
     ?.map((id) => visibleProjects.find((project) => project.id === id))
@@ -89,7 +91,7 @@ const ArticleDetail = () => {
     project: attachedProjects.find((project) => project.title === work.label)
       || visibleProjects.find((project) => project.title === work.label || project.title === work.query),
   }));
-  const coverImage = resolveArticleCover(article, customProjects, 1400);
+  const coverImage = articleCovers.get(article.id || article.slug);
   const schema = createArticleSchema(article);
 
   return (

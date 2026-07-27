@@ -7,7 +7,7 @@ import { Seo } from "@/components/Seo";
 import { formatArticleDate } from "@/content/articles";
 import { useArticles } from "@/contexts/ArticlesContext";
 import { useProjects } from "@/contexts/ProjectsContext";
-import { resolveArticleCover } from "@/lib/articleCover";
+import { resolveArticleCovers } from "@/lib/articleCover";
 import { getPublishedArticles } from "@/lib/articles";
 
 const createArticleListSchema = (articles: { slug: string; title: string }[]) => ({
@@ -36,6 +36,7 @@ const Articles = () => {
   const { articles, loading } = useArticles();
   const { customProjects } = useProjects();
   const visibleArticles = useMemo(() => getPublishedArticles(articles), [articles]);
+  const articleCovers = useMemo(() => resolveArticleCovers(visibleArticles, customProjects, 900), [visibleArticles, customProjects]);
   const articleListSchema = useMemo(() => createArticleListSchema(visibleArticles), [visibleArticles]);
   return (
     <>
@@ -67,7 +68,7 @@ const Articles = () => {
           <div key={index} className="min-h-[31rem] animate-pulse rounded-[1.6rem] border border-white/10 bg-white/[.04] sm:min-h-[35rem]" />
         ))}
         {!loading && visibleArticles.map((article, index) => {
-          const coverImage = resolveArticleCover(article, customProjects, 900);
+          const coverImage = articleCovers.get(article.id || article.slug);
           return (
           <Reveal key={article.slug} delay={index * 0.08}>
             <Link

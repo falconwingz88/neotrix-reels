@@ -30,9 +30,10 @@ const NotFound = lazy(() => import("@/pages/NotFound"));
 
 const App = () => (
   <AuthProvider>
-    <ArticlesProvider>
-      <ProjectsProvider>
-        <ContactsProvider>
+    <SiteSettingsProvider>
+      <ArticlesProvider>
+        <ProjectsProvider>
+          <ContactsProvider>
               <Toaster />
               <Sonner />
               <BrowserRouter>
@@ -55,15 +56,16 @@ const App = () => (
                   <Route path="/r" element={<AdminRoute><RestrictedProjects /></AdminRoute>} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/admin-login" element={<AdminLogin />} />
-                  <Route path="/admin" element={<AdminRoute><SiteSettingsProvider><AdminDashboard /></SiteSettingsProvider></AdminRoute>} />
+                  <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
                   <Route path="/client/:id" element={<AdminRoute><ClientDetail /></AdminRoute>} />
                   <Route path="*" element={<NotFound />} />
                   </Routes>
                 </Suspense>
               </BrowserRouter>
-        </ContactsProvider>
-      </ProjectsProvider>
-    </ArticlesProvider>
+          </ContactsProvider>
+        </ProjectsProvider>
+      </ArticlesProvider>
+    </SiteSettingsProvider>
   </AuthProvider>
 );
 

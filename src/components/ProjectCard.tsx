@@ -146,7 +146,7 @@ export const ProjectCard = ({ project, index = 0, featured = false, compact = fa
         <div className={`flex items-start justify-between px-1 ${compact ? "gap-2 pt-2.5" : "gap-5 pt-4"}`}>
           <div>
             <h3 className={`${compact ? "text-sm leading-tight sm:text-base" : "text-xl sm:text-2xl"} font-medium tracking-[-0.025em] text-[#F4F0E8]`}>{project.title}</h3>
-            <p className={`${compact ? "mt-1 text-[7px] sm:text-[8px]" : "mt-1 text-[9px]"} font-mono uppercase tracking-[0.14em] text-white/45`}>{project.client || "Neotrix"}</p>
+            {!compact && <p className="mt-1 font-mono text-[9px] uppercase tracking-[0.14em] text-white/45">{project.client || "Neotrix"}</p>}
           </div>
           <span className={`${compact ? "text-[7px] sm:text-[8px]" : "pt-1 text-[9px]"} shrink-0 font-mono text-white/55`}>{String(index + 1).padStart(2, "0")}</span>
         </div>

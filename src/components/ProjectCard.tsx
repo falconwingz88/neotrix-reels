@@ -6,8 +6,7 @@ import type { CustomProject } from "@/contexts/ProjectsContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { curatedCatalogPoster } from "@/lib/projectCatalogPosters";
 import { getAdminProjectFileUrl } from "@/lib/projectFiles";
-import { optimizedProjectPoster } from "@/lib/projects";
-import { getYouTubeThumbnail } from "@/lib/youtube";
+import { optimizedProjectPoster, projectVideoPoster } from "@/lib/projects";
 
 interface ProjectCardProps {
   project: CustomProject;
@@ -30,8 +29,8 @@ export const ProjectCard = ({ project, index = 0, featured = false, compact = fa
   const [posterMode, setPosterMode] = useState<PosterMode>(curatedPoster ? "curated" : "stored");
   const [posterReady, setPosterReady] = useState(false);
   const rawStoredPoster = project.thumbnail?.trim() || "";
-  const videoPoster = getYouTubeThumbnail(project.links[0] || "");
-  const videoPosterHq = getYouTubeThumbnail(project.links[0] || "", "hqdefault");
+  const videoPoster = projectVideoPoster(project);
+  const videoPosterHq = projectVideoPoster(project, "hqdefault");
   const usesStoredPoster = posterMode === "stored";
   const poster = posterMode === "curated"
     ? curatedPoster

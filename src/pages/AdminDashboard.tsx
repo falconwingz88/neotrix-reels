@@ -65,6 +65,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useSiteSettings } from '@/contexts/SiteSettingsContext';
 import { Slider } from '@/components/ui/slider';
 import { isSafeHttpUrl } from '@/lib/url';
+import { projectVideoPoster } from '@/lib/projects';
 import { useArticles } from '@/contexts/ArticlesContext';
 import { Article } from '@/content/articles';
 import { ArticleEditor } from '@/components/admin/ArticleEditor';
@@ -94,19 +95,6 @@ interface ClientLogo {
 const TAG_OPTIONS = ['Beauty', 'Liquid', 'VFX', 'Character Animation', 'Object Animation', 'AI'];
 const YEAR_OPTIONS = [2030, 2029, 2028, 2027, 2026, 2025, 2024, 2023, 2022, 2021, 2020];
 const ADMIN_TABS = ['projects', 'restricted', 'articles', 'logos', 'jobs', 'contacts', 'settings'] as const;
-
-// Helper function to extract YouTube video ID and generate thumbnail
-const getYouTubeVideoId = (url: string): string => {
-  if (!url) return '';
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|shorts\/)([^#&?]*).*/;
-  const match = url.match(regExp);
-  return (match && match[2].length === 11) ? match[2] : '';
-};
-
-const getYouTubeThumbnail = (url: string): string => {
-  const videoId = getYouTubeVideoId(url);
-  return videoId ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : '';
-};
 
 const isValidUrl = isSafeHttpUrl;
 
@@ -344,7 +332,6 @@ const AdminDashboard = () => {
   const nonEmptyLinks = mediaLinks.filter(link => link.trim() !== '');
   const invalidLinks = nonEmptyLinks.filter(link => !isValidUrl(link));
   const hasInvalidLinks = invalidLinks.length > 0;
-  const firstValidLink = mediaLinks.find(link => isValidUrl(link)) || '';
   
   // Validate file link
   const fileLinkTrimmed = fileLink.trim();
@@ -359,8 +346,8 @@ const AdminDashboard = () => {
     if (thumbnailTrimmed && isValidUrl(thumbnailTrimmed)) {
       return thumbnailTrimmed;
     }
-    return getYouTubeThumbnail(firstValidLink);
-  }, [thumbnailTrimmed, firstValidLink]);
+    return projectVideoPoster({ links: mediaLinks.filter(link => isValidUrl(link)) });
+  }, [thumbnailTrimmed, mediaLinks]);
 
   // Check if form is valid for submission
   const isFormValid = projectName.trim() && !hasInvalidLinks && !hasInvalidFileLink && !hasInvalidThumbnail;
@@ -427,7 +414,7 @@ const AdminDashboard = () => {
       tags: selectedTags,
       links: mediaLinks.filter(link => isValidUrl(link)),
       credits: credits.trim(),
-      thumbnail: thumbnailTrimmed || undefined,
+      thumbnail: thumbnailTrimmed,
       fileLink: fileLinkTrimmed || undefined,
       year: selectedYear,
       client: client.trim() || 'Neotrix',
@@ -596,11 +583,8 @@ const AdminDashboard = () => {
   // Get thumbnail for a project
   const getProjectThumbnail = (project: CustomProject) => {
     if (project.thumbnail) return project.thumbnail;
-    const firstLink = project.links[0];
-    if (firstLink) {
-      const ytThumb = getYouTubeThumbnail(firstLink);
-      if (ytThumb) return ytThumb;
-    }
+    const ytThumb = projectVideoPoster(project);
+    if (ytThumb) return ytThumb;
     return 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400';
   };
 
@@ -1538,7 +1522,7 @@ const AdminDashboard = () => {
                       tags: selectedTags,
                       links: mediaLinks.filter(link => isValidUrl(link)),
                       credits: credits.trim(),
-                      thumbnail: thumbnailTrimmed || undefined,
+                      thumbnail: thumbnailTrimmed,
                       fileLink: fileLinkTrimmed || undefined,
                       year: selectedYear,
                       client: client.trim() || 'Neotrix',

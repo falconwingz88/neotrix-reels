@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { CustomProject } from "@/contexts/ProjectsContext";
 import { curatedCatalogPoster } from "./projectCatalogPosters";
-import { featuredProjects, filterProjects, filtersFromSearchParams, filtersToSearchParams, resolveResourceState } from "./projects";
+import { featuredProjects, filterProjects, filtersFromSearchParams, filtersToSearchParams, projectPoster, projectVideoPoster, resolveResourceState } from "./projects";
 
 const project = (partial: Partial<CustomProject>): CustomProject => ({
   id: "id",
@@ -42,6 +42,12 @@ describe("project selection and filters", () => {
     expect(resolveResourceState(false, "offline", [])).toBe("error");
     expect(resolveResourceState(false, null, [])).toBe("empty");
     expect(resolveResourceState(false, null, [projects[0]])).toBe("ready");
+  });
+
+  it("uses the first YouTube thumbnail even when it is not the first media link", () => {
+    const links = ["https://drive.google.com/file/d/project-preview", "https://youtu.be/LP5ybY7O2zc"];
+    expect(projectVideoPoster({ links })).toContain("LP5ybY7O2zc/maxresdefault.jpg");
+    expect(projectPoster(project({ links }))).toContain("LP5ybY7O2zc/maxresdefault.jpg");
   });
 
   it("keeps dedicated extracted-frame thumbnails for the seven protected projects", () => {

@@ -12,8 +12,13 @@ export const featuredProjects = (projects: CustomProject[], limit = 6) =>
     .sort((a, b) => (a.sortOrder ?? Number.MAX_SAFE_INTEGER) - (b.sortOrder ?? Number.MAX_SAFE_INTEGER))
     .slice(0, limit);
 
+export const projectVideoPoster = (
+  project: Pick<CustomProject, "links">,
+  quality: "maxresdefault" | "hqdefault" = "maxresdefault",
+) => project.links.map((link) => getYouTubeThumbnail(link, quality)).find(Boolean) || "";
+
 export const projectPoster = (project: CustomProject) =>
-  project.thumbnail || getYouTubeThumbnail(project.links[0] || "") || "/lovable-uploads/095c66ca-08f0-405a-a24e-5d161594a887.png";
+  project.thumbnail || projectVideoPoster(project) || "/lovable-uploads/095c66ca-08f0-405a-a24e-5d161594a887.png";
 
 export const optimizedProjectPoster = (project: CustomProject, width: number, quality = 76) => {
   const poster = projectPoster(project);

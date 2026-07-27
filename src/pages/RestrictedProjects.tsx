@@ -7,19 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useProjects } from "@/contexts/ProjectsContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-
-// Helper function to extract YouTube video ID and generate thumbnail
-const getYouTubeVideoId = (url: string): string => {
-  if (!url) return "";
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|shorts\/)([^#&?]*).*/;
-  const match = url.match(regExp);
-  return match && match[2].length === 11 ? match[2] : "";
-};
-
-const getYouTubeThumbnail = (url: string): string => {
-  const videoId = getYouTubeVideoId(url);
-  return videoId ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : "";
-};
+import { projectVideoPoster } from "@/lib/projects";
 
 const RestrictedProjects = () => {
   const navigate = useNavigate();
@@ -35,7 +23,7 @@ const RestrictedProjects = () => {
         id: cp.id,
         title: cp.title,
         description: cp.description,
-        thumbnail: cp.thumbnail || (cp.links[0] ? getYouTubeThumbnail(cp.links[0]) : ""),
+        thumbnail: cp.thumbnail || projectVideoPoster(cp),
         tags: cp.tags,
         year: cp.year || new Date(cp.createdAt).getFullYear(),
         client: cp.client || cp.credits || "Neotrix",

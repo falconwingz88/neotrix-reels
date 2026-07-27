@@ -2,15 +2,14 @@ import { useMemo, useState } from "react";
 import { ArrowUpRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { CustomProject } from "@/contexts/ProjectsContext";
-import { optimizedProjectPoster } from "@/lib/projects";
-import { getYouTubeThumbnail } from "@/lib/youtube";
+import { optimizedProjectPoster, projectVideoPoster } from "@/lib/projects";
 
 const FALLBACK_POSTER = "/lovable-uploads/095c66ca-08f0-405a-a24e-5d161594a887.png";
 
 const MontageFrame = ({ project }: { project: CustomProject }) => {
   const sources = useMemo(() => Array.from(new Set([
-    getYouTubeThumbnail(project.links[0] || ""),
-    getYouTubeThumbnail(project.links[0] || "", "hqdefault"),
+    projectVideoPoster(project),
+    projectVideoPoster(project, "hqdefault"),
     optimizedProjectPoster(project, 640),
     FALLBACK_POSTER,
   ].filter(Boolean))), [project]);

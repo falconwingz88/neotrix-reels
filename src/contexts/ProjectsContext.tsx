@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { getYouTubeThumbnail } from "@/lib/youtube";
+import { projectVideoPoster } from "@/lib/projects";
 import { useAuth } from "@/contexts/AuthContext";
 
 export interface CustomProject {
@@ -79,14 +79,17 @@ const toRow = (project: Partial<Omit<CustomProject, "id" | "createdAt">>) => {
   if (project.tags !== undefined) row.tags = project.tags;
   if (project.links !== undefined) row.links = project.links;
   if (project.credits !== undefined) row.credits = project.credits;
-  if (project.thumbnail !== undefined) row.thumbnail = project.thumbnail;
+  if (project.thumbnail !== undefined) {
+    row.thumbnail = project.thumbnail?.trim() || projectVideoPoster({ links: project.links || [] }) || null;
+  } else if (project.links !== undefined) {
+    row.thumbnail = projectVideoPoster({ links: project.links }) || null;
+  }
   if (project.year !== undefined) row.year = project.year?.toString();
   if (project.client !== undefined) row.client = project.client;
   if (project.projectStartDate !== undefined) row.project_start_date = project.projectStartDate || null;
   if (project.deliveryDate !== undefined) row.delivery_date = project.deliveryDate || null;
   if (project.sortOrder !== undefined) row.sort_order = project.sortOrder;
   if (project.isRestricted !== undefined) row.is_restricted = project.isRestricted;
-  if (project.thumbnail === undefined && project.links?.[0]) row.thumbnail = getYouTubeThumbnail(project.links[0]);
   return row;
 };
 

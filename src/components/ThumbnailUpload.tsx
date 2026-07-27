@@ -269,7 +269,7 @@ export const ThumbnailUpload = ({ value, onChange, hasError }: ThumbnailUploadPr
       )}
 
       <p className="text-white/50 text-xs">
-        Leave empty to auto-generate from YouTube link
+        Leave empty to use the first YouTube thumbnail from the Media links below
       </p>
 
       {/* Image Cropper Modal */}

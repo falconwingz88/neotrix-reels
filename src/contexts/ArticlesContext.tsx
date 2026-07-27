@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import { articles as fallbackArticles, type Article } from "@/content/articles";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { normalizeArticleSlug } from "@/lib/articles";
 
 const ARTICLES_SETTING_KEY = "articles_content";
 
@@ -21,7 +22,14 @@ const parseArticles = (value: string | null | undefined): Article[] | null => {
   try {
     const parsed = JSON.parse(value);
     if (!Array.isArray(parsed)) return null;
-    return parsed.filter((article): article is Article => Boolean(article && typeof article.slug === "string" && typeof article.title === "string"));
+    return parsed
+      .filter((article): article is Article => Boolean(article && typeof article.slug === "string" && typeof article.title === "string"))
+      .map((article) => {
+        const titleSlug = normalizeArticleSlug(article.title);
+        const storedSlug = normalizeArticleSlug(article.slug);
+        const looksConcatenated = titleSlug.length > 0 && storedSlug.length > titleSlug.length && storedSlug.startsWith(titleSlug);
+        return looksConcatenated ? { ...article, slug: titleSlug } : article;
+      });
   } catch {
     return null;
   }

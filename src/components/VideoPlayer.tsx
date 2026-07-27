@@ -84,8 +84,8 @@ export const VideoPlayer = ({ src, title, author, isActive, unmutedDefault = fal
     if (!video) return;
 
     const handleTimeUpdate = () => {
-      const progress = (video.currentTime / video.duration) * 100;
-      setProgress(progress);
+      if (!Number.isFinite(video.duration) || video.duration <= 0) return;
+      setProgress((video.currentTime / video.duration) * 100);
     };
 
     const handleLoadedMetadata = () => {
@@ -204,6 +204,18 @@ export const VideoPlayer = ({ src, title, author, isActive, unmutedDefault = fal
     setIsMuted(video.muted);
   };
 
+  const handleSeek = (value: number[]) => {
+    const nextProgress = value[0] || 0;
+    setProgress(nextProgress);
+    if (duration <= 0) return;
+    const nextTime = (nextProgress / 100) * duration;
+    if (isYouTube) {
+      postYTCommand('seekTo', [nextTime, true]);
+      return;
+    }
+    if (videoRef.current) videoRef.current.currentTime = nextTime;
+  };
+
   const toggleFullscreen = () => {
     const element = isYouTube ? iframeRef.current?.parentElement : videoRef.current?.parentElement;
     if (!element) return;
@@ -279,11 +291,17 @@ export const VideoPlayer = ({ src, title, author, isActive, unmutedDefault = fal
         </div>
       )}
 
-      {/* Progress Bar */}
-      <div className="absolute bottom-0 left-0 w-full h-1 bg-white/20 rounded-b-2xl">
-        <div 
-          className="h-full bg-gradient-primary transition-all duration-100 rounded-b-2xl"
-          style={{ width: `${progress}%` }}
+      {/* Scrubbable Progress Bar */}
+      <div className="absolute bottom-0 left-0 z-20 w-full rounded-b-2xl bg-black/35 px-4 py-2 backdrop-blur-sm">
+        <Slider
+          value={[progress]}
+          min={0}
+          max={100}
+          step={0.1}
+          onValueChange={handleSeek}
+          disabled={duration <= 0}
+          aria-label={`Seek ${title}`}
+          className="[&_[role=slider]]:h-3 [&_[role=slider]]:w-3 [&_[role=slider]]:border [&_[role=slider]]:border-[#B8FF35] [&_.bg-primary]:bg-[#B8FF35] [&_.bg-secondary]:bg-white/25"
         />
       </div>
 

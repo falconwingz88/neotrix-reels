@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Maximize, Pause, Play, Volume2, VolumeX } from "lucide-react";
 import { getYouTubeEmbedUrl, getYouTubeThumbnail, getYouTubeVideoId } from "@/lib/youtube";
@@ -12,12 +12,23 @@ type Props = {
   className?: string;
 };
 
+const formatTime = (seconds: number) => {
+  if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
+  const totalSeconds = Math.floor(seconds);
+  const minutes = Math.floor(totalSeconds / 60);
+  return `${minutes}:${String(totalSeconds % 60).padStart(2, "0")}`;
+};
+
 export const YouTubeFacade = ({ url, title, poster, hero = false, autoplayWhenVisible = false, className = "" }: Props) => {
   const rootRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const playerId = useId().replace(/:/g, "");
+  const seekingRef = useRef(false);
   const [mounted, setMounted] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [muted, setMuted] = useState(true);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
   const [posterFailed, setPosterFailed] = useState(false);
   const reduced = useReducedMotion();
   const videoId = getYouTubeVideoId(url);
@@ -29,6 +40,17 @@ export const YouTubeFacade = ({ url, title, poster, hero = false, autoplayWhenVi
       "https://www.youtube-nocookie.com",
     );
   }, []);
+
+  const requestPlayerState = useCallback(() => {
+    const iframe = iframeRef.current;
+    if (!iframe?.contentWindow) return;
+    iframe.contentWindow.postMessage(
+      JSON.stringify({ event: "listening", id: playerId, channel: "neotrix-motion" }),
+      "https://www.youtube-nocookie.com",
+    );
+    command("getCurrentTime");
+    command("getDuration");
+  }, [command, playerId]);
 
   const start = useCallback((unmute = false) => {
     setMounted(true);
@@ -55,6 +77,49 @@ export const YouTubeFacade = ({ url, title, poster, hero = false, autoplayWhenVi
     return () => observer.disconnect();
   }, [autoplayWhenVisible, reduced, start]);
 
+  useEffect(() => {
+    if (!mounted) return;
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+
+    const handleMessage = (event: MessageEvent) => {
+      if (event.source !== iframe.contentWindow) return;
+      if (event.origin !== "https://www.youtube-nocookie.com" && event.origin !== "https://www.youtube.com") return;
+
+      let data: { event?: string; info?: Record<string, unknown> };
+      try {
+        data = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
+      } catch {
+        return;
+      }
+
+      if (data.event === "infoDelivery" && data.info) {
+        const nextDuration = Number(data.info.duration ?? data.info.videoDuration);
+        const nextCurrentTime = Number(data.info.currentTime);
+        if (Number.isFinite(nextDuration) && nextDuration > 0) setDuration(nextDuration);
+        if (!seekingRef.current && Number.isFinite(nextCurrentTime) && nextCurrentTime >= 0) setCurrentTime(nextCurrentTime);
+      }
+
+      if (data.event === "onStateChange") {
+        const state = Number(data.info);
+        if (state === 1) setPlaying(true);
+        if (state === 2 || state === 0) setPlaying(false);
+        if (state === 0) setCurrentTime(0);
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+    requestPlayerState();
+    const retryTimers = [250, 750, 1500].map((delay) => window.setTimeout(requestPlayerState, delay));
+    const pollTimer = window.setInterval(requestPlayerState, 500);
+
+    return () => {
+      window.removeEventListener("message", handleMessage);
+      retryTimers.forEach((timer) => window.clearTimeout(timer));
+      window.clearInterval(pollTimer);
+    };
+  }, [mounted, requestPlayerState]);
+
   const togglePlay = () => {
     if (!mounted) return start(false);
     command(playing ? "pauseVideo" : "playVideo");
@@ -64,6 +129,16 @@ export const YouTubeFacade = ({ url, title, poster, hero = false, autoplayWhenVi
   const toggleMute = () => {
     command(muted ? "unMute" : "mute");
     setMuted((value) => !value);
+  };
+
+  const seek = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const nextTime = Number(event.target.value);
+    seekingRef.current = true;
+    setCurrentTime(nextTime);
+    command("seekTo", [nextTime, true]);
+    window.setTimeout(() => {
+      seekingRef.current = false;
+    }, 150);
   };
 
   const fullscreen = () => rootRef.current?.requestFullscreen?.();
@@ -124,6 +199,28 @@ export const YouTubeFacade = ({ url, title, poster, hero = false, autoplayWhenVi
           </button>
         </div>
       </div>
+      {mounted && (
+        <div className="absolute bottom-3 left-3 right-16 z-20 sm:left-5 sm:right-28">
+          <div className="mb-1 flex justify-between font-mono text-[9px] tabular-nums text-white/70" aria-hidden="true">
+            <span>{formatTime(currentTime)}</span>
+            <span>{duration > 0 ? formatTime(duration) : "--:--"}</span>
+          </div>
+          <input
+            type="range"
+            min={0}
+            max={Math.max(duration, 1)}
+            step={0.1}
+            value={Math.min(currentTime, Math.max(duration, 1))}
+            onChange={seek}
+            disabled={duration <= 0}
+            aria-label={`Seek ${title}`}
+            className="h-1 w-full cursor-pointer appearance-none rounded-full accent-[#B8FF35] disabled:cursor-wait disabled:opacity-50"
+            style={{
+              background: `linear-gradient(to right, #B8FF35 ${(duration > 0 ? currentTime / duration : 0) * 100}%, rgba(255,255,255,.25) ${(duration > 0 ? currentTime / duration : 0) * 100}%)`,
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 };

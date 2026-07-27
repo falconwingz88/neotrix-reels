@@ -8,6 +8,7 @@ import { useProjects } from "@/contexts/ProjectsContext";
 import { YouTubeFacade } from "@/components/YouTubeFacade";
 import { getYouTubeVideoId } from "@/lib/youtube";
 import { getPublishedArticles, mergeRelatedWork } from "@/lib/articles";
+import { resolveArticleCover } from "@/lib/articleCover";
 import { optimizedProjectPoster, publicProjects } from "@/lib/projects";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -87,6 +88,7 @@ const ArticleDetail = () => {
     project: attachedProjects.find((project) => project.title === work.label)
       || visibleProjects.find((project) => project.title === work.label || project.title === work.query),
   }));
+  const coverImage = resolveArticleCover(article, customProjects, 1400);
   const schema = createArticleSchema(article);
 
   return (
@@ -136,6 +138,24 @@ const ArticleDetail = () => {
           </Reveal>
         </header>
 
+        {coverImage && (
+          <div className="page-wrap pb-14 lg:pb-20">
+            <div className="relative aspect-[16/7] overflow-hidden rounded-[1.35rem] border border-white/10 bg-[#111315]">
+              <img
+                src={coverImage}
+                alt=""
+                aria-hidden="true"
+                loading="eager"
+                decoding="async"
+                width="1400"
+                height="613"
+                className="absolute inset-0 size-full object-cover object-center"
+              />
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
+            </div>
+          </div>
+        )}
+
         <div className="page-wrap grid gap-12 pb-24 lg:grid-cols-[14rem_minmax(0,46rem)] lg:justify-center lg:gap-20 lg:pb-36">
           <aside className="hidden lg:block">
             <nav aria-label="Article contents" className="sticky top-28 border-l border-white/12 pl-5">
@@ -180,7 +200,7 @@ const ArticleDetail = () => {
                         Your browser does not support embedded video.
                       </video>
                     ) : (
-                      <img src={media.url} alt={media.alt || media.caption || article.title} loading={index === 0 ? "eager" : "lazy"} decoding="async" className="max-h-[38rem] w-full object-cover" />
+                      <img src={media.url} alt={media.alt || media.caption || article.title} loading={index === 0 ? "eager" : "lazy"} decoding="async" className="max-h-[38rem] w-full object-contain object-center" />
                     )}
                     {media.caption && <figcaption className="px-5 py-3 font-mono text-[9px] uppercase tracking-[0.12em] text-white/40">{media.caption}</figcaption>}
                   </figure>
@@ -255,7 +275,7 @@ const ArticleDetail = () => {
                             alt={`${project.title} project thumbnail`}
                             loading="lazy"
                             decoding="async"
-                            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+                            className="h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-[1.04]"
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/5 to-transparent" />
                           <ArrowUpRight className="absolute bottom-4 right-4 size-4 text-[#B8FF35] transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />

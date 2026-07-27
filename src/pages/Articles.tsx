@@ -5,6 +5,8 @@ import { Reveal } from "@/components/Motion";
 import { Seo } from "@/components/Seo";
 import { formatArticleDate } from "@/content/articles";
 import { useArticles } from "@/contexts/ArticlesContext";
+import { useProjects } from "@/contexts/ProjectsContext";
+import { resolveArticleCover } from "@/lib/articleCover";
 import { getPublishedArticles } from "@/lib/articles";
 
 const createArticleListSchema = (articles: { slug: string; title: string }[]) => ({
@@ -31,6 +33,7 @@ const createArticleListSchema = (articles: { slug: string; title: string }[]) =>
 
 const Articles = () => {
   const { articles, loading } = useArticles();
+  const { customProjects } = useProjects();
   const visibleArticles = useMemo(() => getPublishedArticles(articles), [articles]);
   const articleListSchema = useMemo(() => createArticleListSchema(visibleArticles), [visibleArticles]);
   return (
@@ -73,6 +76,21 @@ const Articles = () => {
                   article.accent === "cyan" ? "bg-[#7DEBFF]/16" : "bg-[#B8FF35]/14"
                 }`}
               />
+              {resolveArticleCover(article, customProjects, 900) && (
+                <div className="relative mt-5 aspect-[16/9] overflow-hidden rounded-[1.1rem] border border-white/10 bg-[#0b0d0e]">
+                  <img
+                    src={resolveArticleCover(article, customProjects, 900)}
+                    alt=""
+                    aria-hidden="true"
+                    loading={index < 2 ? "eager" : "lazy"}
+                    decoding="async"
+                    width="900"
+                    height="506"
+                    className="absolute inset-0 size-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.035]"
+                  />
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent" />
+                </div>
+              )}
               <div className="relative flex items-center justify-between border-b border-white/10 pb-4 font-mono text-[9px] uppercase tracking-[0.17em] text-white/40">
                 <span>{article.category}</span>
                 <span>0{index + 1}</span>

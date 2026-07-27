@@ -8,6 +8,7 @@ import { useProjects } from "@/contexts/ProjectsContext";
 import { YouTubeFacade } from "@/components/YouTubeFacade";
 import { getYouTubeVideoId } from "@/lib/youtube";
 import { getPublishedArticles, mergeRelatedWork } from "@/lib/articles";
+import { optimizedProjectPoster, publicProjects } from "@/lib/projects";
 import { useAuth } from "@/contexts/AuthContext";
 
 const SITE_URL = "https://motion.neotrix.asia";
@@ -74,11 +75,18 @@ const ArticleDetail = () => {
   if (!article) return <Navigate to="/articles" replace />;
 
   const related = getPublishedArticles(articles).find((candidate) => candidate.slug !== article.slug);
-  const attachedWork = article.relatedProjectIds
-    ?.map((id) => customProjects.find((project) => project.id === id))
+  const visibleProjects = publicProjects(customProjects);
+  const attachedProjects = article.relatedProjectIds
+    ?.map((id) => visibleProjects.find((project) => project.id === id))
     .filter((project): project is NonNullable<typeof project> => Boolean(project))
-    .map((project) => ({ label: project.title, query: project.title })) || [];
+    || [];
+  const attachedWork = attachedProjects.map((project) => ({ label: project.title, query: project.title }));
   const relatedWork = mergeRelatedWork(article.relatedWork, attachedWork);
+  const relatedProjectCards = relatedWork.map((work) => ({
+    work,
+    project: attachedProjects.find((project) => project.title === work.label)
+      || visibleProjects.find((project) => project.title === work.label || project.title === work.query),
+  }));
   const schema = createArticleSchema(article);
 
   return (
@@ -234,12 +242,36 @@ const ArticleDetail = () => {
                     <h2 id="related-work-heading" className="text-4xl font-medium tracking-[-0.05em] sm:text-5xl">See it in motion.</h2>
                     <ArrowUpRight className="hidden size-6 text-[#B8FF35] sm:block" />
                   </div>
-                  <div className="mt-7 flex flex-wrap gap-3">
-                    {relatedWork.map((work) => (
+                  <div className="mt-7 grid gap-4 sm:grid-cols-2">
+                    {relatedProjectCards.map(({ work, project }) => project ? (
+                      <Link
+                        key={project.id}
+                        to={`/projects/${project.id}`}
+                        className="group overflow-hidden rounded-[1.2rem] border border-white/12 bg-white/[.035] transition-colors hover:border-[#B8FF35]/70"
+                      >
+                        <div className="relative aspect-[16/9] overflow-hidden bg-[#111315]">
+                          <img
+                            src={optimizedProjectPoster(project, 720)}
+                            alt={`${project.title} project thumbnail`}
+                            loading="lazy"
+                            decoding="async"
+                            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/5 to-transparent" />
+                          <ArrowUpRight className="absolute bottom-4 right-4 size-4 text-[#B8FF35] transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                        </div>
+                        <div className="flex items-end justify-between gap-4 p-4">
+                          <div>
+                            <p className="font-mono text-[8px] uppercase tracking-[0.16em] text-white/38">{project.client || "Neotrix"}{project.year ? ` / ${project.year}` : ""}</p>
+                            <h3 className="mt-2 text-lg font-medium tracking-[-0.025em] text-white/85 group-hover:text-[#B8FF35]">{project.title}</h3>
+                          </div>
+                        </div>
+                      </Link>
+                    ) : (
                       <Link
                         key={work.label}
                         to={work.query ? "/projects?query=" + encodeURIComponent(work.query) : "/projects"}
-                        className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-3 font-mono text-[9px] uppercase tracking-[0.12em] text-white/65 hover:border-[#B8FF35] hover:text-[#B8FF35]"
+                        className="inline-flex items-center justify-between gap-2 rounded-[1.2rem] border border-white/15 px-4 py-4 font-mono text-[9px] uppercase tracking-[0.12em] text-white/65 hover:border-[#B8FF35] hover:text-[#B8FF35]"
                       >
                         {work.label} <ArrowUpRight className="size-3" />
                       </Link>

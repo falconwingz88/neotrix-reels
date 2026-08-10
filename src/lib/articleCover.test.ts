@@ -35,14 +35,14 @@ const project = (overrides: Partial<CustomProject> = {}) => ({
 
 describe("resolveArticleCover", () => {
   it("returns an original editorial cover for every article", () => {
-    expect(resolveArticleCover(article({ keywords: ["AI video", "generative AI"] }))).toBe("/article-covers/editorial-ai.png");
+    expect(resolveArticleCover(article({ keywords: ["AI video", "generative AI"] }))).toBe("/article-covers/unsplash-neon-light.jpg");
   });
 
   it("never falls back to a project screenshot", () => {
-    expect(resolveArticleCover(article({ relatedProjectIds: ["project-1"] }))).toBe("/article-covers/editorial-production.png");
+    expect(resolveArticleCover(article({ relatedProjectIds: ["project-1"] }))).toBe("/article-covers/unsplash-film-set.jpg");
   });
 
   it("returns a cover even when project imagery is unavailable", () => {
-    expect(resolveArticleCover(article())).toMatch(/^\/article-covers\/editorial-/);
+    expect(resolveArticleCover(article())).toMatch(/^\/article-covers\/unsplash-/);
   });
 });

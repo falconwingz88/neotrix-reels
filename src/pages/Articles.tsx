@@ -89,7 +89,7 @@ const Articles = () => {
                     }`}
                   />
                   <ArticleCover
-                    src={coverImage || "/article-covers/editorial-production.png"}
+                    src={coverImage || "/article-covers/unsplash-film-set.jpg"}
                     alt={`Original editorial cover for ${article.shortTitle}`}
                     loading={index < 3 ? "eager" : "lazy"}
                     width={900}

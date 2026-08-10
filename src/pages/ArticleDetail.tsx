@@ -10,6 +10,7 @@ import { YouTubeFacade } from "@/components/YouTubeFacade";
 import { getYouTubeVideoId } from "@/lib/youtube";
 import { getPublishedArticles, mergeRelatedWork } from "@/lib/articles";
 import { resolveArticleCovers } from "@/lib/articleCover";
+import { getArticleTopicTags, getRelatedArticles, getRelatedProjectsForArticle, renderArticleParagraphWithLinks } from "@/lib/articleLinks";
 import { optimizedProjectPoster, publicProjects } from "@/lib/projects";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -77,13 +78,11 @@ const ArticleDetail = () => {
   if (!article) return <Navigate to="/articles" replace />;
 
   const publishedArticles = getPublishedArticles(articles);
-  const articleCovers = resolveArticleCovers(publishedArticles, customProjects, 1400);
-  const related = publishedArticles.find((candidate) => candidate.slug !== article.slug);
+  const articleCovers = resolveArticleCovers(publishedArticles);
+  const relatedArticles = getRelatedArticles(article, publishedArticles, 4);
+  const related = relatedArticles[0];
   const visibleProjects = publicProjects(customProjects);
-  const attachedProjects = article.relatedProjectIds
-    ?.map((id) => visibleProjects.find((project) => project.id === id))
-    .filter((project): project is NonNullable<typeof project> => Boolean(project))
-    || [];
+  const attachedProjects = getRelatedProjectsForArticle(article, visibleProjects, 4);
   const attachedWork = attachedProjects.map((project) => ({ label: project.title, query: project.title }));
   const relatedWork = mergeRelatedWork(article.relatedWork, attachedWork);
   const relatedProjectCards = relatedWork.map((work) => ({
@@ -92,6 +91,7 @@ const ArticleDetail = () => {
       || visibleProjects.find((project) => project.title === work.label || project.title === work.query),
   }));
   const coverImage = articleCovers.get(article.id || article.slug);
+  const topicTags = getArticleTopicTags(article, 6);
   const schema = createArticleSchema(article);
 
   return (
@@ -131,6 +131,14 @@ const ArticleDetail = () => {
                 <time dateTime={article.publishedAt}>{formatArticleDate(article.publishedAt)}</time>
                 <span className="flex items-center gap-1.5"><Clock3 className="size-3" />{article.readingTime}</span>
               </div>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {topicTags.map((tag) => <span key={tag} className="rounded-full border border-white/10 px-3 py-1.5 font-mono text-[8px] uppercase tracking-[0.1em] text-white/42">{tag}</span>)}
+                {attachedProjects.map((project) => (
+                  <Link key={project.id} to={`/projects/${project.id}`} className="rounded-full border border-[#B8FF35]/25 bg-[#B8FF35]/[.06] px-3 py-1.5 font-mono text-[8px] uppercase tracking-[0.1em] text-[#B8FF35]/75 transition-colors hover:border-[#B8FF35]">
+                    Project / {project.title}
+                  </Link>
+                ))}
+              </div>
             </div>
             <h1 className="mt-8 max-w-[15ch] text-[clamp(3.5rem,8vw,8.8rem)] font-medium leading-[.87] tracking-[-0.068em]">
               {article.title}
@@ -145,7 +153,7 @@ const ArticleDetail = () => {
           <div className="page-wrap pb-14 lg:pb-20">
             <ArticleCover
               src={coverImage}
-              alt={`${article.shortTitle} project screenshot`}
+              alt={`Original editorial cover for ${article.shortTitle}`}
               loading="eager"
               width={1400}
               height={613}
@@ -217,7 +225,7 @@ const ArticleDetail = () => {
                       <h2 className="text-[clamp(2rem,4vw,3.4rem)] font-medium leading-[1.02] tracking-[-0.045em]">{section.heading}</h2>
                     </div>
                     <div className="space-y-6 text-[1.05rem] leading-[1.78] text-white/62 sm:text-[1.12rem]">
-                      {section.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+                      {section.paragraphs.map((paragraph, paragraphIndex) => <p key={`${section.id}-${paragraphIndex}`}>{renderArticleParagraphWithLinks(paragraph, article, publishedArticles)}</p>)}
                       {section.bullets && (
                         <ul className="grid gap-3 pt-2">
                           {section.bullets.map((bullet) => (
@@ -251,6 +259,27 @@ const ArticleDetail = () => {
                 </div>
               </Reveal>
             </section>
+
+            {relatedArticles.length > 0 && (
+              <section className="border-t border-white/10 py-12 sm:py-16" aria-labelledby="related-articles-heading">
+                <Reveal>
+                  <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#B8FF35]">Connected notes</p>
+                  <div className="mt-4 flex items-end justify-between gap-6">
+                    <h2 id="related-articles-heading" className="text-4xl font-medium tracking-[-0.05em] sm:text-5xl">Keep reading.</h2>
+                    <ArrowUpRight className="hidden size-6 text-[#7DEBFF] sm:block" />
+                  </div>
+                  <div className="mt-7 grid gap-3 sm:grid-cols-2">
+                    {relatedArticles.map((relatedArticle) => (
+                      <Link key={relatedArticle.slug} to={`/articles/${relatedArticle.slug}`} className="group rounded-xl border border-white/12 bg-white/[.03] px-4 py-4 transition-colors hover:border-[#B8FF35]/60">
+                        <span className="font-mono text-[8px] uppercase tracking-[0.14em] text-white/35">{relatedArticle.category}</span>
+                        <span className="mt-2 block text-lg font-medium leading-tight tracking-[-0.02em] text-white/78 group-hover:text-[#B8FF35]">{relatedArticle.shortTitle}</span>
+                        <span className="mt-3 inline-flex items-center gap-2 font-mono text-[8px] uppercase tracking-[0.12em] text-white/35 group-hover:text-white/60">Read the note <ArrowUpRight className="size-3" /></span>
+                      </Link>
+                    ))}
+                  </div>
+                </Reveal>
+              </section>
+            )}
 
             {relatedWork.length > 0 && (
               <section className="border-t border-white/10 py-12 sm:py-16" aria-labelledby="related-work-heading">

@@ -3,6 +3,7 @@ import { articles as fallbackArticles, type Article } from "@/content/articles";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { normalizeArticleSlug } from "@/lib/articles";
+import { enrichArticlesContent } from "@/content/articleExpansions";
 
 const ARTICLES_SETTING_KEY = "articles_content";
 
@@ -57,7 +58,7 @@ export const ArticlesProvider = ({ children }: { children: ReactNode }) => {
       setManaged(false);
     } else {
       const parsed = parseArticles(data?.value);
-      setArticles(parsed || fallbackArticles);
+      setArticles(parsed ? enrichArticlesContent(parsed) : fallbackArticles);
       setManaged(Boolean(parsed));
     }
     setLoading(false);
